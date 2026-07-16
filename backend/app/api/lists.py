@@ -10,7 +10,7 @@ from app.services.list_service import (
     update_list_definition, delete_list_definition,
 )
 from app.services.record_service import add_record, get_records, get_record, update_record, delete_record
-from app.services.excel_service import import_records_from_excel, import_excel_headers
+from app.services.excel_service import import_records_from_excel
 from app.services.auth_service import get_current_user, require_role
 from app.models.user import User
 import os

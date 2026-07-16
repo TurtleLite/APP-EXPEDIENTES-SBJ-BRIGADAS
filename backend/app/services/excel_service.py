@@ -3,6 +3,39 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 from typing import List, Dict, Any
 from sqlalchemy.orm import Session
+from app.models.list_definition import ListDefinition, ListRecord
+
+
+def import_records_from_excel(db: Session, list_id: int, filepath: str) -> int:
+    wb = openpyxl.load_workbook(filepath)
+    ws = wb.active
+
+    ld = db.query(ListDefinition).filter(ListDefinition.id == list_id).first()
+    if not ld:
+        raise ValueError("Lista no encontrada")
+
+    headers = [cell.value for cell in ws[1]]
+    col_keys = [c["key"] for c in ld.columns_config]
+    col_map = {}
+    for i, header in enumerate(headers):
+        for key in col_keys:
+            if header and header.lower() == key.lower():
+                col_map[i] = key
+                break
+
+    count = 0
+    for row in ws.iter_rows(min_row=2, values_only=False):
+        data = {}
+        for i, cell in enumerate(row):
+            if cell.value is not None and i in col_map:
+                data[col_map[i]] = cell.value
+        if data:
+            record = ListRecord(list_definition_id=list_id, data=data)
+            db.add(record)
+            count += 1
+
+    db.commit()
+    return count
 
 
 def export_to_excel(records: list[dict], columns: list[str], filepath: str):
