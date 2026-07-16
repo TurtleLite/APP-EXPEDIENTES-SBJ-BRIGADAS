@@ -121,3 +121,49 @@ gestion-app/
 | Crear reportes | ✅ | ✅ | ❌ |
 | Generar Excel/PDF | ✅ | ✅ | ❌ |
 | Descargar reportes | ✅ | ✅ | ✅ |
+
+## Despliegue
+
+### Frontend (Render - Gratis)
+
+1. Crea cuenta en https://render.com (con GitHub)
+2. New + → **Static Site**
+3. Conecta el repositorio `APP-EXPEDIENTES-SBJ-BRIGADAS`
+4. Configura:
+   - **Root Directory:** `frontend`
+   - **Build Command:** `npm install && npm run build`
+   - **Publish Directory:** `dist`
+5. Agrega variable de entorno:
+   - `VITE_API_URL` → (la URL del túnel de Cloudflare, se agrega después)
+6. Deploy
+
+### Servidor (PC Windows)
+
+1. Clona el repo en la PC
+2. Ejecuta `setup.bat` como **Administrador** (instala dependencias y crea la DB)
+3. Inicia el backend:
+   ```cmd
+   cd backend
+   venv\Scripts\activate
+   uvicorn app.main:app --host 0.0.0.0 --port 8000
+   ```
+4. En otra terminal, expón con Cloudflare Tunnel:
+   ```cmd
+   cloudflared tunnel --url http://localhost:8000
+   ```
+5. Copia la URL `https://xxx.trycloudflare.com` y pégala en `VITE_API_URL` en Render
+6. Render rebuild automáticamente el frontend apuntando a tu PC
+
+### Cloudflare Tunnel (Gratis)
+
+1. Descarga `cloudflared` desde https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/
+2. Ejecuta: `cloudflared tunnel --url http://localhost:8000`
+3. Obtienes una URL pública tipo `https://xxxx.trycloudflare.com`
+
+### Usuarios por defecto
+
+| Usuario | Contraseña | Rol |
+|---------|-----------|-----|
+| admin | admin123 | Administrador |
+| direccion | direccion123 | Dirección |
+| medico | medico123 | Médico |
