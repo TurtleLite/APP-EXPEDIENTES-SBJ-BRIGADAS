@@ -6,8 +6,8 @@ from app.core.database import engine, Base
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="Sistema de Gestión",
-    description="Sistema de gestión con control de usuarios, listas personalizables y reportes",
+    title="APP EXPEDIENTES SBJ BRIGADAS",
+    description="Sistema de gestión de expedientes para SBJ Brigadas",
     version="1.0.0",
 )
 

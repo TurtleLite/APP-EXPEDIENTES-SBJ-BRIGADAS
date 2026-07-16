@@ -44,7 +44,7 @@ export function Layout({ children }: { children: ReactNode }) {
       {sidebarOpen && (
         <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
           <div className="p-4 border-b border-gray-200">
-            <h1 className="text-lg font-bold text-gray-800">Sistema Gestión</h1>
+            <h1 className="text-lg font-bold text-gray-800">APP EXPEDIENTES SBJ BRIGADAS</h1>
             <p className="text-sm text-gray-500 capitalize">{user?.role}</p>
           </div>
           <nav className="flex-1 p-4 space-y-1">

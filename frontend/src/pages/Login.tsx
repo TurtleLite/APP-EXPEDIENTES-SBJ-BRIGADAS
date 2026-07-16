@@ -28,7 +28,7 @@ export function Login() {
           <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <LogIn className="text-blue-600" size={32} />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Sistema de Gestión</h1>
+          <h1 className="text-2xl font-bold text-gray-900">APP EXPEDIENTES SBJ BRIGADAS</h1>
           <p className="text-gray-500 mt-1">Inicia sesión para continuar</p>
         </div>
         {error && (
