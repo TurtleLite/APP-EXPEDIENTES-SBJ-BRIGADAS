@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 480
     UPLOAD_DIR: str = "uploads"
     REPORTS_DIR: str = "reports"
+    EXPORTS_DIR: str = "exports"
 
     class Config:
         env_file = ".env"

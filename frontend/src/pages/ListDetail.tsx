@@ -98,6 +98,23 @@ export function ListDetail() {
           {list?.description && <p className="text-sm text-gray-500 mt-1">{list.description}</p>}
         </div>
         <div className="flex gap-2">
+          <button
+            onClick={async () => {
+              try {
+                const res = await listsApi.exportExcel(Number(id))
+                const url = window.URL.createObjectURL(new Blob([res.data]))
+                const a = document.createElement('a')
+                a.href = url
+                a.download = `lista_${list?.name || id}.xlsx`
+                a.click()
+                window.URL.revokeObjectURL(url)
+              } catch { alert('Error al exportar') }
+            }}
+            className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 text-sm"
+          >
+            <Download size={18} />
+            Exportar Excel
+          </button>
           {(user?.role === 'admin' || user?.role === 'direccion') && (
             <>
               <label className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 cursor-pointer text-sm">
@@ -105,21 +122,21 @@ export function ListDetail() {
                 Importar Excel
                 <input type="file" accept=".xlsx,.xls" onChange={handleImport} className="hidden" />
               </label>
-              <button
-                onClick={() => {
-                  setEditingRecord(null)
-                  const empty: Record<string, any> = {}
-                  list?.columns_config.forEach(c => { empty[c.key] = '' })
-                  setFormData(empty)
-                  setShowModal(true)
-                }}
-                className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm"
-              >
-                <Plus size={18} />
-                Nuevo Registro
-              </button>
             </>
           )}
+          <button
+            onClick={() => {
+              setEditingRecord(null)
+              const empty: Record<string, any> = {}
+              list?.columns_config.forEach(c => { empty[c.key] = '' })
+              setFormData(empty)
+              setShowModal(true)
+            }}
+            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm"
+          >
+            <Plus size={18} />
+            Nuevo Registro
+          </button>
         </div>
       </div>
 

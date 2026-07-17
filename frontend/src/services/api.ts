@@ -60,6 +60,8 @@ export const listsApi = {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
   },
+  exportExcel: (listId: number) =>
+    api.get(`/lists/${listId}/export-excel`, { responseType: 'blob' }),
 }
 
 export const reportsApi = {

@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { Layout } from './components/Layout'
 import { Login } from './pages/Login'
+import { Dashboard } from './pages/Dashboard'
 import { Users } from './pages/Users'
 import { Lists } from './pages/Lists'
 import { ListDetail } from './pages/ListDetail'
@@ -15,18 +16,27 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
   return <Layout>{children}</Layout>
 }
 
+function RoleRoute({ children, roles }: { children: ReactNode; roles: string[] }) {
+  const { user, loading } = useAuth()
+  if (loading) return <div className="min-h-screen flex items-center justify-center">Cargando...</div>
+  if (!user) return <Navigate to="/login" />
+  if (!roles.includes(user.role)) return <Navigate to="/dashboard" />
+  return <Layout>{children}</Layout>
+}
+
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/users" element={<RoleRoute roles={['admin', 'direccion']}><Users /></RoleRoute>} />
           <Route path="/lists" element={<ProtectedRoute><Lists /></ProtectedRoute>} />
           <Route path="/lists/:id" element={<ProtectedRoute><ListDetail /></ProtectedRoute>} />
-          <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
-          <Route path="/" element={<Navigate to="/lists" />} />
-          <Route path="*" element={<Navigate to="/lists" />} />
+          <Route path="/reports" element={<RoleRoute roles={['admin', 'direccion']}><Reports /></RoleRoute>} />
+          <Route path="/" element={<Navigate to="/dashboard" />} />
+          <Route path="*" element={<Navigate to="/dashboard" />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

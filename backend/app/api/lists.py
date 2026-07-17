@@ -100,6 +100,27 @@ def import_excel(
     return {"message": f"Se importaron {count} registros correctamente", "count": count}
 
 
+@router.get("/{list_id}/export-excel")
+def export_list_excel(
+    list_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    from app.services.list_service import get_list_definition
+    from app.services.record_service import get_records
+    from app.services.excel_service import export_to_excel
+    from fastapi.responses import FileResponse
+    import os
+    ld = get_list_definition(db, list_id)
+    columns = [c["label"] for c in ld.columns_config]
+    records = get_records(db, list_id)
+    data = [r.data for r in records]
+    os.makedirs(settings.EXPORTS_DIR, exist_ok=True)
+    filepath = os.path.join(settings.EXPORTS_DIR, f"export_lista_{list_id}.xlsx")
+    export_to_excel(data, columns, filepath)
+    return FileResponse(filepath, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename=f"lista_{ld.name}.xlsx")
+
+
 @router.get("/{list_id}/records")
 def list_records(
     list_id: int,
@@ -128,7 +149,7 @@ def create_record(
     list_id: int,
     data: dict,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "direccion")),
+    current_user: User = Depends(get_current_user),
 ):
     from app.services.record_service import add_record
     record = add_record(db, list_id, data.get("data", data))

@@ -2,7 +2,7 @@ import { ReactNode } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
-  Users, FileText, Table2, LogOut, Menu, X, Shield,
+  LayoutDashboard, Users, FileText, Table2, LogOut, Menu, X, Shield,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -26,9 +26,10 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { label: 'Usuarios', path: '/users', icon: '👥', roles: ['admin', 'direccion'] },
-  { label: 'Listas', path: '/lists', icon: '📋', roles: ['admin', 'direccion', 'medico'] },
-  { label: 'Reportes', path: '/reports', icon: '📊', roles: ['admin', 'direccion'] },
+  { label: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={18} />, roles: ['admin', 'direccion', 'medico'] },
+  { label: 'Usuarios', path: '/users', icon: <Users size={18} />, roles: ['admin', 'direccion'] },
+  { label: 'Listas', path: '/lists', icon: <Table2 size={18} />, roles: ['admin', 'direccion', 'medico'] },
+  { label: 'Reportes', path: '/reports', icon: <FileText size={18} />, roles: ['admin', 'direccion'] },
 ]
 
 export function Layout({ children }: { children: ReactNode }) {
