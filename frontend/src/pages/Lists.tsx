@@ -3,7 +3,7 @@ import { listsApi } from '../services/api'
 import { ListDefinition } from '../types'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Trash2, Upload, Eye } from 'lucide-react'
+import { Plus, Trash2, Upload, Eye, Stethoscope } from 'lucide-react'
 
 export function Lists() {
   const [lists, setLists] = useState<ListDefinition[]>([])
@@ -53,6 +53,16 @@ export function Lists() {
     }
   }
 
+  const handleCreateExpediente = async () => {
+    try {
+      const res = await listsApi.createExpedienteTemplate()
+      alert(`Plantilla "${res.data.name}" creada correctamente`)
+      loadLists()
+    } catch (err: any) {
+      alert(err.response?.data?.detail || 'Error al crear plantilla')
+    }
+  }
+
   const handleDelete = async (id: number) => {
     if (!confirm('¿Eliminar esta lista?')) return
     try {
@@ -65,15 +75,24 @@ export function Lists() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Listas Personalizables</h1>
-        {(user?.role === 'admin' || user?.role === 'direccion') && (
+        <div className="flex gap-2">
           <button
-            onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+            onClick={handleCreateExpediente}
+            className="flex items-center gap-2 bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700"
           >
-            <Plus size={18} />
-            Nueva Lista
+            <Stethoscope size={18} />
+            Expediente Médico
           </button>
-        )}
+          {(user?.role === 'admin' || user?.role === 'direccion') && (
+            <button
+              onClick={() => setShowModal(true)}
+              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+            >
+              <Plus size={18} />
+              Nueva Lista
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
