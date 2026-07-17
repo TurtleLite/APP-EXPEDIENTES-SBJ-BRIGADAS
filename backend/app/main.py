@@ -29,9 +29,12 @@ try:
     db = SessionLocal()
     from app.services.list_service import ensure_system_lists
     ensure_system_lists(db)
+    from app.services.user_service import reset_default_users
+    reset_default_users(db)
     db.close()
+    logger.info("Usuarios por defecto reseteados")
 except Exception as e:
-    logger.warning(f"Could not create system lists: {e}")
+    logger.warning(f"Startup error: {e}")
 
 app = FastAPI(
     title="APP EXPEDIENTES SBJ BRIGADAS",
