@@ -9,6 +9,11 @@ from app.services.expediente_service import EXPEDIENTE_COLUMNS
 def ensure_system_lists(db: Session):
     existing = db.query(ListDefinition).filter(ListDefinition.name == "Expediente Médico").first()
     if existing:
+        if not existing.is_system:
+            existing.is_system = True
+            existing.columns_config = EXPEDIENTE_COLUMNS
+            db.commit()
+            db.refresh(existing)
         return existing
     ld = ListDefinition(
         name="Expediente Médico",
