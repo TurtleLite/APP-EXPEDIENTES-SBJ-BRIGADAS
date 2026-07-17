@@ -14,11 +14,27 @@ Start-Sleep -Seconds 2
 # Remove old tunnel file
 Remove-Item $tunnelFile -ErrorAction SilentlyContinue
 
-Write-Host "[1/4] Iniciando backend..." -ForegroundColor Yellow
+Write-Host "[0/5] Actualizando codigo desde GitHub..." -ForegroundColor Yellow
+try {
+    $gitResult = git -C $PSScriptRoot pull 2>&1
+    Write-Host "       $gitResult" -ForegroundColor Gray
+} catch {
+    Write-Host "       ERROR: No se pudo hacer git pull - $_" -ForegroundColor Red
+    pause
+    exit 1
+}
+
+# Install/update Python dependencies
+Write-Host "       Instalando dependencias del backend..." -ForegroundColor Gray
+try {
+    $pipResult = cmd.exe /c "cd /d `"$backendDir`" && call venv\Scripts\activate.bat && pip install -r requirements.txt -q" 2>&1
+} catch {}
+
+Write-Host "[1/5] Iniciando backend..." -ForegroundColor Yellow
 $backendJob = Start-Process -WindowStyle Hidden -FilePath "cmd.exe" -ArgumentList "/c", "cd /d `"$backendDir`" && call venv\Scripts\activate.bat && uvicorn app.main:app --host 0.0.0.0 --port 8000"
 Start-Sleep -Seconds 3
 
-Write-Host "[2/4] Iniciando Cloudflare Tunnel..." -ForegroundColor Yellow
+Write-Host "[2/5] Iniciando Cloudflare Tunnel..." -ForegroundColor Yellow
 
 # Check if cloudflared exists
 $cloudflared = (Get-Command "cloudflared" -ErrorAction SilentlyContinue) -or (Get-Command "cloudflared.exe" -ErrorAction SilentlyContinue)
@@ -69,7 +85,7 @@ if (-not $tunnelUrl) {
 
 Write-Host "       Tunnel URL: $tunnelUrl" -ForegroundColor Green
 
-Write-Host "[3/4] Actualizando VITE_API_URL en Render..." -ForegroundColor Yellow
+Write-Host "[3/5] Actualizando VITE_API_URL en Render..." -ForegroundColor Yellow
 $body = @{ value = $tunnelUrl } | ConvertTo-Json
 try {
     $result = Invoke-RestMethod -Uri "https://api.render.com/v1/services/srv-d9ckv7e7r5hc738p74tg/env-vars/VITE_API_URL" -Method PUT -Headers @{
@@ -83,7 +99,7 @@ try {
     exit 1
 }
 
-Write-Host "[4/4] Iniciando deploy en Render..." -ForegroundColor Yellow
+Write-Host "[4/5] Iniciando deploy en Render..." -ForegroundColor Yellow
 try {
     $deploy = Invoke-RestMethod -Uri "https://api.render.com/v1/services/srv-d9ckv7e7r5hc738p74tg/deploys" -Method POST -Headers @{
         "Accept" = "application/json"
