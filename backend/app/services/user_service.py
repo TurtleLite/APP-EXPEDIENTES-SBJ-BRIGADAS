@@ -60,22 +60,18 @@ def delete_user(db: Session, user_id: int):
     db.commit()
 
 
-def ensure_default_users(db: Session):
-    for username, email, full_name, password, role in [
-        ("admin", "admin@sistema.com", "Administrador", "admin123", "admin"),
-        ("direccion", "direccion@sistema.com", "Director General", "direccion123", "direccion"),
-        ("medico", "medico@sistema.com", "Dr. Médico", "medico123", "medico"),
-    ]:
-        existing = db.query(User).filter(User.username == username).first()
-        if not existing:
-            db.add(User(
-                username=username, email=email, full_name=full_name,
-                hashed_password=hash_password(password), role=role, is_active=True,
-            ))
-    db.commit()
-
-
 def reset_default_users(db: Session):
     db.query(User).delete()
     db.flush()
-    ensure_default_users(db)
+
+    defaults = [
+        User(username="admin", email="admin@sistema.com", full_name="Administrador",
+             hashed_password=hash_password("admin123"), role="admin", is_active=True),
+        User(username="direccion", email="direccion@sistema.com", full_name="Director General",
+             hashed_password=hash_password("direccion123"), role="direccion", is_active=True),
+        User(username="medico", email="medico@sistema.com", full_name="Dr. Médico",
+             hashed_password=hash_password("medico123"), role="medico", is_active=True),
+    ]
+    for u in defaults:
+        db.add(u)
+    db.commit()
