@@ -26,6 +26,7 @@ class ListDefinitionResponse(BaseModel):
     name: str
     description: Optional[str]
     columns_config: list
+    is_system: bool = False
     created_by: int
     created_at: datetime
 

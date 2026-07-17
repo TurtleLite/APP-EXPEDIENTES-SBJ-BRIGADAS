@@ -3,7 +3,7 @@ import { listsApi } from '../services/api'
 import { ListDefinition } from '../types'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Trash2, Upload, Eye, Stethoscope } from 'lucide-react'
+import { Plus, Trash2, Upload, Eye, Shield } from 'lucide-react'
 
 export function Lists() {
   const [lists, setLists] = useState<ListDefinition[]>([])
@@ -53,16 +53,6 @@ export function Lists() {
     }
   }
 
-  const handleCreateExpediente = async () => {
-    try {
-      const res = await listsApi.createExpedienteTemplate()
-      alert(`Plantilla "${res.data.name}" creada correctamente`)
-      loadLists()
-    } catch (err: any) {
-      alert(err.response?.data?.detail || 'Error al crear plantilla')
-    }
-  }
-
   const handleDelete = async (id: number) => {
     if (!confirm('¿Eliminar esta lista?')) return
     try {
@@ -76,13 +66,6 @@ export function Lists() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Listas Personalizables</h1>
         <div className="flex gap-2">
-          <button
-            onClick={handleCreateExpediente}
-            className="flex items-center gap-2 bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700"
-          >
-            <Stethoscope size={18} />
-            Expediente Médico
-          </button>
           {(user?.role === 'admin' || user?.role === 'direccion') && (
             <button
               onClick={() => setShowModal(true)}
@@ -99,7 +82,15 @@ export function Lists() {
         {lists.map((list) => (
           <div key={list.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between mb-3">
-              <h3 className="font-semibold text-gray-900">{list.name}</h3>
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold text-gray-900">{list.name}</h3>
+                {list.is_system && (
+                  <span className="flex items-center gap-1 px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs font-medium">
+                    <Shield size={12} />
+                    Sistema
+                  </span>
+                )}
+              </div>
               <div className="flex gap-1">
                 <button
                   onClick={() => navigate(`/lists/${list.id}`)}
@@ -108,7 +99,7 @@ export function Lists() {
                 >
                   <Eye size={16} />
                 </button>
-                {(user?.role === 'admin' || user?.role === 'direccion') && (
+                {(user?.role === 'admin' || user?.role === 'direccion') && (!list.is_system || user?.role === 'admin') && (
                   <button onClick={() => handleDelete(list.id)} className="p-1.5 hover:bg-red-50 rounded-lg text-red-600">
                     <Trash2 size={16} />
                   </button>

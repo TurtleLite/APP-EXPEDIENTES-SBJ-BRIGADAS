@@ -19,6 +19,7 @@ export interface ListDefinition {
   name: string
   description?: string
   columns_config: ColumnConfig[]
+  is_system: boolean
   created_by: number
   created_at: string
 }

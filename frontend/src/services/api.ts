@@ -62,8 +62,6 @@ export const listsApi = {
   },
   exportExcel: (listId: number) =>
     api.get(`/lists/${listId}/export-excel`, { responseType: 'blob' }),
-  createExpedienteTemplate: () =>
-    api.post('/lists/create-expediente-template'),
   exportExpediente: (listId: number) =>
     api.get(`/lists/${listId}/export-expediente`, { responseType: 'blob' }),
 }

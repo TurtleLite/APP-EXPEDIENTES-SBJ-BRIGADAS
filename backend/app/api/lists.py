@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, UploadFile, File
+from fastapi import APIRouter, Depends, UploadFile, File, Response
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.schemas.list_definition import (
@@ -11,7 +11,6 @@ from app.services.list_service import (
 )
 from app.services.record_service import add_record, get_records, get_record, update_record, delete_record
 from app.services.excel_service import import_records_from_excel
-from app.services.expediente_service import create_expediente_template, export_expediente_excel
 from app.services.auth_service import get_current_user, require_role
 from app.models.user import User
 import os
@@ -34,13 +33,25 @@ def create_list(
     return {"id": ld.id, "name": ld.name, "message": "Lista creada correctamente"}
 
 
-@router.get("/", response_model=list)
+@router.get("/")
 def list_lists(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     from app.services.list_service import get_list_definitions
-    return get_list_definitions(db)
+    lists = get_list_definitions(db)
+    return [
+        {
+            "id": ld.id,
+            "name": ld.name,
+            "description": ld.description,
+            "columns_config": ld.columns_config,
+            "is_system": ld.is_system,
+            "created_by": ld.created_by,
+            "created_at": str(ld.created_at),
+        }
+        for ld in lists
+    ]
 
 
 @router.get("/{list_id}", response_model=dict)
@@ -56,6 +67,7 @@ def get_list(
         "name": ld.name,
         "description": ld.description,
         "columns_config": ld.columns_config,
+        "is_system": ld.is_system,
         "created_by": ld.created_by,
         "created_at": str(ld.created_at),
     }
@@ -71,7 +83,7 @@ def update_list(
     from app.schemas.list_definition import ListDefinitionUpdate
     from app.services.list_service import update_list_definition
     update_data = ListDefinitionUpdate(**data)
-    ld = update_list_definition(db, list_id, update_data)
+    ld = update_list_definition(db, list_id, update_data, current_user.role)
     return {"message": "Lista actualizada correctamente"}
 
 
@@ -82,17 +94,8 @@ def delete_list(
     current_user: User = Depends(require_role("admin", "direccion")),
 ):
     from app.services.list_service import delete_list_definition
-    delete_list_definition(db, list_id)
+    delete_list_definition(db, list_id, current_user.role)
     return {"message": "Lista eliminada correctamente"}
-
-
-@router.post("/create-expediente-template")
-def create_expediente(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    ld = create_expediente_template(db, current_user.id)
-    return {"id": ld.id, "name": ld.name, "message": "Plantilla Expediente Médico creada correctamente"}
 
 
 @router.get("/{list_id}/export-expediente")
@@ -104,6 +107,7 @@ def export_expediente(
     from app.services.list_service import get_list_definition
     from app.services.record_service import get_records
     from app.services.expediente_service import export_expediente_excel
+
     from fastapi.responses import FileResponse
     import os
     ld = get_list_definition(db, list_id)
@@ -208,3 +212,6 @@ def delete_record_endpoint(
     from app.services.record_service import delete_record
     delete_record(db, record_id)
     return {"message": "Registro eliminado correctamente"}
+
+
+

@@ -115,23 +115,25 @@ export function ListDetail() {
             <Download size={18} />
             Exportar Excel
           </button>
-          <button
-            onClick={async () => {
-              try {
-                const res = await listsApi.exportExpediente(Number(id))
-                const url = window.URL.createObjectURL(new Blob([res.data]))
-                const a = document.createElement('a')
-                a.href = url
-                a.download = `Expediente_${list?.name || id}.xlsx`
-                a.click()
-                window.URL.revokeObjectURL(url)
-              } catch { alert('Error al exportar expediente') }
-            }}
-            className="flex items-center gap-2 bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 text-sm"
-          >
-            <Download size={18} />
-            Formato Expediente
-          </button>
+          {list?.is_system && (
+            <button
+              onClick={async () => {
+                try {
+                  const res = await listsApi.exportExpediente(Number(id))
+                  const url = window.URL.createObjectURL(new Blob([res.data]))
+                  const a = document.createElement('a')
+                  a.href = url
+                  a.download = `Expediente_${list?.name || id}.xlsx`
+                  a.click()
+                  window.URL.revokeObjectURL(url)
+                } catch { alert('Error al exportar expediente') }
+              }}
+              className="flex items-center gap-2 bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 text-sm"
+            >
+              <Download size={18} />
+              Formato Expediente
+            </button>
+          )}
           {(user?.role === 'admin' || user?.role === 'direccion') && (
             <>
               <label className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 cursor-pointer text-sm">
