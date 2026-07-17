@@ -3,7 +3,7 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from sqlalchemy.orm import Session
 from app.models.list_definition import ListDefinition, ListRecord
 from app.schemas.list_definition import ListDefinitionCreate
-from app.services.list_service import create_list_definition
+
 
 
 EXPEDIENTE_COLUMNS = [
@@ -46,6 +46,7 @@ EXPEDIENTE_COLUMNS = [
 
 
 def create_expediente_template(db: Session, user_id: int) -> ListDefinition:
+    from app.services.list_service import create_list_definition
     schema = ListDefinitionCreate(
         name="Expediente Médico",
         description="Historial clínico de pacientes con datos personales, antecedentes, signos vitales y diagnóstico",
