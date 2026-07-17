@@ -1,6 +1,5 @@
 from openpyxl import Workbook
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side, NamedStyle
-from openpyxl.utils import get_column_letter
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from sqlalchemy.orm import Session
 from app.models.list_definition import ListDefinition, ListRecord
 from app.schemas.list_definition import ListDefinitionCreate
@@ -23,6 +22,7 @@ EXPEDIENTE_COLUMNS = [
     {"key": "albergue", "label": "Albergue", "type": "text"},
     {"key": "perfil", "label": "Perfil", "type": "text"},
     {"key": "telefono", "label": "Teléfono", "type": "text"},
+    {"key": "expediente", "label": "Expediente", "type": "text"},
     {"key": "domicilio", "label": "Domicilio del Paciente", "type": "text"},
     {"key": "historia_enfermedad", "label": "Historia de Enfermedad Actual", "type": "text"},
     {"key": "enfermedades_previas", "label": "Enfermedades Anteriores", "type": "text"},
@@ -59,316 +59,236 @@ def export_expediente_excel(records: list[ListRecord], filepath: str):
     ws = wb.active
     ws.title = "Expediente"
 
-    thin = Side(style='thin')
-    border = Border(left=thin, right=thin, top=thin, bottom=thin)
-    header_fill = PatternFill(start_color="1F4E79", end_color="1F4E79", fill_type="solid")
-    header_font = Font(color="FFFFFF", bold=True, size=11)
-    label_fill = PatternFill(start_color="D6E4F0", end_color="D6E4F0", fill_type="solid")
-    label_font = Font(bold=True, size=10)
-    normal_font = Font(size=10)
     title_font = Font(bold=True, size=14)
+    label_font = Font(bold=True, size=10)
     section_font = Font(bold=True, size=11, color="1F4E79")
+    value_font = Font(size=10)
     center = Alignment(horizontal="center", vertical="center", wrap_text=True)
     left_wrap = Alignment(horizontal="left", vertical="top", wrap_text=True)
+    section_fill = PatternFill(start_color="E8F0FE", end_color="E8F0FE", fill_type="solid")
 
     for row_idx, record in enumerate(records):
         d = record.data if record.data else {}
 
         if row_idx > 0:
             ws.append([])
-            start_row = ws.max_row + 1
+            r = ws.max_row + 1
         else:
-            start_row = 1
+            r = 1
 
-        r = start_row
-
+        # Row 1: Centro Médico (merged A1:H1)
         ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=8)
-        cell = ws.cell(r, 1, d.get("centro_medico", "Centro Médico"))
-        cell.font = title_font
-        cell.alignment = center
+        ws.cell(r, 1, d.get("centro_medico", "Centro Médico")).font = title_font
+        ws.cell(r, 1).alignment = center
         r += 1
 
-        ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=4)
-        ws.cell(r, 1, "Especialidad").font = label_font
-        ws.cell(r, 1).fill = label_fill
-        ws.cell(r, 1).border = border
-        ws.merge_cells(start_row=r, start_column=5, end_row=r, end_column=6)
-        ws.cell(r, 5, d.get("especialidad", "")).font = normal_font
-        ws.cell(r, 5).border = border
-        ws.cell(r, 5).alignment = center
-        ws.cell(r, 7, "Criticidad clínica").font = label_font
-        ws.cell(r, 7).fill = label_fill
-        ws.cell(r, 7).border = border
-        ws.cell(r, 8, d.get("criticidad", "")).font = normal_font
-        ws.cell(r, 8).border = border
-        ws.cell(r, 8).alignment = center
+        # Row 2: Especialidad (G-H), Criticidad clínica (I), Estatus de paciente (J)
+        ws.merge_cells(start_row=r, start_column=7, end_row=r, end_column=8)
+        ws.cell(r, 7, "Especialidad").font = label_font
+        ws.cell(r, 9, "Criticidad clínica").font = label_font
+        ws.cell(r, 10, "Estatus de paciente").font = label_font
         r += 1
 
+        # Row 3: Label row
         ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=2)
         ws.cell(r, 1, "Nombre/First Name").font = label_font
-        ws.cell(r, 1).fill = label_fill
-        ws.cell(r, 1).border = border
         ws.merge_cells(start_row=r, start_column=3, end_row=r, end_column=4)
-        ws.cell(r, 3, d.get("nombre", "")).font = normal_font
-        ws.cell(r, 3).border = border
-        ws.cell(r, 3).alignment = center
-        ws.merge_cells(start_row=r, start_column=5, end_row=r, end_column=6)
-        ws.cell(r, 5, "Apellido/Last Name").font = label_font
-        ws.cell(r, 5).fill = label_fill
-        ws.cell(r, 5).border = border
+        ws.cell(r, 3, "Apellido/ Last Name").font = label_font
+        ws.cell(r, 5, "Sexo/Sex").font = label_font
+        ws.cell(r, 6, "Age/Edad").font = label_font
         ws.merge_cells(start_row=r, start_column=7, end_row=r, end_column=8)
-        ws.cell(r, 7, d.get("apellido", "")).font = normal_font
-        ws.cell(r, 7).border = border
-        ws.cell(r, 7).alignment = center
+        ws.cell(r, 7, "Fecha de Elaboración (d/m/a)").font = label_font
         r += 1
 
-        ws.cell(r, 1, "Sexo/Sex").font = label_font
-        ws.cell(r, 1).fill = label_fill
-        ws.cell(r, 1).border = border
-        ws.cell(r, 2, d.get("sexo", "")).font = normal_font
-        ws.cell(r, 2).border = border
-        ws.cell(r, 2).alignment = center
-        ws.cell(r, 3, "Age/Edad").font = label_font
-        ws.cell(r, 3).fill = label_fill
-        ws.cell(r, 3).border = border
-        ws.cell(r, 4, str(d.get("edad", ""))).font = normal_font
-        ws.cell(r, 4).border = border
-        ws.cell(r, 4).alignment = center
-        ws.merge_cells(start_row=r, start_column=5, end_row=r, end_column=8)
-        ws.cell(r, 5, "Fecha de Elaboración (d/m/a)").font = label_font
-        ws.cell(r, 5).fill = label_fill
-        ws.cell(r, 5).border = border
-        ws.cell(r, 6, str(d.get("fecha_elaboracion", ""))).font = normal_font
-        ws.cell(r, 6).border = border
+        # Row 4-5: Values (2-row merge for name, apellido, sexo, edad, date)
+        ws.merge_cells(start_row=r, start_column=1, end_row=r+1, end_column=2)
+        ws.cell(r, 1, d.get("nombre", "")).font = value_font
+        ws.cell(r, 1).alignment = center
+        ws.merge_cells(start_row=r, start_column=3, end_row=r+1, end_column=4)
+        ws.cell(r, 3, d.get("apellido", "")).font = value_font
+        ws.cell(r, 3).alignment = center
+        ws.merge_cells(start_row=r, start_column=5, end_row=r+1, end_column=5)
+        ws.cell(r, 5, d.get("sexo", "")).font = value_font
+        ws.cell(r, 5).alignment = center
+        ws.merge_cells(start_row=r, start_column=6, end_row=r+1, end_column=6)
+        ws.cell(r, 6, str(d.get("edad", ""))).font = value_font
         ws.cell(r, 6).alignment = center
-        r += 1
+        ws.merge_cells(start_row=r, start_column=7, end_row=r+1, end_column=8)
+        ws.cell(r, 7, str(d.get("fecha_elaboracion", ""))).font = value_font
+        ws.cell(r, 7).alignment = center
+        ws.merge_cells(start_row=r, start_column=9, end_row=r+1, end_column=9)
+        ws.cell(r, 9, d.get("procedencia", "")).font = value_font
+        ws.cell(r, 9).alignment = center
+        r += 2
 
+        # Row 6: Labels - Nº Identidad, Persona Responsable, Albergue, Perfil, Teléfono, Expediente
         ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=2)
         ws.cell(r, 1, "Nº Identidad").font = label_font
-        ws.cell(r, 1).fill = label_fill
-        ws.cell(r, 1).border = border
         ws.merge_cells(start_row=r, start_column=3, end_row=r, end_column=4)
-        ws.cell(r, 3, d.get("identidad", "")).font = normal_font
-        ws.cell(r, 3).border = border
-        ws.cell(r, 3).alignment = center
-        ws.merge_cells(start_row=r, start_column=5, end_row=r, end_column=6)
-        ws.cell(r, 5, "Persona Responsable").font = label_font
-        ws.cell(r, 5).fill = label_fill
-        ws.cell(r, 5).border = border
-        ws.merge_cells(start_row=r, start_column=7, end_row=r, end_column=8)
-        ws.cell(r, 7, d.get("persona_responsable", "")).font = normal_font
-        ws.cell(r, 7).border = border
-        ws.cell(r, 7).alignment = center
-        r += 1
-
-        ws.cell(r, 1, "Procedencia").font = label_font
-        ws.cell(r, 1).fill = label_fill
-        ws.cell(r, 1).border = border
-        ws.merge_cells(start_row=r, start_column=2, end_row=r, end_column=4)
-        ws.cell(r, 2, d.get("procedencia", "")).font = normal_font
-        ws.cell(r, 2).border = border
-        ws.cell(r, 2).alignment = center
-        ws.cell(r, 5, "Perfil").font = label_font
-        ws.cell(r, 5).fill = label_fill
-        ws.cell(r, 5).border = border
-        ws.cell(r, 6, d.get("perfil", "")).font = normal_font
-        ws.cell(r, 6).border = border
-        ws.cell(r, 6).alignment = center
+        ws.cell(r, 3, "Persona Responsable").font = label_font
+        ws.cell(r, 5, "Albergue").font = label_font
+        ws.cell(r, 6, "Perfil").font = label_font
         ws.cell(r, 7, "Teléfono").font = label_font
-        ws.cell(r, 7).fill = label_fill
-        ws.cell(r, 7).border = border
-        ws.cell(r, 8, d.get("telefono", "")).font = normal_font
-        ws.cell(r, 8).border = border
-        ws.cell(r, 8).alignment = center
+        ws.cell(r, 8, "Expediente").font = label_font
         r += 1
 
-        ws.cell(r, 1, "Albergue").font = label_font
-        ws.cell(r, 1).fill = label_fill
-        ws.cell(r, 1).border = border
-        ws.merge_cells(start_row=r, start_column=2, end_row=r, end_column=4)
-        ws.cell(r, 2, d.get("albergue", "")).font = normal_font
-        ws.cell(r, 2).border = border
-        ws.cell(r, 2).alignment = center
-        ws.cell(r, 5, "Estatus de paciente").font = label_font
-        ws.cell(r, 5).fill = label_fill
-        ws.cell(r, 5).border = border
-        ws.merge_cells(start_row=r, start_column=6, end_row=r, end_column=8)
-        ws.cell(r, 6, d.get("estatus", "")).font = normal_font
-        ws.cell(r, 6).border = border
-        ws.cell(r, 6).alignment = center
-        r += 1
-
-        ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=2)
-        ws.cell(r, 1, "Domicilio del Paciente").font = label_font
-        ws.cell(r, 1).fill = label_fill
-        ws.cell(r, 1).border = border
-        ws.merge_cells(start_row=r, start_column=3, end_row=r, end_column=8)
-        ws.cell(r, 3, d.get("domicilio", "")).font = normal_font
-        ws.cell(r, 3).border = border
-        ws.cell(r, 3).alignment = left_wrap
-        r += 1
-
-        r2 = r + 4
-        ws.merge_cells(start_row=r, start_column=1, end_row=r2, end_column=8)
-        ws.cell(r, 1, "History of Present Illness/Historia de Enfermedad Actual").font = section_font
-        ws.cell(r, 1).fill = PatternFill(start_color="E8F0FE", end_color="E8F0FE", fill_type="solid")
-        ws.cell(r, 1).border = border
-        ws.cell(r, 2, d.get("historia_enfermedad", "")).font = normal_font
-        ws.cell(r, 2).border = border
-        ws.cell(r, 2).alignment = left_wrap
-        r = r2 + 1
-
-        ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=8)
-        ws.cell(r, 1, "Medical History/Antecedentes").font = section_font
-        ws.cell(r, 1).fill = PatternFill(start_color="E8F0FE", end_color="E8F0FE", fill_type="solid")
-        ws.cell(r, 1).border = border
-        r += 1
-
-        ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=2)
-        ws.cell(r, 1, "Previous illness / Enfermedades anteriores").font = label_font
-        ws.cell(r, 1).fill = label_fill
-        ws.cell(r, 1).border = border
-        ws.merge_cells(start_row=r, start_column=3, end_row=r, end_column=8)
-        ws.cell(r, 3, d.get("enfermedades_previas", "")).font = normal_font
-        ws.cell(r, 3).border = border
-        ws.cell(r, 3).alignment = left_wrap
-        r += 1
-
-        ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=2)
-        ws.cell(r, 1, "Past surgeries / Cirugías anteriores").font = label_font
-        ws.cell(r, 1).fill = label_fill
-        ws.cell(r, 1).border = border
-        ws.merge_cells(start_row=r, start_column=3, end_row=r, end_column=8)
-        ws.cell(r, 3, d.get("cirugias_previas", "")).font = normal_font
-        ws.cell(r, 3).border = border
-        ws.cell(r, 3).alignment = left_wrap
-        r += 1
-
-        ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=2)
-        ws.cell(r, 1, "Allergies/Alergias").font = label_font
-        ws.cell(r, 1).fill = label_fill
-        ws.cell(r, 1).border = border
-        ws.merge_cells(start_row=r, start_column=3, end_row=r, end_column=8)
-        ws.cell(r, 3, d.get("alergias", "")).font = normal_font
-        ws.cell(r, 3).border = border
-        ws.cell(r, 3).alignment = left_wrap
-        r += 1
-
-        ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=2)
-        ws.cell(r, 1, "Other/Otros Antecedentes").font = label_font
-        ws.cell(r, 1).fill = label_fill
-        ws.cell(r, 1).border = border
-        ws.merge_cells(start_row=r, start_column=3, end_row=r, end_column=8)
-        ws.cell(r, 3, d.get("otros_antecedentes", "")).font = normal_font
-        ws.cell(r, 3).border = border
-        ws.cell(r, 3).alignment = left_wrap
-        r += 1
-
-        ws.cell(r, 1, "P.A./B.P").font = label_font
-        ws.cell(r, 1).fill = label_fill
-        ws.cell(r, 1).border = border
-        ws.cell(r, 2, d.get("presion_arterial", "")).font = normal_font
-        ws.cell(r, 2).border = border
-        ws.cell(r, 2).alignment = center
-        ws.cell(r, 3, "F.C.").font = label_font
-        ws.cell(r, 3).fill = label_fill
-        ws.cell(r, 3).border = border
-        ws.cell(r, 4, d.get("fc", "")).font = normal_font
-        ws.cell(r, 4).border = border
-        ws.cell(r, 4).alignment = center
-        ws.cell(r, 5, "Pulso").font = label_font
-        ws.cell(r, 5).fill = label_fill
-        ws.cell(r, 5).border = border
-        ws.cell(r, 6, d.get("pulso", "")).font = normal_font
-        ws.cell(r, 6).border = border
-        ws.cell(r, 6).alignment = center
-        ws.cell(r, 7, "T°").font = label_font
-        ws.cell(r, 7).fill = label_fill
-        ws.cell(r, 7).border = border
-        ws.cell(r, 8, d.get("temperatura", "")).font = normal_font
-        ws.cell(r, 8).border = border
-        ws.cell(r, 8).alignment = center
-        r += 1
-
-        ws.cell(r, 1, "F.R.").font = label_font
-        ws.cell(r, 1).fill = label_fill
-        ws.cell(r, 1).border = border
-        ws.cell(r, 2, d.get("fr", "")).font = normal_font
-        ws.cell(r, 2).border = border
-        ws.cell(r, 2).alignment = center
-        ws.cell(r, 3, "Peso/Weight").font = label_font
-        ws.cell(r, 3).fill = label_fill
-        ws.cell(r, 3).border = border
-        ws.cell(r, 4, d.get("peso", "")).font = normal_font
-        ws.cell(r, 4).border = border
-        ws.cell(r, 4).alignment = center
-        ws.merge_cells(start_row=r, start_column=5, end_row=r, end_column=6)
-        ws.cell(r, 5, "Talla").font = label_font
-        ws.cell(r, 5).fill = label_fill
-        ws.cell(r, 5).border = border
-        ws.cell(r, 6, d.get("talla", "")).font = normal_font
-        ws.cell(r, 6).border = border
-        ws.cell(r, 6).alignment = center
-        ws.merge_cells(start_row=r, start_column=7, end_row=r, end_column=8)
-        ws.cell(r, 7, "B.M.I.").font = label_font
-        ws.cell(r, 7).fill = label_fill
-        ws.cell(r, 7).border = border
-        ws.cell(r, 8, d.get("bmi", "")).font = normal_font
-        ws.cell(r, 8).border = border
-        ws.cell(r, 8).alignment = center
-        r += 1
-
-        r2 = r + 4
-        ws.merge_cells(start_row=r, start_column=1, end_row=r2, end_column=8)
-        ws.cell(r, 1, "Physical Exam / Examen Físico").font = section_font
-        ws.cell(r, 1).fill = PatternFill(start_color="E8F0FE", end_color="E8F0FE", fill_type="solid")
-        ws.cell(r, 1).border = border
-        ws.cell(r, 2, d.get("examen_fisico", "")).font = normal_font
-        ws.cell(r, 2).border = border
-        ws.cell(r, 2).alignment = left_wrap
-        r = r2 + 1
-
-        r2 = r + 4
-        ws.merge_cells(start_row=r, start_column=1, end_row=r2, end_column=8)
-        ws.cell(r, 1, "Diagnosis / Diagnóstico").font = section_font
-        ws.cell(r, 1).fill = PatternFill(start_color="E8F0FE", end_color="E8F0FE", fill_type="solid")
-        ws.cell(r, 1).border = border
-        ws.cell(r, 2, d.get("diagnostico", "")).font = normal_font
-        ws.cell(r, 2).border = border
-        ws.cell(r, 2).alignment = left_wrap
-        r = r2 + 1
-
-        ws.cell(r, 1, "Nombre del Médico").font = label_font
-        ws.cell(r, 1).fill = label_fill
-        ws.cell(r, 1).border = border
-        ws.merge_cells(start_row=r, start_column=2, end_row=r, end_column=4)
-        ws.cell(r, 2, d.get("nombre_medico", "")).font = normal_font
-        ws.cell(r, 2).border = border
-        ws.cell(r, 2).alignment = center
-        ws.cell(r, 5, "Cirujano").font = label_font
-        ws.cell(r, 5).fill = label_fill
-        ws.cell(r, 5).border = border
-        ws.merge_cells(start_row=r, start_column=6, end_row=r, end_column=8)
-        ws.cell(r, 6, d.get("cirujano", "")).font = normal_font
-        ws.cell(r, 6).border = border
-        ws.cell(r, 6).alignment = center
-        r += 1
-
-        ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=8)
-        ws.cell(r, 1, f"Surgery Date / Fecha de Cirugía: {d.get('fecha_cirugia', '')}").font = Font(bold=True, size=11)
+        # Row 7-8: Values for identification
+        ws.merge_cells(start_row=r, start_column=1, end_row=r+1, end_column=2)
+        ws.cell(r, 1, d.get("identidad", "")).font = value_font
         ws.cell(r, 1).alignment = center
-        ws.cell(r, 1).border = border
+        ws.merge_cells(start_row=r, start_column=3, end_row=r+1, end_column=4)
+        ws.cell(r, 3, d.get("persona_responsable", "")).font = value_font
+        ws.cell(r, 3).alignment = center
+        ws.cell(r, 5, d.get("albergue", "")).font = value_font
+        ws.cell(r, 5).alignment = center
+        ws.cell(r, 6, d.get("perfil", "")).font = value_font
+        ws.cell(r, 6).alignment = center
+        ws.cell(r, 7, d.get("telefono", "")).font = value_font
+        ws.cell(r, 7).alignment = center
+        ws.cell(r, 8, d.get("expediente", "")).font = value_font
+        ws.cell(r, 8).alignment = center
+        r += 2
+
+        # Row 9-10: Domicilio
+        ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=2)
+        ws.cell(r, 1, "Domicilio del  Paciente:").font = label_font
+        ws.merge_cells(start_row=r, start_column=3, end_row=r+1, end_column=10)
+        ws.cell(r, 3, d.get("domicilio", "")).font = value_font
+        ws.cell(r, 3).alignment = left_wrap
+        r += 2
+
+        # Row 12: History of Present Illness (merged A12:H12)
+        ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=8)
+        ws.cell(r, 1, "History of Present Illness/Historia de Enfermedad Actual:").font = section_font
+        ws.cell(r, 1).fill = section_fill
         r += 1
 
-        ws.column_dimensions['A'].width = 18
-        ws.column_dimensions['B'].width = 18
-        ws.column_dimensions['C'].width = 18
-        ws.column_dimensions['D'].width = 18
-        ws.column_dimensions['E'].width = 18
-        ws.column_dimensions['F'].width = 18
-        ws.column_dimensions['G'].width = 18
-        ws.column_dimensions['H'].width = 18
+        # Row 13-17: History value (merged A13:H17)
+        ws.merge_cells(start_row=r, start_column=1, end_row=r+4, end_column=8)
+        ws.cell(r, 1, d.get("historia_enfermedad", "")).font = value_font
+        ws.cell(r, 1).alignment = left_wrap
+        r += 5
 
-        ws.sheet_properties.pageSetUpPr = None
+        # Row 19: Medical History (merged A19:H19)
+        ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=8)
+        ws.cell(r, 1, "Medical History/Antecedentes:").font = section_font
+        ws.cell(r, 1).fill = section_fill
+        r += 1
+
+        # Row 20-21: Previous illness
+        ws.merge_cells(start_row=r, start_column=1, end_row=r+1, end_column=3)
+        ws.cell(r, 1, "Previous illness/ Enfermedades anteriores:").font = label_font
+        ws.merge_cells(start_row=r, start_column=4, end_row=r+1, end_column=8)
+        ws.cell(r, 4, d.get("enfermedades_previas", "")).font = value_font
+        ws.cell(r, 4).alignment = left_wrap
+        r += 2
+
+        # Row 22-23: Past surgeries
+        ws.merge_cells(start_row=r, start_column=1, end_row=r+1, end_column=3)
+        ws.cell(r, 1, "Past surgeries/ Cirugías anteriores:").font = label_font
+        ws.merge_cells(start_row=r, start_column=4, end_row=r+1, end_column=8)
+        ws.cell(r, 4, d.get("cirugias_previas", "")).font = value_font
+        ws.cell(r, 4).alignment = left_wrap
+        r += 2
+
+        # Row 24-25: Allergies
+        ws.merge_cells(start_row=r, start_column=1, end_row=r+1, end_column=3)
+        ws.cell(r, 1, "Allergies/Alergias:").font = label_font
+        ws.merge_cells(start_row=r, start_column=4, end_row=r+1, end_column=8)
+        ws.cell(r, 4, d.get("alergias", "")).font = value_font
+        ws.cell(r, 4).alignment = left_wrap
+        r += 2
+
+        # Row 26-27: Other
+        ws.merge_cells(start_row=r, start_column=1, end_row=r+1, end_column=3)
+        ws.cell(r, 1, "Other/Otros Antecedentes").font = label_font
+        ws.merge_cells(start_row=r, start_column=4, end_row=r+1, end_column=8)
+        ws.cell(r, 4, d.get("otros_antecedentes", "")).font = value_font
+        ws.cell(r, 4).alignment = left_wrap
+        r += 2
+
+        # Row 28: blank
+        r += 1
+
+        # Row 29: Vital signs (part 1)
+        ws.merge_cells(start_row=r, start_column=1, end_row=r+1, end_column=1)
+        ws.cell(r, 1, "P.A./.B P:").font = label_font
+        ws.merge_cells(start_row=r, start_column=2, end_row=r+1, end_column=2)
+        ws.cell(r, 2, d.get("presion_arterial", "")).font = value_font
+        ws.cell(r, 2).alignment = center
+        ws.merge_cells(start_row=r, start_column=3, end_row=r+1, end_column=3)
+        ws.cell(r, 3, d.get("fc", "")).font = value_font
+        ws.cell(r, 3).alignment = center
+        ws.cell(r, 4, d.get("pulso", "")).font = value_font
+        ws.cell(r, 4).alignment = center
+        ws.merge_cells(start_row=r, start_column=5, end_row=r+1, end_column=5)
+        ws.cell(r, 5, d.get("temperatura", "")).font = value_font
+        ws.cell(r, 5).alignment = center
+        ws.merge_cells(start_row=r, start_column=6, end_row=r+1, end_column=6)
+        ws.cell(r, 6, d.get("fr", "")).font = value_font
+        ws.cell(r, 6).alignment = center
+        ws.cell(r, 7, "Peso/Weight:").font = label_font
+        ws.cell(r, 8, d.get("peso", "")).font = value_font
+        ws.cell(r, 8).alignment = center
+        # Row 30: Vital signs (part 2) - labels in col D and G
+        r += 1
+        ws.cell(r, 4, d.get("talla", "")).font = value_font
+        ws.cell(r, 4).alignment = center
+        ws.cell(r, 7, "B.M.I.:").font = label_font
+        ws.cell(r, 8, d.get("bmi", "")).font = value_font
+        ws.cell(r, 8).alignment = center
+        r += 1
+
+        # Row 31: Physical Exam section header
+        ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=8)
+        ws.cell(r, 1, "Physical Exam /Examen Físico").font = section_font
+        ws.cell(r, 1).fill = section_fill
+        r += 1
+
+        # Row 32-36: Physical exam value
+        ws.merge_cells(start_row=r, start_column=1, end_row=r+4, end_column=8)
+        ws.cell(r, 1, d.get("examen_fisico", "")).font = value_font
+        ws.cell(r, 1).alignment = left_wrap
+        r += 5
+
+        # Row 37: Diagnosis section (col 4)
+        ws.cell(r, 4, "Diagnosis/ Diagnóstico").font = section_font
+        ws.cell(r, 4).fill = section_fill
+        r += 1
+
+        # Row 38-42: Diagnosis value
+        ws.merge_cells(start_row=r, start_column=1, end_row=r+4, end_column=8)
+        ws.cell(r, 1, d.get("diagnostico", "")).font = value_font
+        ws.cell(r, 1).alignment = left_wrap
+        r += 5
+
+        # Row 43: blank
+        r += 1
+
+        # Row 44: Doctor name (merged B44:G44) - value ABOVE label like the original
+        ws.merge_cells(start_row=r, start_column=2, end_row=r, end_column=7)
+        ws.cell(r, 2, d.get("nombre_medico", "")).font = value_font
+        ws.cell(r, 2).alignment = center
+        r += 1
+
+        # Row 45: "Nombre del Médico" label (merged B45:G45)
+        ws.merge_cells(start_row=r, start_column=2, end_row=r, end_column=7)
+        ws.cell(r, 2, "Nombre del Médico").font = label_font
+        ws.cell(r, 2).alignment = center
+        r += 2
+
+        # Row 48: Surgeon
+        ws.cell(r, 1, "Surgeon/ Cirujano:").font = label_font
+        r += 2
+
+        # Row 50: Surgery Date
+        ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=8)
+        surgery_date = d.get("fecha_cirugia", "")
+        ws.cell(r, 1, f"Surgery Date/ Day of the Week   Fecha de Cirugía/Día de la Semana:   {surgery_date}").font = Font(bold=True, size=11)
+        ws.cell(r, 1).alignment = center
+
+        # Column widths
+        for col_letter, w in [('A', 18), ('B', 18), ('C', 18), ('D', 18), ('E', 18), ('F', 18), ('G', 18), ('H', 18), ('I', 18), ('J', 18)]:
+            ws.column_dimensions[col_letter].width = w
 
     wb.save(filepath)
