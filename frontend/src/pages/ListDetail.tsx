@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { listsApi } from '../services/api'
 import { ListDefinition, ListRecord } from '../types'
 import { useAuth } from '../contexts/AuthContext'
-import { ArrowLeft, Plus, Upload, Search, Pencil, Trash2, Download } from 'lucide-react'
+import { ArrowLeft, Plus, Upload, Search, Pencil, Trash2, Download, Stethoscope } from 'lucide-react'
+import { ExpedienteForm } from '../components/ExpedienteForm'
 
 export function ListDetail() {
   const { id } = useParams()
@@ -14,6 +15,7 @@ export function ListDetail() {
   const [search, setSearch] = useState('')
   const [searchField, setSearchField] = useState('')
   const [showModal, setShowModal] = useState(false)
+  const [showExpedienteForm, setShowExpedienteForm] = useState(false)
   const [editingRecord, setEditingRecord] = useState<ListRecord | null>(null)
   const [formData, setFormData] = useState<Record<string, any>>({})
 
@@ -135,27 +137,35 @@ export function ListDetail() {
             </button>
           )}
           {(user?.role === 'admin' || user?.role === 'direccion') && (
-            <>
-              <label className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 cursor-pointer text-sm">
-                <Upload size={18} />
-                Importar Excel
-                <input type="file" accept=".xlsx,.xls" onChange={handleImport} className="hidden" />
-              </label>
-            </>
+            <label className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 cursor-pointer text-sm">
+              <Upload size={18} />
+              Importar Excel
+              <input type="file" accept=".xlsx,.xls" onChange={handleImport} className="hidden" />
+            </label>
           )}
-          <button
-            onClick={() => {
-              setEditingRecord(null)
-              const empty: Record<string, any> = {}
-              list?.columns_config.forEach(c => { empty[c.key] = '' })
-              setFormData(empty)
-              setShowModal(true)
-            }}
-            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm"
-          >
-            <Plus size={18} />
-            Nuevo Registro
-          </button>
+          {list?.is_system ? (
+            <button
+              onClick={() => setShowExpedienteForm(true)}
+              className="flex items-center gap-2 bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 text-sm"
+            >
+              <Stethoscope size={18} />
+              Nuevo Expediente Médico
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                setEditingRecord(null)
+                const empty: Record<string, any> = {}
+                list?.columns_config.forEach(c => { empty[c.key] = '' })
+                setFormData(empty)
+                setShowModal(true)
+              }}
+              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm"
+            >
+              <Plus size={18} />
+              Nuevo Registro
+            </button>
+          )}
         </div>
       </div>
 
@@ -228,6 +238,13 @@ export function ListDetail() {
         </div>
       </div>
 
+      {showExpedienteForm && (
+        <ExpedienteForm
+          listId={Number(id)}
+          onClose={() => setShowExpedienteForm(false)}
+          onSaved={loadRecords}
+        />
+      )}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 w-full max-w-lg">
