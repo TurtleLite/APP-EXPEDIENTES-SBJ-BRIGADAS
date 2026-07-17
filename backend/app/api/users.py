@@ -64,3 +64,13 @@ def delete_user_endpoint(
     from app.services.user_service import delete_user
     delete_user(db, user_id)
     return {"message": "Usuario eliminado correctamente"}
+
+
+@router.post("/reset")
+def reset_users_endpoint(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("admin")),
+):
+    from app.services.user_service import reset_default_users
+    reset_default_users(db)
+    return {"message": "Usuarios reseteados correctamente"}

@@ -58,3 +58,20 @@ def delete_user(db: Session, user_id: int):
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     db.delete(user)
     db.commit()
+
+
+def reset_default_users(db: Session):
+    db.query(User).delete()
+    db.flush()
+
+    defaults = [
+        User(username="admin", email="admin@sistema.com", full_name="Administrador",
+             hashed_password=hash_password("admin123"), role="admin", is_active=True),
+        User(username="direccion", email="direccion@sistema.com", full_name="Director General",
+             hashed_password=hash_password("direccion123"), role="direccion", is_active=True),
+        User(username="medico", email="medico@sistema.com", full_name="Dr. Médico",
+             hashed_password=hash_password("medico123"), role="medico", is_active=True),
+    ]
+    for u in defaults:
+        db.add(u)
+    db.commit()
