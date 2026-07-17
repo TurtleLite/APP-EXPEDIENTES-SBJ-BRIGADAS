@@ -113,8 +113,8 @@ function isSectionComplete(section: Section, data: Record<string, any>): boolean
   })
 }
 
-function totalFields(): number {
-  return SECTIONS.reduce((acc, s) => acc + s.fields.length, 0)
+function totalFieldsFrom(sections: Section[]): number {
+  return sections.reduce((acc, s) => acc + s.fields.length, 0)
 }
 
 function filledFields(data: Record<string, any>): number {
@@ -123,16 +123,30 @@ function filledFields(data: Record<string, any>): number {
 
 interface Props {
   listId: number
+  role?: string
   onClose: () => void
   onSaved: () => void
 }
 
-export function ExpedienteForm({ listId, onClose, onSaved }: Props) {
+function filterSections(role?: string): Section[] {
+  if (role === 'medico') {
+    return SECTIONS.filter((s) => s.title !== 'Centro y Clasificación').map((s) => {
+      if (s.title === 'Médico y Cirugía') {
+        return { ...s, fields: s.fields.filter((f) => f.key === 'nombre_medico') }
+      }
+      return s
+    })
+  }
+  return SECTIONS
+}
+
+export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
+  const sections = filterSections(role)
   const [data, setData] = useState<Record<string, any>>({})
-  const [expanded, setExpanded] = useState<string>(SECTIONS[0].title)
+  const [expanded, setExpanded] = useState<string>(sections.length > 0 ? sections[0].title : '')
   const [saving, setSaving] = useState(false)
 
-  const allComplete = SECTIONS.every((s) => isSectionComplete(s, data))
+  const allComplete = sections.every((s) => isSectionComplete(s, data))
 
   const setValue = (key: string, value: any) => {
     setData((prev) => ({ ...prev, [key]: value }))
@@ -156,7 +170,7 @@ export function ExpedienteForm({ listId, onClose, onSaved }: Props) {
     }
   }
 
-  const total = totalFields()
+  const total = totalFieldsFrom(sections)
   const filled = filledFields(data)
   const pct = total > 0 ? Math.round((filled / total) * 100) : 0
 
@@ -186,7 +200,7 @@ export function ExpedienteForm({ listId, onClose, onSaved }: Props) {
             </span>
           </div>
           <div className="flex flex-wrap gap-1.5 mb-2">
-            {SECTIONS.map((s) => {
+            {sections.map((s) => {
               const done = isSectionComplete(s, data)
               return (
                 <span
@@ -204,7 +218,7 @@ export function ExpedienteForm({ listId, onClose, onSaved }: Props) {
         </div>
 
         <div className="flex-1 overflow-y-auto px-6 pb-4 space-y-3">
-          {SECTIONS.map((section) => {
+          {sections.map((section) => {
             const done = isSectionComplete(section, data)
             const isOpen = expanded === section.title
             return (

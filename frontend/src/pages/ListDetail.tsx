@@ -241,6 +241,7 @@ export function ListDetail() {
       {showExpedienteForm && (
         <ExpedienteForm
           listId={Number(id)}
+          role={user?.role}
           onClose={() => setShowExpedienteForm(false)}
           onSaved={loadRecords}
         />
