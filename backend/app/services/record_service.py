@@ -52,3 +52,14 @@ def delete_record(db: Session, record_id: int):
         raise HTTPException(status_code=404, detail="Registro no encontrado")
     db.delete(record)
     db.commit()
+
+
+def get_records_by_ids(db: Session, ids: list[int]) -> list[ListRecord]:
+    return db.query(ListRecord).filter(ListRecord.id.in_(ids)).all()
+
+
+def get_distinct_field_values(db: Session, list_id: int, field: str) -> list:
+    from sqlalchemy import text
+    sql = text(f"SELECT DISTINCT data->>'{field}' AS val FROM list_records WHERE list_definition_id = :lid AND data->>'{field}' IS NOT NULL AND data->>'{field}' != '' ORDER BY val")
+    result = db.execute(sql, {"lid": list_id})
+    return [row[0] for row in result]

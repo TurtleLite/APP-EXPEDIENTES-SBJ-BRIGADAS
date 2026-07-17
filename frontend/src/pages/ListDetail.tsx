@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { listsApi } from '../services/api'
 import { ListDefinition, ListRecord } from '../types'
 import { useAuth } from '../contexts/AuthContext'
-import { ArrowLeft, Plus, Upload, Search, Pencil, Trash2, Download, Stethoscope } from 'lucide-react'
+import { ArrowLeft, Plus, Upload, Search, Pencil, Trash2, Download, Stethoscope, CheckSquare, Square } from 'lucide-react'
 import { ExpedienteForm } from '../components/ExpedienteForm'
 
 export function ListDetail() {
@@ -18,6 +18,16 @@ export function ListDetail() {
   const [showExpedienteForm, setShowExpedienteForm] = useState(false)
   const [editingRecord, setEditingRecord] = useState<ListRecord | null>(null)
   const [formData, setFormData] = useState<Record<string, any>>({})
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
+  const [especialidades, setEspecialidades] = useState<string[]>([])
+  const [especialidadFilter, setEspecialidadFilter] = useState('')
+
+  const loadEspecialidades = async () => {
+    try {
+      const res = await listsApi.getEspecialidades(Number(id))
+      setEspecialidades(res.data)
+    } catch { /* ignore */ }
+  }
 
   const loadList = async () => {
     try {
@@ -29,8 +39,13 @@ export function ListDetail() {
   const loadRecords = async () => {
     try {
       const params: any = {}
-      if (search) params.search = search
-      if (searchField) params.search_field = searchField
+      if (especialidadFilter) {
+        params.search = especialidadFilter
+        params.search_field = 'especialidad'
+      } else if (search) {
+        params.search = search
+        if (searchField) params.search_field = searchField
+      }
       const res = await listsApi.getRecords(Number(id), params)
       setRecords(res.data)
     } catch (err) { console.error(err) }
@@ -45,7 +60,35 @@ export function ListDetail() {
 
   useEffect(() => {
     if (id) loadRecords()
-  }, [search, searchField])
+  }, [search, searchField, especialidadFilter])
+
+  useEffect(() => {
+    if (id && list?.is_system) loadEspecialidades()
+  }, [id, list?.is_system])
+
+  const toggleSelect = (recordId: number) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(recordId)) next.delete(recordId)
+      else next.add(recordId)
+      return next
+    })
+  }
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === records.length) {
+      setSelectedIds(new Set())
+    } else {
+      setSelectedIds(new Set(records.map((r) => r.id)))
+    }
+  }
+
+  const handleExportSelected = async () => {
+    if (selectedIds.size === 0) return
+    try {
+      await listsApi.exportExpedienteSelected(Number(id), Array.from(selectedIds))
+    } catch { alert('Error al exportar') }
+  }
 
   const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -170,7 +213,7 @@ export function ListDetail() {
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="p-4 border-b border-gray-200">
+        <div className="p-4 border-b border-gray-200 space-y-3">
           <div className="flex gap-2">
             <select
               value={searchField}
@@ -190,12 +233,44 @@ export function ListDetail() {
               className="flex-1 px-3 py-2 border rounded-lg text-sm"
             />
           </div>
+          {list?.is_system && (
+            <div className="flex items-center gap-2">
+              <select
+                value={especialidadFilter}
+                onChange={(e) => { setEspecialidadFilter(e.target.value); setSelectedIds(new Set()) }}
+                className="px-3 py-2 border rounded-lg text-sm"
+              >
+                <option value="">Todas las especialidades</option>
+                {especialidades.map((esp) => (
+                  <option key={esp} value={esp}>{esp}</option>
+                ))}
+              </select>
+              {selectedIds.size > 0 && (
+                <button
+                  onClick={handleExportSelected}
+                  className="flex items-center gap-1.5 px-3 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 text-sm"
+                >
+                  <Download size={16} />
+                  Exportar {selectedIds.size} seleccionados
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
+                {list?.is_system && (
+                  <th className="w-10 px-2 py-3">
+                    <button onClick={toggleSelectAll} className="text-gray-400 hover:text-gray-600">
+                      {selectedIds.size === records.length && records.length > 0
+                        ? <CheckSquare size={16} />
+                        : <Square size={16} />}
+                    </button>
+                  </th>
+                )}
                 {list?.columns_config.map((col) => (
                   <th key={col.key} className="text-left px-4 py-3 text-sm font-medium text-gray-600">
                     {col.label}
@@ -208,7 +283,14 @@ export function ListDetail() {
             </thead>
             <tbody>
               {records.map((record) => (
-                <tr key={record.id} className="border-b border-gray-100 hover:bg-gray-50">
+                <tr key={record.id} className={`border-b border-gray-100 hover:bg-gray-50 ${selectedIds.has(record.id) ? 'bg-teal-50' : ''}`}>
+                  {list?.is_system && (
+                    <td className="w-10 px-2 py-3">
+                      <button onClick={() => toggleSelect(record.id)} className="text-gray-400 hover:text-teal-600">
+                        {selectedIds.has(record.id) ? <CheckSquare size={16} className="text-teal-600" /> : <Square size={16} />}
+                      </button>
+                    </td>
+                  )}
                   {list?.columns_config.map((col) => (
                     <td key={col.key} className="px-4 py-3 text-sm text-gray-700">
                       {record.data[col.key] || '-'}

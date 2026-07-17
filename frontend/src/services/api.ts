@@ -64,6 +64,17 @@ export const listsApi = {
     api.get(`/lists/${listId}/export-excel`, { responseType: 'blob' }),
   exportExpediente: (listId: number) =>
     api.get(`/lists/${listId}/export-expediente`, { responseType: 'blob' }),
+  getEspecialidades: (listId: number) =>
+    api.get(`/lists/${listId}/especialidades`),
+  exportExpedienteSelected: async (listId: number, ids: number[]) => {
+    const res = await api.post(`/lists/${listId}/export-expediente-selected`, { ids }, { responseType: 'blob' })
+    const url = window.URL.createObjectURL(new Blob([res.data]))
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'expedientes_seleccionados.xlsx'
+    a.click()
+    window.URL.revokeObjectURL(url)
+  },
 }
 
 export const reportsApi = {

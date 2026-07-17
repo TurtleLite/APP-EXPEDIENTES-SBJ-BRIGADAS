@@ -118,6 +118,37 @@ def export_expediente(
     return FileResponse(filepath, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename=f"Expediente_{ld.name}.xlsx")
 
 
+@router.get("/{list_id}/especialidades")
+def list_especialidades(
+    list_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    from app.services.record_service import get_distinct_field_values
+    return get_distinct_field_values(db, list_id, "especialidad")
+
+
+@router.post("/{list_id}/export-expediente-selected")
+def export_expediente_selected(
+    list_id: int,
+    data: dict,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    from app.services.list_service import get_list_definition
+    from app.services.record_service import get_records_by_ids
+    from app.services.expediente_service import export_expediente_excel
+    from fastapi.responses import FileResponse
+    import os
+    ids = data.get("ids", [])
+    ld = get_list_definition(db, list_id)
+    records = get_records_by_ids(db, ids) if ids else []
+    os.makedirs(settings.EXPORTS_DIR, exist_ok=True)
+    filepath = os.path.join(settings.EXPORTS_DIR, f"expediente_selected_{list_id}.xlsx")
+    export_expediente_excel(records, filepath)
+    return FileResponse(filepath, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename=f"Expediente_{ld.name}_seleccion.xlsx")
+
+
 @router.post("/{list_id}/import-excel")
 def import_excel(
     list_id: int,
