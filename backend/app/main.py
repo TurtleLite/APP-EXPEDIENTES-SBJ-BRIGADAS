@@ -1,5 +1,4 @@
-from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, Request, Response
 from fastapi.responses import JSONResponse
 from app.api import auth, users, lists, reports
 from app.core.database import engine, Base, SessionLocal
@@ -8,6 +7,12 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+ALLOWED_ORIGINS = [
+    "https://app-expedientes-sbj-brigadas.onrender.com",
+    "http://localhost:5173",
+    "http://localhost:8000",
+]
 
 Base.metadata.create_all(bind=engine)
 
@@ -42,22 +47,28 @@ app = FastAPI(
     version="1.0.0",
 )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "https://app-expedientes-sbj-brigadas.onrender.com",
-        "http://localhost:5173",
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 @app.middleware("http")
-async def log_requests(request: Request, call_next):
-    logger.info(f"{request.method} {request.url.path}")
+async def cors_and_logging(request: Request, call_next):
+    origin = request.headers.get("origin", "")
+    method = request.method
+
+    if origin in ALLOWED_ORIGINS:
+        if method == "OPTIONS":
+            response = Response()
+            response.headers["Access-Control-Allow-Origin"] = origin
+            response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+            response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, X-Requested-With"
+            response.headers["Access-Control-Allow-Credentials"] = "true"
+            response.headers["Access-Control-Max-Age"] = "86400"
+            logger.info(f"OPTIONS {request.url.path} -> CORS preflight OK")
+            return response
+
+    logger.info(f"{method} {request.url.path}")
     try:
         response = await call_next(request)
+        if origin in ALLOWED_ORIGINS:
+            response.headers["Access-Control-Allow-Origin"] = origin
+            response.headers["Access-Control-Allow-Credentials"] = "true"
         logger.info(f"  -> {response.status_code}")
         return response
     except Exception as e:
