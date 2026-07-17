@@ -27,11 +27,13 @@ $maxWait = 30
 for ($i = 0; $i -lt $maxWait; $i++) {
     Start-Sleep -Seconds 1
     if (Test-Path $tunnelFile) {
-        $content = Get-Content $tunnelFile -Raw
-        $match = [regex]::Match($content, 'https://[a-zA-Z0-9-]+\.trycloudflare\.com')
-        if ($match.Success) {
-            $tunnelUrl = $match.Value
-            break
+        $content = Get-Content $tunnelFile -Raw -ErrorAction SilentlyContinue
+        if ($content) {
+            $match = [regex]::Match($content, 'https://[a-zA-Z0-9-]+\.trycloudflare\.com')
+            if ($match.Success) {
+                $tunnelUrl = $match.Value
+                break
+            }
         }
     }
 }
