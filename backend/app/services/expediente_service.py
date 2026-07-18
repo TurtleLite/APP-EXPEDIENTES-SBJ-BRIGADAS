@@ -7,7 +7,6 @@ from app.schemas.list_definition import ListDefinitionCreate
 
 
 EXPEDIENTE_COLUMNS = [
-    {"key": "centro_medico", "label": "Centro Médico", "type": "text"},
     {"key": "especialidad", "label": "Especialidad", "type": "text"},
     {"key": "criticidad", "label": "Criticidad Clínica", "type": "text"},
     {"key": "estatus", "label": "Estatus del Paciente", "type": "text"},
@@ -18,10 +17,11 @@ EXPEDIENTE_COLUMNS = [
     {"key": "fecha_elaboracion", "label": "Fecha de Elaboración", "type": "date"},
     {"key": "identidad", "label": "Nº Identidad", "type": "text"},
     {"key": "persona_responsable", "label": "Persona Responsable", "type": "text"},
-    {"key": "procedencia", "label": "Procedencia", "type": "text"},
     {"key": "albergue", "label": "Albergue", "type": "text"},
     {"key": "perfil", "label": "Perfil", "type": "text"},
     {"key": "telefono", "label": "Teléfono", "type": "text"},
+    {"key": "telefono2", "label": "Teléfono 2", "type": "text"},
+    {"key": "telefono3", "label": "Teléfono 3", "type": "text"},
     {"key": "expediente", "label": "Expediente", "type": "text"},
     {"key": "domicilio", "label": "Domicilio del Paciente", "type": "text"},
     {"key": "historia_enfermedad", "label": "Historia de Enfermedad Actual", "type": "text"},
@@ -42,6 +42,7 @@ EXPEDIENTE_COLUMNS = [
     {"key": "nombre_medico", "label": "Nombre del Médico", "type": "text"},
     {"key": "cirujano", "label": "Cirujano", "type": "text"},
     {"key": "fecha_cirugia", "label": "Fecha de Cirugía", "type": "date"},
+    {"key": "estatus_cirugia", "label": "Estatus de Cirugía", "type": "text"},
 ]
 
 
@@ -102,18 +103,14 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
     from openpyxl.drawing.image import Image
 
     wb = Workbook()
-    ws = wb.active
-    ws.title = "Expediente"
-    ws.page_setup.orientation = 'portrait'
 
-    # Styles
     arial = 'Arial'
-    center_wrap = Alignment(horizontal="center", vertical="center", wrap_text=True)
-    center_nowrap = Alignment(horizontal="center", vertical="center")
-    center_vwrap = Alignment(vertical="center", wrap_text=True)
-    left_center_wrap = Alignment(horizontal="left", vertical="center", wrap_text=True)
-    right_center_wrap = Alignment(horizontal="right", vertical="center", wrap_text=True)
-
+    center_wrap = Alignment(horizontal="center", vertical="center", wrap_text=True, shrink_to_fit=True)
+    center_nowrap = Alignment(horizontal="center", vertical="center", shrink_to_fit=True)
+    center_vwrap = Alignment(vertical="center", wrap_text=True, shrink_to_fit=True)
+    left_center_wrap = Alignment(horizontal="left", vertical="center", wrap_text=True, shrink_to_fit=True)
+    left_center_nowrap = Alignment(horizontal="left", vertical="center", shrink_to_fit=True)
+    right_center_wrap = Alignment(horizontal="right", vertical="center", wrap_text=True, shrink_to_fit=True)
     yellow_fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
 
     thin = _thin_border()
@@ -127,10 +124,11 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
     thin_left_medium = _thin_border_left_medium()
     medium_bottom = _medium_bottom()
     medium_top = _medium_top()
+    styles = (thin, thin_top_bottom, thin_top, thin_bottom, thin_sides, thin_left, thin_right, thin_right_medium, thin_left_medium, medium_bottom, medium_top)
 
     col_widths = {
         'A': 11.43, 'B': 16.0, 'C': 11.43, 'D': 16.0,
-        'E': 9.43, 'F': 10.14, 'G': 11.71, 'H': 14.86,
+        'E': 9.43, 'F': 10.14,         'G': 11.71, 'H': 14.86,
         'I': 15.29, 'J': 13.71,
     }
 
@@ -153,31 +151,38 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
                 logo_path = p
                 break
 
-    for row_idx, record in enumerate(records):
-        d = record.data if record.data else {}
+    # Remove default empty sheet
+    default_sheet = wb.active
 
-        if row_idx > 0:
-            ws.append([])
-            r = ws.max_row + 1
-        else:
-            r = 1
+    def _write_record_sheet(ws, d, styles):
+        ws.page_setup.orientation = 'portrait'
+        ws.page_setup.scale = 90
+        ws.page_margins.left = 0.7874
+        ws.page_margins.right = 0.3937
+        ws.page_margins.top = 0.3937
+        ws.page_margins.bottom = 0.1969
+        ws.page_margins.header = 0
+        ws.page_margins.footer = 0
+        thin, thin_top_bottom, thin_top, thin_bottom, thin_sides, thin_left, thin_right, thin_right_medium, thin_left_medium, medium_bottom, medium_top = styles
 
-        base = r
+        r = 1
 
         # === ROW 1: Title + Logo ===
         ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=8)
-        c = ws.cell(r, 1, d.get("centro_medico", "Centro Médico"))
-        c.font = Font(name=arial, bold=True, size=16)
+        c = ws.cell(r, 1, "Centro Médico San Benito José")
+        c.font = Font(name=arial, bold=True, size=16, u='single')
         c.alignment = center_wrap
         if os.path.exists(logo_path):
             img = Image(logo_path)
             img.anchor = f'A{r}'
+            img.width = 105
+            img.height = 55
             ws.add_image(img)
         r += 1
 
         # === ROW 2: Especialidad / Criticidad / Estatus ===
         ws.merge_cells(start_row=r, start_column=7, end_row=r, end_column=8)
-        c = ws.cell(r, 7, "Especialidad")
+        c = ws.cell(r, 7, d.get("especialidad", ""))
         c.font = Font(name=arial, bold=True, size=16, color="FF0000")
         c.alignment = center_wrap
 
@@ -202,7 +207,8 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
         c = ws.cell(r, 1, "Nombre/First Name")
         c.font = Font(name=arial, bold=True, size=10)
         c.alignment = center_nowrap
-        ws.cell(r, 2).border = thin_right_medium
+        c.border = Border(left=Side(style='thin'), right=Side(style='medium'), top=Side(style='thin'), bottom=Side(style='thin'))
+        ws.cell(r, 2).border = Border(right=Side(style='medium'), top=Side(style='thin'), bottom=Side(style='thin'))
 
         ws.merge_cells(start_row=r, start_column=3, end_row=r, end_column=4)
         c = ws.cell(r, 3, "Apellido/ Last Name")
@@ -236,7 +242,7 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
         ws.merge_cells(start_row=r, start_column=1, end_row=r+1, end_column=2)
         c = ws.cell(r, 1, d.get("nombre", ""))
         c.font = Font(name=arial, size=14)
-        c.alignment = center_wrap
+        c.alignment = center_nowrap
         _apply_border(ws, r, 1, Border(left=Side(style='thin'), right=Side(style='thin'), bottom=Side(style='thin')))
         _apply_border(ws, r+1, 1, Border(left=Side(style='thin'), bottom=Side(style='thin')))
         _apply_border(ws, r, 2, Border(right=Side(style='thin')))
@@ -245,7 +251,7 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
         ws.merge_cells(start_row=r, start_column=3, end_row=r+1, end_column=4)
         c = ws.cell(r, 3, d.get("apellido", ""))
         c.font = Font(name=arial, size=15)
-        c.alignment = center_wrap
+        c.alignment = center_nowrap
         _apply_border(ws, r, 3, Border(left=Side(style='thin'), right=Side(style='thin'), bottom=Side(style='thin')))
         _apply_border(ws, r+1, 3, Border(left=Side(style='thin'), bottom=Side(style='thin')))
         _apply_border(ws, r, 4, Border(right=Side(style='thin')))
@@ -254,21 +260,21 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
         ws.merge_cells(start_row=r, start_column=5, end_row=r+1, end_column=5)
         c = ws.cell(r, 5, d.get("sexo", ""))
         c.font = Font(name=arial, size=16)
-        c.alignment = center_wrap
+        c.alignment = center_nowrap
         _apply_border(ws, r, 5, Border(left=Side(style='thin'), bottom=Side(style='thin')))
         _apply_border(ws, r+1, 5, Border(left=Side(style='thin'), bottom=Side(style='thin')))
 
         ws.merge_cells(start_row=r, start_column=6, end_row=r+1, end_column=6)
         c = ws.cell(r, 6, str(d.get("edad", "")))
         c.font = Font(name=arial, bold=True, size=16)
-        c.alignment = center_wrap
+        c.alignment = center_nowrap
         _apply_border(ws, r, 6, Border(left=Side(style='thin'), bottom=Side(style='thin')))
         _apply_border(ws, r+1, 6, Border(left=Side(style='thin'), bottom=Side(style='thin')))
 
         ws.merge_cells(start_row=r, start_column=7, end_row=r+1, end_column=8)
         c = ws.cell(r, 7, str(d.get("fecha_elaboracion", "")))
         c.font = Font(name=arial, size=16)
-        c.alignment = center_wrap
+        c.alignment = center_nowrap
         _apply_border(ws, r, 7, Border(left=Side(style='thin'), right=Side(style='thin'), bottom=Side(style='thin')))
         _apply_border(ws, r+1, 7, Border(left=Side(style='thin'), bottom=Side(style='thin')))
         _apply_border(ws, r, 8, Border(right=Side(style='thin')))
@@ -327,7 +333,7 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
         ws.merge_cells(start_row=r, start_column=1, end_row=r+1, end_column=2)
         c = ws.cell(r, 1, d.get("identidad", ""))
         c.font = Font(name=arial, size=14)
-        c.alignment = center_wrap
+        c.alignment = center_nowrap
         _apply_borders_range(ws, r, 1, r, 2, thin)
         _apply_border(ws, r+1, 1, Border(left=Side(style='thin'), bottom=Side(style='thin')))
         _apply_border(ws, r+1, 2, Border(right=Side(style='thin'), bottom=Side(style='thin')))
@@ -335,7 +341,7 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
         ws.merge_cells(start_row=r, start_column=3, end_row=r+1, end_column=4)
         c = ws.cell(r, 3, d.get("persona_responsable", ""))
         c.font = Font(name=arial, size=14)
-        c.alignment = center_wrap
+        c.alignment = center_nowrap
         _apply_borders_range(ws, r, 3, r, 4, thin)
         _apply_border(ws, r+1, 3, Border(left=Side(style='thin'), bottom=Side(style='thin')))
         _apply_border(ws, r+1, 4, Border(right=Side(style='thin'), bottom=Side(style='thin')))
@@ -343,33 +349,33 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
         ws.merge_cells(start_row=r, start_column=5, end_row=r+1, end_column=5)
         c = ws.cell(r, 5, d.get("albergue", ""))
         c.font = Font(name=arial, size=14)
-        c.alignment = center_wrap
+        c.alignment = center_nowrap
         _apply_border(ws, r, 5, thin)
         _apply_border(ws, r+1, 5, Border(left=Side(style='thin'), right=Side(style='thin'), bottom=Side(style='thin')))
 
         ws.merge_cells(start_row=r, start_column=6, end_row=r+1, end_column=6)
         c = ws.cell(r, 6, d.get("perfil", ""))
         c.font = Font(name=arial, size=14)
-        c.alignment = center_wrap
+        c.alignment = center_nowrap
         _apply_border(ws, r, 6, thin)
         _apply_border(ws, r+1, 6, Border(left=Side(style='thin'), right=Side(style='thin'), bottom=Side(style='thin')))
 
         ws.merge_cells(start_row=r, start_column=7, end_row=r+1, end_column=7)
         c = ws.cell(r, 7, d.get("telefono", ""))
         c.font = Font(name=arial, size=14)
-        c.alignment = center_wrap
+        c.alignment = center_nowrap
         _apply_border(ws, r, 7, thin)
         _apply_border(ws, r+1, 7, Border(left=Side(style='thin'), right=Side(style='thin'), bottom=Side(style='thin')))
 
         ws.merge_cells(start_row=r, start_column=8, end_row=r+1, end_column=8)
         c = ws.cell(r, 8, d.get("expediente", ""))
         c.font = Font(name=arial, size=14)
-        c.alignment = center_wrap
+        c.alignment = center_nowrap
         _apply_border(ws, r, 8, thin)
         _apply_border(ws, r+1, 8, Border(left=Side(style='thin'), right=Side(style='thin'), bottom=Side(style='thin')))
 
         ws.merge_cells(start_row=r-1, start_column=9, end_row=r+1, end_column=9)
-        c = ws.cell(r-1, 9, d.get("procedencia", ""))
+        c = ws.cell(r-1, 9, d.get("domicilio", ""))
         c.font = Font(name=arial, size=10)
         c.alignment = center_nowrap
         _apply_border(ws, r-1, 9, thin)
@@ -388,12 +394,19 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
         _apply_border(ws, r+1, 2, Border(right=Side(style='thin'), bottom=Side(style='thin')))
 
         ws.merge_cells(start_row=r, start_column=3, end_row=r+1, end_column=8)
-        c = ws.cell(r, 3, d.get("domicilio", ""))
+        domicilio_val = d.get("domicilio", "")
+        tel2 = d.get("telefono2", "")
+        tel3 = d.get("telefono3", "")
+        extras = " | ".join(filter(None, [tel2, tel3]))
+        domicilio_final = f"{domicilio_val} | {extras}" if extras else domicilio_val
+        c = ws.cell(r, 3, domicilio_final)
         c.font = Font(name=arial, size=12)
         c.alignment = center_nowrap
         _apply_border(ws, r, 3, thin)
-        _apply_borders_range(ws, r, 4, r, 8, thin_top)
-        _apply_borders_range(ws, r+1, 3, r+1, 8, thin_bottom)
+        _apply_borders_range(ws, r, 4, r, 7, thin_top)
+        _apply_border(ws, r, 8, Border(right=Side(style='thin'), top=Side(style='thin')))
+        _apply_borders_range(ws, r+1, 3, r+1, 7, thin_bottom)
+        _apply_border(ws, r+1, 8, Border(right=Side(style='thin'), bottom=Side(style='thin')))
         r += 2
 
         # === ROW 11: Spacer with top border ===
@@ -415,14 +428,11 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
         c = ws.cell(r, 1, d.get("historia_enfermedad", ""))
         c.font = Font(name=arial, size=14)
         c.alignment = center_wrap
-        _apply_border(ws, r, 1, thin)
-        _apply_borders_range(ws, r, 2, r, 8, thin_top)
-        _apply_borders_range(ws, r+4, 1, r+4, 8, thin_bottom)
-        _apply_borders_range(ws, r, 1, r+4, 1, thin_left)
-        _apply_border(ws, r+4, 8, Border(right=Side(style='thin'), bottom=Side(style='thin')))
+        _apply_borders_range(ws, r, 1, r+4, 8, thin)
         r += 5
 
         # === ROW 18: Spacer ===
+        ws.cell(r, 1).border = Border(left=Side(style='thin'))
         r += 1
 
         # === ROW 19: Medical History header ===
@@ -452,8 +462,10 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
         c.font = Font(name=arial, size=14)
         c.alignment = center_wrap
         _apply_border(ws, r, 4, thin)
-        _apply_borders_range(ws, r, 5, r, 8, thin_top)
-        _apply_borders_range(ws, r+1, 4, r+1, 8, thin_bottom)
+        _apply_borders_range(ws, r, 5, r, 7, thin_top)
+        _apply_border(ws, r, 8, Border(right=Side(style='thin'), top=Side(style='thin')))
+        _apply_borders_range(ws, r+1, 4, r+1, 7, thin_bottom)
+        _apply_border(ws, r+1, 8, Border(right=Side(style='thin'), bottom=Side(style='thin')))
         r += 2
 
         # === ROW 22-23: Past surgeries ===
@@ -473,8 +485,10 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
         c.font = Font(name=arial, size=14)
         c.alignment = center_wrap
         _apply_border(ws, r, 4, thin)
-        _apply_borders_range(ws, r, 5, r, 8, thin_top)
-        _apply_borders_range(ws, r+1, 4, r+1, 8, thin_bottom)
+        _apply_borders_range(ws, r, 5, r, 7, thin_top)
+        _apply_border(ws, r, 8, Border(right=Side(style='thin'), top=Side(style='thin')))
+        _apply_borders_range(ws, r+1, 4, r+1, 7, thin_bottom)
+        _apply_border(ws, r+1, 8, Border(right=Side(style='thin'), bottom=Side(style='thin')))
         r += 2
 
         # === ROW 24-25: Allergies ===
@@ -494,8 +508,10 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
         c.font = Font(name=arial, size=14)
         c.alignment = center_wrap
         _apply_border(ws, r, 4, thin)
-        _apply_borders_range(ws, r, 5, r, 8, thin_top)
-        _apply_borders_range(ws, r+1, 4, r+1, 8, thin_bottom)
+        _apply_borders_range(ws, r, 5, r, 7, thin_top)
+        _apply_border(ws, r, 8, Border(right=Side(style='thin'), top=Side(style='thin')))
+        _apply_borders_range(ws, r+1, 4, r+1, 7, thin_bottom)
+        _apply_border(ws, r+1, 8, Border(right=Side(style='thin'), bottom=Side(style='thin')))
         r += 2
 
         # === ROW 26-27: Other ===
@@ -515,8 +531,10 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
         c.font = Font(name=arial, size=14)
         c.alignment = center_wrap
         _apply_border(ws, r, 4, thin)
-        _apply_borders_range(ws, r, 5, r, 8, thin_top)
-        _apply_borders_range(ws, r+1, 4, r+1, 8, thin_bottom)
+        _apply_borders_range(ws, r, 5, r, 7, thin_top)
+        _apply_border(ws, r, 8, Border(right=Side(style='thin'), top=Side(style='thin')))
+        _apply_borders_range(ws, r+1, 4, r+1, 7, thin_bottom)
+        _apply_border(ws, r+1, 8, Border(right=Side(style='thin'), bottom=Side(style='thin')))
         r += 2
 
         # === ROW 28: blank ===
@@ -578,7 +596,7 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
 
         c = ws.cell(r, 8, d.get("peso", ""))
         c.font = Font(name=arial, bold=True, size=10)
-        c.alignment = left_center_wrap
+        c.alignment = left_center_nowrap
         _apply_border(ws, r, 8, thin)
 
         r += 1
@@ -615,11 +633,7 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
         c = ws.cell(r, 1, d.get("examen_fisico", ""))
         c.font = Font(name=arial, size=12)
         c.alignment = center_wrap
-        _apply_border(ws, r, 1, thin)
-        _apply_borders_range(ws, r, 2, r, 8, thin_top)
-        _apply_borders_range(ws, r+4, 1, r+4, 8, thin_bottom)
-        _apply_borders_range(ws, r, 1, r+4, 1, thin_left)
-        _apply_border(ws, r+4, 8, Border(right=Side(style='thin'), bottom=Side(style='thin')))
+        _apply_borders_range(ws, r, 1, r+4, 8, thin)
         r += 5
 
         # === ROW 37: Diagnosis header ===
@@ -632,11 +646,7 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
         c = ws.cell(r, 1, d.get("diagnostico", ""))
         c.font = Font(name=arial, bold=True, size=14)
         c.alignment = center_wrap
-        _apply_border(ws, r, 1, thin)
-        _apply_borders_range(ws, r, 2, r, 8, thin_top)
-        _apply_borders_range(ws, r+4, 1, r+4, 8, thin_bottom)
-        _apply_borders_range(ws, r, 1, r+4, 1, thin_left)
-        _apply_border(ws, r+4, 8, Border(right=Side(style='thin'), bottom=Side(style='thin')))
+        _apply_borders_range(ws, r, 1, r+4, 8, thin)
         r += 5
 
         # === ROW 43: blank ===
@@ -681,17 +691,24 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
         c.alignment = center_wrap
         _apply_borders_range(ws, r, 6, r, 8, medium_bottom)
 
-    # Column widths
-    for col_letter, w in col_widths.items():
-        ws.column_dimensions[col_letter].width = w
+        # Column widths
+        for col_letter, w in col_widths.items():
+            ws.column_dimensions[col_letter].width = w
 
-    # Row heights (relative to each record block)
-    for rel_row, h in row_heights.items():
-        for row_idx in range(len(records)):
-            actual_row = (row_idx * 51) + rel_row
+        # Row heights
+        for rel_row, h in row_heights.items():
+            actual_row = rel_row
             if actual_row <= ws.max_row:
                 ws.row_dimensions[actual_row].height = h
 
+    for idx, record in enumerate(records):
+        d = record.data if record.data else {}
+        sheet_name = f"{d.get('nombre', '')} {d.get('apellido', '')}".strip()[:31] or f"Expediente {idx+1}"
+        ws = wb.create_sheet()
+        ws.title = sheet_name
+        _write_record_sheet(ws, d, styles)
+
+    wb.remove(default_sheet)
     wb.save(filepath)
 
 

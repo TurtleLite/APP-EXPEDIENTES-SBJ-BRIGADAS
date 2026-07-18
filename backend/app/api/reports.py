@@ -145,3 +145,20 @@ def download_report(
         raise HTTPException(status_code=404, detail="Archivo no encontrado. Genere el reporte primero.")
     media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" if file_type == "excel" else "application/pdf"
     return FileResponse(file_path, media_type=media_type, filename=os.path.basename(file_path))
+
+
+@router.delete("/{report_id}")
+def delete_report(
+    report_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("admin", "direccion")),
+):
+    report = db.query(Report).filter(Report.id == report_id).first()
+    if not report:
+        raise HTTPException(status_code=404, detail="Reporte no encontrado")
+    for f in [report.file_path_excel, report.file_path_pdf]:
+        if f and os.path.exists(f):
+            os.remove(f)
+    db.delete(report)
+    db.commit()
+    return {"message": "Reporte eliminado correctamente"}

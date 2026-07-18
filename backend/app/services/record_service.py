@@ -4,8 +4,8 @@ from app.models.list_definition import ListRecord, ListDefinition
 from typing import Optional
 
 
-def add_record(db: Session, list_id: int, data: dict) -> ListRecord:
-    record = ListRecord(list_definition_id=list_id, data=data)
+def add_record(db: Session, list_id: int, data: dict, user_id: int = None) -> ListRecord:
+    record = ListRecord(list_definition_id=list_id, data=data, created_by=user_id)
     db.add(record)
     db.commit()
     db.refresh(record)
@@ -34,11 +34,14 @@ def get_record(db: Session, record_id: int) -> ListRecord:
     return record
 
 
-def update_record(db: Session, record_id: int, data: dict) -> ListRecord:
+def update_record(db: Session, record_id: int, data: dict, user_id: int = None, user_role: str = None) -> ListRecord:
     record = db.query(ListRecord).filter(ListRecord.id == record_id).first()
     if not record:
         from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Registro no encontrado")
+    if user_role == "medico" and record.created_by != user_id:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=403, detail="No puedes editar un expediente creado por otro médico")
     record.data = data
     db.commit()
     db.refresh(record)

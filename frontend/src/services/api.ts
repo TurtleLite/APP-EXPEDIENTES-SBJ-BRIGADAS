@@ -71,7 +71,9 @@ export const listsApi = {
     const url = window.URL.createObjectURL(new Blob([res.data]))
     const a = document.createElement('a')
     a.href = url
-    a.download = 'expedientes_seleccionados.xlsx'
+    const cd = res.headers['content-disposition']
+    const match = cd && cd.match(/filename="?(.+?)"?\s*$/i)
+    a.download = match ? match[1] : 'expedientes_seleccionados.xlsx'
     a.click()
     window.URL.revokeObjectURL(url)
   },
@@ -85,6 +87,7 @@ export const reportsApi = {
   generatePdf: (id: number) => api.post(`/reports/${id}/generate-pdf`),
   download: (id: number, type: 'excel' | 'pdf') =>
     api.get(`/reports/${id}/download/${type}`, { responseType: 'blob' }),
+  delete: (id: number) => api.delete(`/reports/${id}`),
 }
 
 export default api

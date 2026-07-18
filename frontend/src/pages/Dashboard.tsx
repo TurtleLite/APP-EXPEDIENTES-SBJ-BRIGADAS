@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { usersApi, listsApi, reportsApi } from '../services/api'
-import { Users, FileText, Table2, BarChart3, Plus, Download, Activity } from 'lucide-react'
+import { Users, FileText, Table2, BarChart3, Plus, Download, Activity, TrendingUp } from 'lucide-react'
 import type { User, ListDefinition, Report } from '../types'
 
 interface Stats {
@@ -63,7 +63,7 @@ export function Dashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+        <div className="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
@@ -71,44 +71,44 @@ export function Dashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-slate-900">
           Bienvenido, {user?.full_name}
         </h1>
-        <p className="text-gray-500 mt-1">Panel de {user?.role === 'admin' ? 'Administrador' : user?.role === 'direccion' ? 'Dirección' : 'Médico'}</p>
+        <p className="text-slate-500 mt-1">Panel de {user?.role === 'admin' ? 'Administrador' : user?.role === 'direccion' ? 'Dirección' : 'Médico'}</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {(user?.role === 'admin' || user?.role === 'direccion') && (
           <StatCard
             icon={<Users size={24} />}
             label="Usuarios"
             value={stats.users ?? 0}
-            color="bg-purple-500"
+            color="bg-gradient-to-br from-violet-500 to-purple-600"
           />
         )}
         <StatCard
           icon={<Table2 size={24} />}
           label="Listas"
           value={stats.lists}
-          color="bg-blue-500"
+          color="bg-gradient-to-br from-cyan-500 to-blue-600"
         />
         <StatCard
           icon={<Activity size={24} />}
           label="Registros"
           value={stats.records}
-          color="bg-green-500"
+          color="bg-gradient-to-br from-emerald-500 to-teal-600"
         />
         <StatCard
           icon={<BarChart3 size={24} />}
           label="Reportes"
           value={stats.reports}
-          color="bg-orange-500"
+          color="bg-gradient-to-br from-amber-500 to-orange-600"
         />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Acciones rápidas</h2>
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 transition-shadow duration-200 hover:shadow-md">          
+          <h2 className="text-lg font-semibold text-slate-900 mb-5">Acciones rápidas</h2>
           <div className="space-y-3">
             <QuickAction
               icon={<Table2 size={18} />}
@@ -136,7 +136,7 @@ export function Dashboard() {
                 onClick={() => navigate('/reports')}
               />
             )}
-            {(user?.role === 'admin' || user?.role === 'direccion') && (
+            {user?.role === 'admin' && (
               <QuickAction
                 icon={<Users size={18} />}
                 label="Gestionar usuarios"
@@ -146,31 +146,31 @@ export function Dashboard() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Listas recientes</h2>
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+          <h2 className="text-lg font-semibold text-slate-900 mb-5">Listas recientes</h2>
           {recentLists.length === 0 ? (
-            <p className="text-gray-500 text-sm">No hay listas aún</p>
+            <p className="text-slate-500 text-sm">No hay listas aún</p>
           ) : (
             <div className="space-y-3">
               {recentLists.map((list) => (
-                <button
-                  key={list.id}
-                  onClick={() => navigate(`/lists/${list.id}`)}
-                  className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 text-left"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
-                    <Table2 size={16} className="text-blue-600" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{list.name}</p>
-                    {list.description && (
-                      <p className="text-xs text-gray-500 truncate">{list.description}</p>
-                    )}
-                  </div>
-                  <span className="text-xs text-gray-400">
-                    {list.columns_config?.length || 0} cols
-                  </span>
-                </button>
+                  <button
+                    key={list.id}
+                    onClick={() => navigate(`/lists/${list.id}`)}
+                    className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-slate-50 text-left transition-all duration-200 group"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-cyan-100 flex items-center justify-center group-hover:bg-cyan-200 transition-colors duration-200">
+                      <Table2 size={16} className="text-cyan-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-slate-900 truncate">{list.name}</p>
+                      {list.description && (
+                        <p className="text-xs text-slate-500 truncate">{list.description}</p>
+                      )}
+                    </div>
+                    <span className="text-xs text-slate-400">
+                      {list.columns_config?.length || 0} cols
+                    </span>
+                  </button>
               ))}
             </div>
           )}
@@ -182,14 +182,14 @@ export function Dashboard() {
 
 function StatCard({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: number; color: string }) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      <div className="flex items-center gap-4">
-        <div className={`w-12 h-12 ${color} rounded-xl flex items-center justify-center text-white`}>
+    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-all duration-200 hover:border-slate-300">
+      <div className="flex items-center gap-5">
+        <div className={`w-12 h-12 ${color} rounded-xl flex items-center justify-center text-white shadow-lg`}>
           {icon}
         </div>
         <div>
-          <p className="text-sm text-gray-500">{label}</p>
-          <p className="text-2xl font-bold text-gray-900">{value}</p>
+          <p className="text-sm text-slate-500">{label}</p>
+          <p className="text-2xl font-bold text-slate-900">{value}</p>
         </div>
       </div>
     </div>
@@ -200,12 +200,12 @@ function QuickAction({ icon, label, onClick }: { icon: React.ReactNode; label: s
   return (
     <button
       onClick={onClick}
-      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors text-left"
+      className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-slate-200 hover:border-cyan-200 hover:bg-cyan-50/50 transition-all duration-200 text-left group"
     >
-      <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600">
+      <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600 group-hover:bg-cyan-100 group-hover:text-cyan-600 transition-all duration-200">
         {icon}
       </div>
-      <span className="text-sm font-medium text-gray-700">{label}</span>
+      <span className="text-sm font-medium text-slate-700 group-hover:text-cyan-700 transition-colors duration-200">{label}</span>
     </button>
   )
 }

@@ -34,6 +34,7 @@ export interface ListRecord {
   id: number
   list_definition_id: number
   data: Record<string, any>
+  created_by: number | null
   created_at: string
 }
 

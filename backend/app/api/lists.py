@@ -140,6 +140,7 @@ def export_expediente_selected(
     from app.services.record_service import get_records_by_ids
     from app.services.expediente_service import export_expediente_excel
     from fastapi.responses import FileResponse
+    import re
     import os
     ids = data.get("ids", [])
     ld = get_list_definition(db, list_id)
@@ -148,7 +149,20 @@ def export_expediente_selected(
     filepath = os.path.join(settings.EXPORTS_DIR, f"expediente_selected_{list_id}.xlsx")
     logo_path = os.path.join(os.path.dirname(__file__), '..', 'assets', 'logo_sbj.png')
     export_expediente_excel(records, filepath, logo_path)
-    return FileResponse(filepath, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename=f"Expediente_{ld.name}_seleccion.xlsx")
+
+    if len(records) == 1:
+        r = records[0].data
+        nombre = re.sub(r'[\\/*?:"<>|]', '', str(r.get('nombre', '')).strip().replace(' ', '_'))
+        apellido = re.sub(r'[\\/*?:"<>|]', '', str(r.get('apellido', '')).strip().replace(' ', '_'))
+        especialidad = re.sub(r'[\\/*?:"<>|]', '', str(r.get('especialidad', '')).strip().replace(' ', '_'))
+        base = f"{nombre}_{apellido}"
+        if especialidad:
+            base += f"_{especialidad}"
+        filename = f"{base}.xlsx"
+    else:
+        filename = f"Expedientes_Seleccionados.xlsx"
+
+    return FileResponse(filepath, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename=filename)
 
 
 @router.post("/{list_id}/import-excel")
@@ -204,6 +218,7 @@ def list_records(
             "id": r.id,
             "list_definition_id": r.list_definition_id,
             "data": r.data,
+            "created_by": r.created_by,
             "created_at": str(r.created_at),
         }
         for r in records
@@ -218,7 +233,7 @@ def create_record(
     current_user: User = Depends(get_current_user),
 ):
     from app.services.record_service import add_record
-    record = add_record(db, list_id, data.get("data", data))
+    record = add_record(db, list_id, data.get("data", data), user_id=current_user.id)
     return {"id": record.id, "message": "Registro creado correctamente"}
 
 
@@ -228,10 +243,13 @@ def update_record_endpoint(
     record_id: int,
     data: dict,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "direccion")),
+    current_user: User = Depends(get_current_user),
 ):
     from app.services.record_service import update_record
-    update_record(db, record_id, data.get("data", data))
+    if current_user.role not in ("admin", "direccion") and current_user.role != "medico":
+        from fastapi import HTTPException
+        raise HTTPException(status_code=403, detail="No tienes permisos para esta acción")
+    update_record(db, record_id, data.get("data", data), user_id=current_user.id, user_role=current_user.role)
     return {"message": "Registro actualizado correctamente"}
 
 

@@ -16,7 +16,7 @@ ALLOWED_ORIGINS = [
 
 Base.metadata.create_all(bind=engine)
 
-# Add is_system column if it doesn't exist (for existing DBs)
+# Add columns if they don't exist (for existing DBs)
 try:
     inspector = inspect(engine)
     if "list_definitions" in inspector.get_table_names():
@@ -26,8 +26,15 @@ try:
                 conn.execute(text("ALTER TABLE list_definitions ADD COLUMN is_system BOOLEAN DEFAULT FALSE"))
                 conn.commit()
             logger.info("Added is_system column to list_definitions")
+    if "list_records" in inspector.get_table_names():
+        columns = [c["name"] for c in inspector.get_columns("list_records")]
+        if "created_by" not in columns:
+            with engine.connect() as conn:
+                conn.execute(text("ALTER TABLE list_records ADD COLUMN created_by INTEGER REFERENCES users(id)"))
+                conn.commit()
+            logger.info("Added created_by column to list_records")
 except Exception as e:
-    logger.warning(f"Could not add is_system column: {e}")
+    logger.warning(f"Could not add column: {e}")
 
 # Create system lists on startup
 try:
