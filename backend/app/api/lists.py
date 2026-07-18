@@ -114,7 +114,8 @@ def export_expediente(
     records = get_records(db, list_id)
     os.makedirs(settings.EXPORTS_DIR, exist_ok=True)
     filepath = os.path.join(settings.EXPORTS_DIR, f"expediente_{list_id}.xlsx")
-    export_expediente_excel(records, filepath)
+    logo_path = os.path.join(os.path.dirname(__file__), '..', 'assets', 'logo_sbj.png')
+    export_expediente_excel(records, filepath, logo_path)
     return FileResponse(filepath, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename=f"Expediente_{ld.name}.xlsx")
 
 
@@ -145,7 +146,8 @@ def export_expediente_selected(
     records = get_records_by_ids(db, ids) if ids else []
     os.makedirs(settings.EXPORTS_DIR, exist_ok=True)
     filepath = os.path.join(settings.EXPORTS_DIR, f"expediente_selected_{list_id}.xlsx")
-    export_expediente_excel(records, filepath)
+    logo_path = os.path.join(os.path.dirname(__file__), '..', 'assets', 'logo_sbj.png')
+    export_expediente_excel(records, filepath, logo_path)
     return FileResponse(filepath, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename=f"Expediente_{ld.name}_seleccion.xlsx")
 
 
