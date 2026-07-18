@@ -60,13 +60,24 @@ def export_expediente_excel(records: list[ListRecord], filepath: str):
     ws = wb.active
     ws.title = "Expediente"
 
-    title_font = Font(bold=True, size=14)
+    title_font = Font(bold=True, size=16)
     label_font = Font(bold=True, size=10)
-    section_font = Font(bold=True, size=11, color="1F4E79")
-    value_font = Font(size=10)
+    section_font = Font(bold=True, size=10)
+    value_small = Font(size=10)
+    value_medical = Font(size=14)
+    value_identidad = Font(size=14)
+    value_vitals = Font(size=11)
+    value_diagnosis = Font(bold=True, size=14)
+    value_doctor = Font(size=14)
     center = Alignment(horizontal="center", vertical="center", wrap_text=True)
     left_wrap = Alignment(horizontal="left", vertical="top", wrap_text=True)
-    section_fill = PatternFill(start_color="E8F0FE", end_color="E8F0FE", fill_type="solid")
+    yellow_fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
+
+    col_widths = {
+        'A': 11.43, 'B': 16.0, 'C': 11.43, 'D': 16.0,
+        'E': 9.43, 'F': 10.14, 'G': 11.71, 'H': 14.86,
+        'I': 15.29, 'J': 13.71,
+    }
 
     for row_idx, record in enumerate(records):
         d = record.data if record.data else {}
@@ -83,11 +94,18 @@ def export_expediente_excel(records: list[ListRecord], filepath: str):
         ws.cell(r, 1).alignment = center
         r += 1
 
-        # Row 2: Especialidad (G-H), Criticidad clínica (I), Estatus de paciente (J)
+        # Row 2: Especialidad (G-H, size 16), Criticidad clínica (I, yellow), Estatus de paciente (J, yellow)
         ws.merge_cells(start_row=r, start_column=7, end_row=r, end_column=8)
-        ws.cell(r, 7, "Especialidad").font = label_font
-        ws.cell(r, 9, "Criticidad clínica").font = label_font
-        ws.cell(r, 10, "Estatus de paciente").font = label_font
+        ws.cell(r, 7, "Especialidad").font = Font(bold=True, size=16)
+        ws.cell(r, 7).alignment = center
+        c = ws.cell(r, 9, "Criticidad clínica")
+        c.font = label_font
+        c.fill = yellow_fill
+        c.alignment = center
+        c = ws.cell(r, 10, "Estatus de paciente")
+        c.font = label_font
+        c.fill = yellow_fill
+        c.alignment = center
         r += 1
 
         # Row 3: Label row
@@ -101,25 +119,27 @@ def export_expediente_excel(records: list[ListRecord], filepath: str):
         ws.cell(r, 7, "Fecha de Elaboración (d/m/a)").font = label_font
         r += 1
 
-        # Row 4-5: Values (2-row merge for name, apellido, sexo, edad, date)
+        # Row 4-5: Values + Procedencia label header (I4:I5, yellow)
         ws.merge_cells(start_row=r, start_column=1, end_row=r+1, end_column=2)
-        ws.cell(r, 1, d.get("nombre", "")).font = value_font
+        ws.cell(r, 1, d.get("nombre", "")).font = Font(size=14)
         ws.cell(r, 1).alignment = center
         ws.merge_cells(start_row=r, start_column=3, end_row=r+1, end_column=4)
-        ws.cell(r, 3, d.get("apellido", "")).font = value_font
+        ws.cell(r, 3, d.get("apellido", "")).font = Font(size=15)
         ws.cell(r, 3).alignment = center
         ws.merge_cells(start_row=r, start_column=5, end_row=r+1, end_column=5)
-        ws.cell(r, 5, d.get("sexo", "")).font = value_font
+        ws.cell(r, 5, d.get("sexo", "")).font = Font(size=16)
         ws.cell(r, 5).alignment = center
         ws.merge_cells(start_row=r, start_column=6, end_row=r+1, end_column=6)
-        ws.cell(r, 6, str(d.get("edad", ""))).font = value_font
+        ws.cell(r, 6, str(d.get("edad", ""))).font = Font(bold=True, size=16)
         ws.cell(r, 6).alignment = center
         ws.merge_cells(start_row=r, start_column=7, end_row=r+1, end_column=8)
-        ws.cell(r, 7, str(d.get("fecha_elaboracion", ""))).font = value_font
+        ws.cell(r, 7, str(d.get("fecha_elaboracion", ""))).font = Font(size=16)
         ws.cell(r, 7).alignment = center
         ws.merge_cells(start_row=r, start_column=9, end_row=r+1, end_column=9)
-        ws.cell(r, 9, d.get("procedencia", "")).font = value_font
-        ws.cell(r, 9).alignment = center
+        c = ws.cell(r, 9, "Procedencia")
+        c.font = label_font
+        c.fill = yellow_fill
+        c.alignment = center
         r += 2
 
         # Row 6: Labels - Nº Identidad, Persona Responsable, Albergue, Perfil, Teléfono, Expediente
@@ -133,54 +153,65 @@ def export_expediente_excel(records: list[ListRecord], filepath: str):
         ws.cell(r, 8, "Expediente").font = label_font
         r += 1
 
-        # Row 7-8: Values for identification
+        # Row 7-8: Values for identification + Procedencia value (I6:I8)
         ws.merge_cells(start_row=r, start_column=1, end_row=r+1, end_column=2)
-        ws.cell(r, 1, d.get("identidad", "")).font = value_font
+        ws.cell(r, 1, d.get("identidad", "")).font = value_identidad
         ws.cell(r, 1).alignment = center
         ws.merge_cells(start_row=r, start_column=3, end_row=r+1, end_column=4)
-        ws.cell(r, 3, d.get("persona_responsable", "")).font = value_font
+        ws.cell(r, 3, d.get("persona_responsable", "")).font = value_small
         ws.cell(r, 3).alignment = center
-        ws.cell(r, 5, d.get("albergue", "")).font = value_font
+        ws.merge_cells(start_row=r, start_column=5, end_row=r+1, end_column=5)
+        ws.cell(r, 5, d.get("albergue", "")).font = value_small
         ws.cell(r, 5).alignment = center
-        ws.cell(r, 6, d.get("perfil", "")).font = value_font
+        ws.merge_cells(start_row=r, start_column=6, end_row=r+1, end_column=6)
+        ws.cell(r, 6, d.get("perfil", "")).font = value_small
         ws.cell(r, 6).alignment = center
-        ws.cell(r, 7, d.get("telefono", "")).font = value_font
+        ws.merge_cells(start_row=r, start_column=7, end_row=r+1, end_column=7)
+        ws.cell(r, 7, d.get("telefono", "")).font = value_small
         ws.cell(r, 7).alignment = center
-        ws.cell(r, 8, d.get("expediente", "")).font = value_font
+        ws.merge_cells(start_row=r, start_column=8, end_row=r+1, end_column=8)
+        ws.cell(r, 8, d.get("expediente", "")).font = value_small
         ws.cell(r, 8).alignment = center
+        ws.merge_cells(start_row=r-1, start_column=9, end_row=r+1, end_column=9)
+        ws.cell(r-1, 9, d.get("procedencia", "")).font = value_small
+        ws.cell(r-1, 9).alignment = center
         r += 2
 
         # Row 9-10: Domicilio
-        ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=2)
+        ws.merge_cells(start_row=r, start_column=1, end_row=r+1, end_column=2)
         ws.cell(r, 1, "Domicilio del  Paciente:").font = label_font
-        ws.merge_cells(start_row=r, start_column=3, end_row=r+1, end_column=10)
-        ws.cell(r, 3, d.get("domicilio", "")).font = value_font
+        ws.merge_cells(start_row=r, start_column=3, end_row=r+1, end_column=8)
+        ws.cell(r, 3, d.get("domicilio", "")).font = value_medical
         ws.cell(r, 3).alignment = left_wrap
         r += 2
 
-        # Row 12: History of Present Illness (merged A12:H12)
-        ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=8)
-        ws.cell(r, 1, "History of Present Illness/Historia de Enfermedad Actual:").font = section_font
-        ws.cell(r, 1).fill = section_fill
+        # Row 11: blank (spacer)
         r += 1
 
-        # Row 13-17: History value (merged A13:H17)
+        # Row 12: History of Present Illness
+        ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=8)
+        ws.cell(r, 1, "History of Present Illness/Historia de Enfermedad Actual:      ").font = section_font
+        r += 1
+
+        # Row 13-17: History value
         ws.merge_cells(start_row=r, start_column=1, end_row=r+4, end_column=8)
-        ws.cell(r, 1, d.get("historia_enfermedad", "")).font = value_font
+        ws.cell(r, 1, d.get("historia_enfermedad", "")).font = value_medical
         ws.cell(r, 1).alignment = left_wrap
         r += 5
 
-        # Row 19: Medical History (merged A19:H19)
+        # Row 18: blank (spacer)
+        r += 1
+
+        # Row 19: Medical History
         ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=8)
         ws.cell(r, 1, "Medical History/Antecedentes:").font = section_font
-        ws.cell(r, 1).fill = section_fill
         r += 1
 
         # Row 20-21: Previous illness
         ws.merge_cells(start_row=r, start_column=1, end_row=r+1, end_column=3)
         ws.cell(r, 1, "Previous illness/ Enfermedades anteriores:").font = label_font
         ws.merge_cells(start_row=r, start_column=4, end_row=r+1, end_column=8)
-        ws.cell(r, 4, d.get("enfermedades_previas", "")).font = value_font
+        ws.cell(r, 4, d.get("enfermedades_previas", "")).font = value_medical
         ws.cell(r, 4).alignment = left_wrap
         r += 2
 
@@ -188,7 +219,7 @@ def export_expediente_excel(records: list[ListRecord], filepath: str):
         ws.merge_cells(start_row=r, start_column=1, end_row=r+1, end_column=3)
         ws.cell(r, 1, "Past surgeries/ Cirugías anteriores:").font = label_font
         ws.merge_cells(start_row=r, start_column=4, end_row=r+1, end_column=8)
-        ws.cell(r, 4, d.get("cirugias_previas", "")).font = value_font
+        ws.cell(r, 4, d.get("cirugias_previas", "")).font = value_medical
         ws.cell(r, 4).alignment = left_wrap
         r += 2
 
@@ -196,7 +227,7 @@ def export_expediente_excel(records: list[ListRecord], filepath: str):
         ws.merge_cells(start_row=r, start_column=1, end_row=r+1, end_column=3)
         ws.cell(r, 1, "Allergies/Alergias:").font = label_font
         ws.merge_cells(start_row=r, start_column=4, end_row=r+1, end_column=8)
-        ws.cell(r, 4, d.get("alergias", "")).font = value_font
+        ws.cell(r, 4, d.get("alergias", "")).font = value_medical
         ws.cell(r, 4).alignment = left_wrap
         r += 2
 
@@ -204,7 +235,7 @@ def export_expediente_excel(records: list[ListRecord], filepath: str):
         ws.merge_cells(start_row=r, start_column=1, end_row=r+1, end_column=3)
         ws.cell(r, 1, "Other/Otros Antecedentes").font = label_font
         ws.merge_cells(start_row=r, start_column=4, end_row=r+1, end_column=8)
-        ws.cell(r, 4, d.get("otros_antecedentes", "")).font = value_font
+        ws.cell(r, 4, d.get("otros_antecedentes", "")).font = value_medical
         ws.cell(r, 4).alignment = left_wrap
         r += 2
 
@@ -215,71 +246,76 @@ def export_expediente_excel(records: list[ListRecord], filepath: str):
         ws.merge_cells(start_row=r, start_column=1, end_row=r+1, end_column=1)
         ws.cell(r, 1, "P.A./.B P:").font = label_font
         ws.merge_cells(start_row=r, start_column=2, end_row=r+1, end_column=2)
-        ws.cell(r, 2, d.get("presion_arterial", "")).font = value_font
+        ws.cell(r, 2, d.get("presion_arterial", "")).font = value_vitals
         ws.cell(r, 2).alignment = center
         ws.merge_cells(start_row=r, start_column=3, end_row=r+1, end_column=3)
-        ws.cell(r, 3, d.get("fc", "")).font = value_font
+        fc_val = d.get("fc", "")
+        ws.cell(r, 3, f"F.C.: {fc_val}" if fc_val else "").font = label_font
         ws.cell(r, 3).alignment = center
-        ws.cell(r, 4, d.get("pulso", "")).font = value_font
+        pulso_val = d.get("pulso", "")
+        ws.cell(r, 4, f"Pulso: {pulso_val}" if pulso_val else "").font = label_font
         ws.cell(r, 4).alignment = center
         ws.merge_cells(start_row=r, start_column=5, end_row=r+1, end_column=5)
-        ws.cell(r, 5, d.get("temperatura", "")).font = value_font
+        temp_val = d.get("temperatura", "")
+        ws.cell(r, 5, f"T°: {temp_val}°C" if temp_val else "").font = label_font
         ws.cell(r, 5).alignment = center
         ws.merge_cells(start_row=r, start_column=6, end_row=r+1, end_column=6)
-        ws.cell(r, 6, d.get("fr", "")).font = value_font
+        fr_val = d.get("fr", "")
+        ws.cell(r, 6, f"F.R.: {fr_val}" if fr_val else "").font = label_font
         ws.cell(r, 6).alignment = center
         ws.cell(r, 7, "Peso/Weight:").font = label_font
-        ws.cell(r, 8, d.get("peso", "")).font = value_font
+        ws.cell(r, 8, d.get("peso", "")).font = value_vitals
         ws.cell(r, 8).alignment = center
-        # Row 30: Vital signs (part 2) - labels in col D and G
         r += 1
-        ws.cell(r, 4, d.get("talla", "")).font = value_font
+        talla_val = d.get("talla", "")
+        ws.cell(r, 4, f"Talla: {talla_val}" if talla_val else "").font = label_font
         ws.cell(r, 4).alignment = center
         ws.cell(r, 7, "B.M.I.:").font = label_font
-        ws.cell(r, 8, d.get("bmi", "")).font = value_font
+        ws.cell(r, 8, d.get("bmi", "")).font = value_vitals
         ws.cell(r, 8).alignment = center
         r += 1
 
         # Row 31: Physical Exam section header
         ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=8)
-        ws.cell(r, 1, "Physical Exam /Examen Físico").font = section_font
-        ws.cell(r, 1).fill = section_fill
+        ws.cell(r, 1, "Physical Exam /Examen Físico ").font = section_font
         r += 1
 
         # Row 32-36: Physical exam value
         ws.merge_cells(start_row=r, start_column=1, end_row=r+4, end_column=8)
-        ws.cell(r, 1, d.get("examen_fisico", "")).font = value_font
+        ws.cell(r, 1, d.get("examen_fisico", "")).font = value_medical
         ws.cell(r, 1).alignment = left_wrap
         r += 5
 
-        # Row 37: Diagnosis section (col 4)
+        # Row 37: Diagnosis section (col D)
         ws.cell(r, 4, "Diagnosis/ Diagnóstico").font = section_font
-        ws.cell(r, 4).fill = section_fill
         r += 1
 
         # Row 38-42: Diagnosis value
         ws.merge_cells(start_row=r, start_column=1, end_row=r+4, end_column=8)
-        ws.cell(r, 1, d.get("diagnostico", "")).font = value_font
+        ws.cell(r, 1, d.get("diagnostico", "")).font = value_diagnosis
         ws.cell(r, 1).alignment = left_wrap
         r += 5
 
         # Row 43: blank
         r += 1
 
-        # Row 44: Doctor name (merged B44:G44) - value ABOVE label like the original
+        # Row 44: Doctor name
         ws.merge_cells(start_row=r, start_column=2, end_row=r, end_column=7)
-        ws.cell(r, 2, d.get("nombre_medico", "")).font = value_font
+        ws.cell(r, 2, d.get("nombre_medico", "")).font = value_doctor
         ws.cell(r, 2).alignment = center
         r += 1
 
-        # Row 45: "Nombre del Médico" label (merged B45:G45)
+        # Row 45: "Nombre del Médico"
         ws.merge_cells(start_row=r, start_column=2, end_row=r, end_column=7)
-        ws.cell(r, 2, "Nombre del Médico").font = label_font
+        ws.cell(r, 2, "    Nombre del Médico").font = label_font
         ws.cell(r, 2).alignment = center
         r += 2
 
         # Row 48: Surgeon
         ws.cell(r, 1, "Surgeon/ Cirujano:").font = label_font
+        ws.merge_cells(start_row=r, start_column=3, end_row=r, end_column=8)
+        ws.cell(r, 3, d.get("cirujano", "")).font = value_doctor
+        ws.cell(r, 3).alignment = center
         r += 2
 
         # Row 50: Surgery Date
@@ -288,8 +324,7 @@ def export_expediente_excel(records: list[ListRecord], filepath: str):
         ws.cell(r, 1, f"Surgery Date/ Day of the Week   Fecha de Cirugía/Día de la Semana:   {surgery_date}").font = Font(bold=True, size=11)
         ws.cell(r, 1).alignment = center
 
-        # Column widths
-        for col_letter, w in [('A', 18), ('B', 18), ('C', 18), ('D', 18), ('E', 18), ('F', 18), ('G', 18), ('H', 18), ('I', 18), ('J', 18)]:
-            ws.column_dimensions[col_letter].width = w
+    for col_letter, w in col_widths.items():
+        ws.column_dimensions[col_letter].width = w
 
     wb.save(filepath)
