@@ -63,7 +63,7 @@ export function Dashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-2 border-rose-400 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
@@ -71,10 +71,10 @@ export function Dashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-rose-900">
+        <h1 className="text-2xl font-bold text-slate-900">
           Bienvenido, {user?.full_name}
         </h1>
-        <p className="text-rose-500 mt-1">Panel de {user?.role === 'admin' ? 'Administrador' : user?.role === 'direccion' ? 'Dirección' : 'Médico'}</p>
+        <p className="text-slate-500 mt-1">Panel de {user?.role === 'admin' ? 'Administrador' : user?.role === 'direccion' ? 'Dirección' : 'Médico'}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -83,32 +83,32 @@ export function Dashboard() {
             icon={<Users size={24} />}
             label="Usuarios"
             value={stats.users ?? 0}
-            color="bg-gradient-to-br from-purple-300 to-pink-300"
+            color="bg-gradient-to-br from-slate-300 to-slate-400"
           />
         )}
         <StatCard
           icon={<Table2 size={24} />}
           label="Listas"
           value={stats.lists}
-          color="bg-gradient-to-br from-sky-300 to-indigo-300"
+          color="bg-gradient-to-br from-slate-300 to-slate-400"
         />
         <StatCard
           icon={<Activity size={24} />}
           label="Registros"
           value={stats.records}
-          color="bg-gradient-to-br from-teal-300 to-emerald-300"
+          color="bg-gradient-to-br from-slate-300 to-slate-400"
         />
         <StatCard
           icon={<BarChart3 size={24} />}
           label="Reportes"
           value={stats.reports}
-          color="bg-gradient-to-br from-amber-300 to-orange-300"
+          color="bg-gradient-to-br from-slate-300 to-slate-400"
         />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-rose-100 p-6 transition-shadow duration-200 hover:shadow-md">          
-          <h2 className="text-lg font-semibold text-rose-900 mb-5">Acciones rápidas</h2>
+        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-slate-200 p-6 transition-shadow duration-200 hover:shadow-md">          
+          <h2 className="text-lg font-semibold text-slate-900 mb-5">Acciones rápidas</h2>
           <div className="space-y-3">
             <QuickAction
               icon={<Table2 size={18} />}
@@ -146,28 +146,28 @@ export function Dashboard() {
           </div>
         </div>
 
-        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-rose-100 p-6">
-          <h2 className="text-lg font-semibold text-rose-900 mb-5">Listas recientes</h2>
+        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-slate-200 p-6">
+          <h2 className="text-lg font-semibold text-slate-900 mb-5">Listas recientes</h2>
           {recentLists.length === 0 ? (
-            <p className="text-rose-500 text-sm">No hay listas aún</p>
+            <p className="text-slate-500 text-sm">No hay listas aún</p>
           ) : (
             <div className="space-y-3">
               {recentLists.map((list) => (
                   <button
                     key={list.id}
                     onClick={() => navigate(`/lists/${list.id}`)}
-                    className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-rose-50 text-left transition-all duration-200 group"
+                    className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-slate-50 text-left transition-all duration-200 group"
                   >
-                    <div className="w-8 h-8 rounded-lg bg-rose-100 flex items-center justify-center group-hover:bg-rose-200 transition-colors duration-200">
-                      <Table2 size={16} className="text-rose-500" />
+                    <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center group-hover:bg-slate-200 transition-colors duration-200">
+                      <Table2 size={16} className="text-slate-500" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-rose-900 truncate">{list.name}</p>
+                      <p className="text-sm font-medium text-slate-900 truncate">{list.name}</p>
                       {list.description && (
-                        <p className="text-xs text-rose-500 truncate">{list.description}</p>
+                        <p className="text-xs text-slate-500 truncate">{list.description}</p>
                       )}
                     </div>
-                    <span className="text-xs text-rose-400">
+                    <span className="text-xs text-slate-400">
                       {list.columns_config?.length || 0} cols
                     </span>
                   </button>
@@ -182,14 +182,14 @@ export function Dashboard() {
 
 function StatCard({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: number; color: string }) {
   return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-rose-100 p-6 hover:shadow-md transition-all duration-200 hover:border-rose-200">
+    <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-all duration-200 hover:border-slate-200">
       <div className="flex items-center gap-5">
         <div className={`w-12 h-12 ${color} rounded-xl flex items-center justify-center text-white shadow-lg`}>
           {icon}
         </div>
         <div>
-          <p className="text-sm text-rose-500">{label}</p>
-          <p className="text-2xl font-bold text-rose-900">{value}</p>
+          <p className="text-sm text-slate-500">{label}</p>
+          <p className="text-2xl font-bold text-slate-900">{value}</p>
         </div>
       </div>
     </div>
@@ -200,12 +200,12 @@ function QuickAction({ icon, label, onClick }: { icon: React.ReactNode; label: s
   return (
     <button
       onClick={onClick}
-      className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-rose-100 hover:border-rose-200 hover:bg-rose-50/50 transition-all duration-200 text-left group"
+      className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-slate-200 hover:border-slate-200 hover:bg-slate-50/50 transition-all duration-200 text-left group"
     >
-      <div className="w-9 h-9 rounded-xl bg-rose-100 flex items-center justify-center text-rose-500 group-hover:bg-rose-200 group-hover:text-rose-600 transition-all duration-200">
+      <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-600 transition-all duration-200">
         {icon}
       </div>
-      <span className="text-sm font-medium text-rose-700 group-hover:text-rose-800 transition-colors duration-200">{label}</span>
+      <span className="text-sm font-medium text-slate-700 group-hover:text-slate-800 transition-colors duration-200">{label}</span>
     </button>
   )
 }

@@ -190,27 +190,27 @@ export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
   const pct = total > 0 ? Math.round((filled / total) * 100) : 0
 
   return (
-    <div className="fixed inset-0 bg-rose-900/20 backdrop-blur-sm flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-white/95 rounded-xl w-[95vw] max-w-5xl max-h-[90vh] flex flex-col">
-        <div className="px-5 py-3 border-b border-rose-100 flex items-center justify-between shrink-0">
+        <div className="px-5 py-3 border-b border-slate-200 flex items-center justify-between shrink-0">
           <div>
-            <h2 className="text-xl font-bold text-rose-900">Nuevo Expediente Médico</h2>
-            <p className="text-sm text-rose-500 mt-1">Complete todas las secciones para crear el registro</p>
+            <h2 className="text-xl font-bold text-slate-900">Nuevo Expediente Médico</h2>
+            <p className="text-sm text-slate-500 mt-1">Complete todas las secciones para crear el registro</p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-rose-50 rounded-lg text-rose-400">
+          <button onClick={onClose} className="p-2 hover:bg-slate-50 rounded-lg text-slate-400">
             ✕
           </button>
         </div>
 
         <div className="px-5 pt-2 shrink-0">
           <div className="flex items-center gap-3 mb-1">
-            <div className="flex-1 h-2 bg-rose-100 rounded-full overflow-hidden">
+            <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-rose-400 to-pink-400 rounded-full transition-all duration-500"
+                className="h-full bg-gradient-to-r from-slate-500 to-slate-600 rounded-full transition-all duration-500"
                 style={{ width: `${pct}%` }}
               />
             </div>
-            <span className="text-sm font-medium text-rose-600 min-w-[4rem] text-right">
+            <span className="text-sm font-medium text-slate-600 min-w-[4rem] text-right">
               {filled}/{total}
             </span>
           </div>
@@ -221,7 +221,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
                 <span
                   key={s.title}
                   className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium transition-colors ${
-                    done ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-50 text-rose-400'
+                    done ? 'bg-slate-100 text-slate-600' : 'bg-slate-50 text-slate-400'
                   }`}
                 >
                   {done ? <CheckCircle2 size={12} /> : <Circle size={12} />}
@@ -237,34 +237,34 @@ export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
             const done = isSectionComplete(section, data)
             const isOpen = expanded === section.title
             return (
-              <div key={section.title} className="border border-rose-100 rounded-xl overflow-hidden">
+              <div key={section.title} className="border border-slate-200 rounded-xl overflow-hidden">
                 <button
                   type="button"
                   onClick={() => toggleSection(section.title)}
                   className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${
-                    done ? 'bg-emerald-50' : 'bg-rose-50'
+                    done ? 'bg-slate-50' : 'bg-slate-50'
                   } hover:brightness-95`}
                 >
-                  <span className={done ? 'text-emerald-500' : 'text-rose-400'}>
+                  <span className={done ? 'text-slate-500' : 'text-slate-400'}>
                     {done ? <CheckCircle2 size={20} /> : <Circle size={20} />}
                   </span>
-                  <span className="text-rose-500">{section.icon}</span>
-                  <span className={`flex-1 font-medium text-sm ${done ? 'text-emerald-700' : 'text-rose-700'}`}>
+                  <span className="text-slate-500">{section.icon}</span>
+                  <span className={`flex-1 font-medium text-sm ${done ? 'text-slate-700' : 'text-slate-700'}`}>
                     {section.title}
                   </span>
-                  <span className="text-xs text-rose-400">
+                  <span className="text-xs text-slate-400">
                     {section.fields.filter((f) => {
                       const v = data[f.key]
                       return v !== undefined && v !== null && String(v).trim() !== ''
                     }).length}/{section.fields.length}
                   </span>
-                  {isOpen ? <ChevronDown size={16} className="text-rose-400" /> : <ChevronRight size={16} className="text-rose-400" />}
+                  {isOpen ? <ChevronDown size={16} className="text-slate-400" /> : <ChevronRight size={16} className="text-slate-400" />}
                 </button>
                 {isOpen && (
                   <div className="px-4 py-3 space-y-3 bg-white">
                     {section.fields.map((field) => (
                       <div key={field.key}>
-                        <label className="block text-sm font-medium text-rose-700 mb-1">
+                        <label className="block text-sm font-medium text-slate-700 mb-1">
                           {field.label}
                         </label>
                         {field.key === 'especialidad' ? (
@@ -275,7 +275,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
                               value={data[field.key] || ''}
                               onChange={(e) => setValue(field.key, e.target.value.toUpperCase())}
                               placeholder="Escriba o seleccione una especialidad"
-                              className="w-full px-3 py-2 border border-rose-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-300 focus:border-rose-300"
+                              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                             />
                             <datalist id="especialidad-list">
                               {especialidades.map((esp) => (
@@ -287,7 +287,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
                           <select
                             value={data[field.key] || ''}
                             onChange={(e) => setValue(field.key, e.target.value)}
-                            className="w-full px-3 py-2 border border-rose-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-300 focus:border-rose-300"
+                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                           >
                             <option value="">Seleccione...</option>
                             <option value="baja">Baja</option>
@@ -298,7 +298,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
                           <select
                             value={data[field.key] || ''}
                             onChange={(e) => setValue(field.key, e.target.value)}
-                            className="w-full px-3 py-2 border border-rose-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-300 focus:border-rose-300"
+                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                           >
                             <option value="">Seleccione...</option>
                             <option value="M">M</option>
@@ -318,7 +318,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
                                   const n = e.target.value
                                   setValue('edad', n === '' ? '' : `${n} ${edadUnit}`)
                                 }}
-                                className="flex-1 px-3 py-2 border border-rose-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-300 focus:border-rose-300"
+                                className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                               />
                               <select
                                 value={edadUnit}
@@ -326,7 +326,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
                                   const u = e.target.value
                                   setValue('edad', edadNum === '' ? '' : `${edadNum} ${u}`)
                                 }}
-                                className="w-28 px-3 py-2 border border-rose-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-300 focus:border-rose-300"
+                                className="w-28 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                               >
                                 <option value="a">Años</option>
                                 <option value="m">Meses</option>
@@ -337,7 +337,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
                           <select
                             value={data[field.key] || ''}
                             onChange={(e) => setValue(field.key, e.target.value)}
-                            className="w-full px-3 py-2 border border-rose-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-300 focus:border-rose-300"
+                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                           >
                             <option value="">Seleccione...</option>
                             <option value="1">1</option>
@@ -349,7 +349,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
                           <select
                             value={data[field.key] || ''}
                             onChange={(e) => setValue(field.key, e.target.value)}
-                            className="w-full px-3 py-2 border border-rose-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-300 focus:border-rose-300"
+                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                           >
                             <option value="">Seleccione...</option>
                             <option value="Si">Si</option>
@@ -359,7 +359,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
                           <select
                             value={data[field.key] || ''}
                             onChange={(e) => setValue(field.key, e.target.value)}
-                            className="w-full px-3 py-2 border border-rose-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-300 focus:border-rose-300"
+                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                           >
                             <option value="">Seleccione...</option>
                             <option value="Operado">Operado</option>
@@ -380,7 +380,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
                               setValue(field.key, formatted)
                             }}
                             placeholder="0000-0000-00000"
-                            className="w-full px-3 py-2 border border-rose-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-300 focus:border-rose-300"
+                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                           />
                         ) : field.key.startsWith('telefono') ? (
                           <input
@@ -394,7 +394,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
                               setValue(field.key, formatted)
                             }}
                             placeholder="0000-0000"
-                            className="w-full px-3 py-2 border border-rose-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-300 focus:border-rose-300"
+                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                           />
                         ) : field.key === 'presion_arterial' ? (
                           <input
@@ -410,7 +410,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
                               setValue(field.key, formatted)
                             }}
                             placeholder="000/000"
-                            className="w-full px-3 py-2 border border-rose-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-300 focus:border-rose-300"
+                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                           />
                         ) : field.key === 'peso' ? (
                           <div className="relative">
@@ -419,9 +419,9 @@ export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
                               value={(data[field.key] || '').replace(/\s*kg$/, '')}
                               onChange={(e) => setValue(field.key, e.target.value ? `${e.target.value} kg` : '')}
                               placeholder="0 kg"
-                              className="w-full px-3 py-2 pr-10 border border-rose-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-300 focus:border-rose-300"
+                              className="w-full px-3 py-2 pr-10 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                             />
-                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-rose-400 text-sm pointer-events-none">kg</span>
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">kg</span>
                           </div>
                         ) : field.key === 'talla' ? (
                           <div className="relative">
@@ -430,9 +430,9 @@ export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
                               value={(data[field.key] || '').replace(/\s*mts$/, '')}
                               onChange={(e) => setValue(field.key, e.target.value ? `${e.target.value} mts` : '')}
                               placeholder="0.00 mts"
-                              className="w-full px-3 py-2 pr-10 border border-rose-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-300 focus:border-rose-300"
+                              className="w-full px-3 py-2 pr-10 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                             />
-                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-rose-400 text-sm pointer-events-none">mts</span>
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">mts</span>
                           </div>
                         ) : field.key === 'nombre' || field.key === 'apellido' || field.key === 'persona_responsable' ? (
                           <textarea
@@ -443,7 +443,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
                               const titleCased = val.replace(/\w\S*/g, (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
                               setValue(field.key, titleCased)
                             }}
-                            className="w-full px-3 py-2 border border-rose-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-300 focus:border-rose-300 resize-none"
+                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400 resize-none"
                           />
                         ) : field.key === 'domicilio' ? (
                           <textarea
@@ -457,28 +457,28 @@ export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
                               )
                               setValue(field.key, titleCased)
                             }}
-                            className="w-full px-3 py-2 border border-rose-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-300 focus:border-rose-300 resize-none"
+                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400 resize-none"
                           />
                         ) : field.type === 'date' ? (
                           <input
                             type="date"
                             value={data[field.key] || ''}
                             onChange={(e) => setValue(field.key, e.target.value)}
-                            className="w-full px-3 py-2 border border-rose-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-300 focus:border-rose-300"
+                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                           />
                         ) : field.type === 'number' ? (
                           <input
                             type="number"
                             value={data[field.key] ?? ''}
                             onChange={(e) => setValue(field.key, e.target.value === '' ? '' : Number(e.target.value))}
-                            className="w-full px-3 py-2 border border-rose-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-300 focus:border-rose-300"
+                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                           />
                         ) : (
                           <textarea
                             rows={field.key === 'domicilio' || field.key === 'historia_enfermedad' || field.key === 'examen_fisico' || field.key === 'diagnostico' ? 3 : 1}
                             value={data[field.key] || ''}
                             onChange={(e) => setValue(field.key, e.target.value)}
-                            className="w-full px-3 py-2 border border-rose-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-300 focus:border-rose-300 resize-none"
+                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400 resize-none"
                           />
                         )}
                       </div>
@@ -490,10 +490,10 @@ export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
           })}
         </div>
 
-        <div className="px-5 py-3 border-t border-rose-100 flex items-center justify-between shrink-0">
+        <div className="px-5 py-3 border-t border-slate-200 flex items-center justify-between shrink-0">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 rounded-lg"
+            className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg"
           >
             Cancelar
           </button>
@@ -502,8 +502,8 @@ export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
             disabled={!allComplete || saving}
             className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all ${
               allComplete && !saving
-                ? 'bg-rose-400 text-white hover:bg-rose-500 shadow-sm'
-                : 'bg-rose-100 text-rose-300 cursor-not-allowed'
+                ? 'bg-slate-500 text-white hover:bg-slate-600 shadow-sm'
+                : 'bg-slate-100 text-slate-300 cursor-not-allowed'
             }`}
           >
             {saving ? 'Guardando...' : allComplete ? 'Crear Expediente' : `Complete todas las secciones`}

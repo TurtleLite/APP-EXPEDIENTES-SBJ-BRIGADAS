@@ -86,13 +86,13 @@ export function Reports() {
     <div>
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-rose-900">Reportes</h1>
-          <p className="text-sm text-rose-500 mt-1">Genera y descarga reportes del sistema</p>
+          <h1 className="text-2xl font-bold text-slate-900">Reportes</h1>
+          <p className="text-sm text-slate-500 mt-1">Genera y descarga reportes del sistema</p>
         </div>
         {(user?.role === 'admin' || user?.role === 'direccion') && (
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-1.5 bg-gradient-to-r from-rose-400 to-pink-400 text-white px-4 py-2 rounded-xl hover:from-rose-500 hover:to-pink-500 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] text-sm font-medium"
+            className="flex items-center gap-1.5 bg-gradient-to-r from-slate-500 to-slate-600 text-white px-4 py-2 rounded-xl hover:from-slate-600 hover:to-slate-700 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] text-sm font-medium"
           >
             <Plus size={16} />
             Nuevo Reporte
@@ -102,22 +102,22 @@ export function Reports() {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {reports.map((report) => (
-          <div key={report.id} className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-rose-100 p-6 hover:shadow-md hover:border-rose-200 transition-all duration-200">
-            <h3 className="font-semibold text-rose-900 mb-1">{report.name}</h3>
+          <div key={report.id} className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md hover:border-slate-200 transition-all duration-200">
+            <h3 className="font-semibold text-slate-900 mb-1">{report.name}</h3>
             {report.description && (
-              <p className="text-sm text-rose-500 mb-3">{report.description}</p>
+              <p className="text-sm text-slate-500 mb-3">{report.description}</p>
             )}
             <div className="flex flex-wrap gap-2 mt-3">
               <button
                 onClick={() => handleGenerate(report.id, 'excel')}
-                className="flex items-center gap-1 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-xl text-xs font-medium hover:bg-emerald-100 border border-emerald-200 transition-all duration-200 hover:scale-105 active:scale-95"
+                className="flex items-center gap-1 px-3 py-1.5 bg-slate-50 text-slate-600 rounded-xl text-xs font-medium hover:bg-slate-100 border border-slate-200 transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 <FileSpreadsheet size={14} />
                 Gen. Excel
               </button>
               <button
                 onClick={() => handleGenerate(report.id, 'pdf')}
-                className="flex items-center gap-1 px-3 py-1.5 bg-rose-50 text-rose-600 rounded-xl text-xs font-medium hover:bg-rose-100 border border-rose-200 transition-all duration-200 hover:scale-105 active:scale-95"
+                className="flex items-center gap-1 px-3 py-1.5 bg-slate-50 text-slate-600 rounded-xl text-xs font-medium hover:bg-slate-100 border border-slate-200 transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 <FileText size={14} />
                 Gen. PDF
@@ -125,7 +125,7 @@ export function Reports() {
               {report.file_path_excel && (
                 <button
                   onClick={() => handleDownload(report.id, 'excel')}
-                  className="flex items-center gap-1 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-xl text-xs font-medium hover:bg-emerald-100 border border-emerald-200 transition-all duration-200 hover:scale-105 active:scale-95"
+                  className="flex items-center gap-1 px-3 py-1.5 bg-slate-50 text-slate-600 rounded-xl text-xs font-medium hover:bg-slate-100 border border-slate-200 transition-all duration-200 hover:scale-105 active:scale-95"
                 >
                   <Download size={14} />
                   Excel
@@ -134,27 +134,27 @@ export function Reports() {
               {report.file_path_pdf && (
                 <button
                   onClick={() => handleDownload(report.id, 'pdf')}
-                  className="flex items-center gap-1 px-3 py-1.5 bg-rose-50 text-rose-600 rounded-xl text-xs font-medium hover:bg-rose-100 border border-rose-200 transition-all duration-200 hover:scale-105 active:scale-95"
+                  className="flex items-center gap-1 px-3 py-1.5 bg-slate-50 text-slate-600 rounded-xl text-xs font-medium hover:bg-slate-100 border border-slate-200 transition-all duration-200 hover:scale-105 active:scale-95"
                 >
                   <Download size={14} />
                   PDF
                 </button>
               )}
             </div>
-            <div className="flex justify-end mt-2 pt-2 border-t border-rose-100">
+            <div className="flex justify-end mt-2 pt-2 border-t border-slate-200">
               {(user?.role === 'admin' || user?.role === 'direccion') && (
                 deleteConfirm === report.id ? (
                   <div className="flex items-center gap-2 text-xs">
-                    <span className="text-rose-500">¿Eliminar?</span>
+                    <span className="text-slate-500">¿Eliminar?</span>
                     <button
                       onClick={() => handleDelete(report.id)}
-                      className="px-2 py-1 bg-rose-400 text-white rounded-lg hover:bg-rose-500 transition-all duration-200"
+                      className="px-2 py-1 bg-red-400 text-white rounded-lg hover:bg-red-500 transition-all duration-200"
                     >
                       Sí
                     </button>
                     <button
                       onClick={() => setDeleteConfirm(null)}
-                      className="px-2 py-1 bg-rose-100 text-rose-600 rounded-lg hover:bg-rose-200 transition-all duration-200"
+                      className="px-2 py-1 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-all duration-200"
                     >
                       No
                     </button>
@@ -162,7 +162,7 @@ export function Reports() {
                 ) : (
                   <button
                     onClick={() => setDeleteConfirm(report.id)}
-                    className="flex items-center gap-1 px-2 py-1 text-xs text-rose-400 hover:bg-rose-50 rounded-lg transition-all duration-200"
+                    className="flex items-center gap-1 px-2 py-1 text-xs text-red-400 hover:bg-red-50 rounded-lg transition-all duration-200"
                   >
                     <Trash2 size={12} />
                     Eliminar
@@ -175,26 +175,26 @@ export function Reports() {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 bg-rose-900/20 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white/90 backdrop-blur-sm rounded-xl px-5 py-3 w-[95vw] max-w-5xl shadow-2xl">
-            <h2 className="text-lg font-bold mb-4 text-rose-900">Nuevo Reporte</h2>
+            <h2 className="text-lg font-bold mb-4 text-slate-900">Nuevo Reporte</h2>
             <div className="space-y-3">
               <input
                 placeholder="Nombre del reporte"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-rose-300/30 focus:border-rose-300 transition-all duration-200"
+                className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               />
               <input
                 placeholder="Descripción (opcional)"
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
-                className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-rose-300/30 focus:border-rose-300 transition-all duration-200"
+                className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               />
               <select
                 value={form.list_definition_id}
                 onChange={(e) => setForm({ ...form, list_definition_id: Number(e.target.value) })}
-                className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-rose-300/30 focus:border-rose-300 transition-all duration-200"
+                className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               >
                 <option value={0}>Seleccionar lista</option>
                 {lists.map((l) => (
@@ -203,10 +203,10 @@ export function Reports() {
               </select>
             </div>
             <div className="flex justify-end gap-2 mt-4">
-              <button onClick={() => setShowModal(false)} className="px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-200">
+              <button onClick={() => setShowModal(false)} className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-xl transition-all duration-200">
                 Cancelar
               </button>
-              <button onClick={handleCreate} className="px-4 py-2 text-sm bg-gradient-to-r from-rose-400 to-pink-400 text-white rounded-xl hover:from-rose-500 hover:to-pink-500 shadow-sm hover:shadow-md transition-all duration-200 font-medium">
+              <button onClick={handleCreate} className="px-4 py-2 text-sm bg-gradient-to-r from-slate-500 to-slate-600 text-white rounded-xl hover:from-slate-600 hover:to-slate-700 shadow-sm hover:shadow-md transition-all duration-200 font-medium">
                 Crear Reporte
               </button>
             </div>
