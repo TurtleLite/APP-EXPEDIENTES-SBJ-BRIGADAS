@@ -72,6 +72,16 @@ export function Lists() {
           <p className="text-sm text-slate-500 mt-1">Administra las listas de registro del sistema</p>
         </div>
         <div className="flex gap-2">
+          <button
+            onClick={() => {
+              const firstList = lists[0]
+              if (firstList) navigate(`/lists/${firstList.id}`)
+            }}
+            className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-xl hover:bg-slate-50 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] text-sm font-medium"
+          >
+            <Eye size={16} />
+            Ver registros
+          </button>
           {(user?.role === 'admin' || user?.role === 'direccion') && (
             <button
               onClick={() => setShowModal(true)}
