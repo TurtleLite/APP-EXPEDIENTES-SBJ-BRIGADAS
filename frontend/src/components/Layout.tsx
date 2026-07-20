@@ -118,7 +118,7 @@ export function Layout({ children }: { children: ReactNode }) {
             </span>
           </div>
         </header>
-        <main className="flex-1 p-6 flex flex-col overflow-hidden min-h-0 relative">
+        <main className="flex-1 p-6 flex flex-col overflow-y-auto min-h-0 relative">
           {children}
           <div className="absolute bottom-2 right-6 text-[10px] font-semibold text-slate-300 tracking-[0.2em] select-none pointer-events-none">
             TURTLELITE
