@@ -283,10 +283,7 @@ export function ListDetail() {
                     {col.label}
                   </th>
                 ))}
-                {(user?.role === 'admin' || (user?.role === 'direccion' && !list?.is_system)) && (
-                  <th className="text-right px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Acciones</th>
-                )}
-                {user?.role === 'medico' && (
+                {(user?.role === 'admin' || user?.role === 'direccion' || user?.role === 'medico') && (
                   <th className="text-right px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Acciones</th>
                 )}
               </tr>
@@ -311,7 +308,7 @@ export function ListDetail() {
                       }
                     </td>
                   ))}
-                  {(user?.role === 'admin' || (user?.role === 'direccion' && !list?.is_system)) && (
+                  {(user?.role === 'admin' || user?.role === 'direccion' || user?.role === 'medico') && (
                     <td className="px-6 py-4 text-right">
                       {list?.is_system && (
                         <button
@@ -322,36 +319,8 @@ export function ListDetail() {
                           <Download size={15} className="text-slate-600" />
                         </button>
                       )}
-                      <button
-                        onClick={() => {
-                          setEditingRecord(record)
-                          setFormData(record.data)
-                          setShowModal(true)
-                        }}
-                        className="p-1.5 hover:bg-slate-100 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
-                      >
-                        <Pencil size={15} className="text-slate-600" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteRecord(record.id)}
-                        className="p-1.5 hover:bg-red-100 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 ml-1"
-                      >
-                        <Trash2 size={15} className="text-red-400" />
-                      </button>
-                    </td>
-                  )}
-                  {user?.role === 'medico' && (
-                    <td className="px-6 py-4 text-right">
-                      {list?.is_system && (
-                        <button
-                          onClick={() => handleExportRecord(record)}
-                          className="p-1.5 hover:bg-slate-100 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
-                          title="Exportar"
-                        >
-                          <Download size={15} className="text-slate-600" />
-                        </button>
-                      )}
-                      {(!list?.is_system || record.created_by === user.id) && (
+                      {/* admin: edit any; direccion: no edit; medico: edit own */}
+                      {(user?.role === 'admin' || (user?.role === 'medico' && (!list?.is_system || record.created_by === user.id))) && (
                         <button
                           onClick={() => {
                             setEditingRecord(record)
@@ -361,6 +330,15 @@ export function ListDetail() {
                           className="p-1.5 hover:bg-slate-100 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
                         >
                           <Pencil size={15} className="text-slate-600" />
+                        </button>
+                      )}
+                      {/* admin: delete any; medico: delete own; direccion: no delete */}
+                      {(user?.role === 'admin' || (user?.role === 'medico' && record.created_by === user.id)) && (
+                        <button
+                          onClick={() => handleDeleteRecord(record.id)}
+                          className="p-1.5 hover:bg-red-100 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 ml-1"
+                        >
+                          <Trash2 size={15} className="text-red-400" />
                         </button>
                       )}
                     </td>

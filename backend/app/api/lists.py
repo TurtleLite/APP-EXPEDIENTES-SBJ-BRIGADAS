@@ -261,10 +261,10 @@ def delete_record_endpoint(
     list_id: int,
     record_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "direccion")),
+    current_user: User = Depends(get_current_user),
 ):
     from app.services.record_service import delete_record
-    delete_record(db, record_id)
+    delete_record(db, record_id, user_id=current_user.id, user_role=current_user.role)
     return {"message": "Registro eliminado correctamente"}
 
 

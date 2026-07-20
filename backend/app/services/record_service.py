@@ -42,17 +42,26 @@ def update_record(db: Session, record_id: int, data: dict, user_id: int = None, 
     if user_role == "medico" and record.created_by != user_id:
         from fastapi import HTTPException
         raise HTTPException(status_code=403, detail="No puedes editar un expediente creado por otro médico")
+    if user_role not in ("admin", "direccion") and "estatus_cirugia" in data:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=403, detail="Solo Administración o Dirección puede cambiar el estatus de cirugía")
     record.data = data
     db.commit()
     db.refresh(record)
     return record
 
 
-def delete_record(db: Session, record_id: int):
+def delete_record(db: Session, record_id: int, user_id: int = None, user_role: str = None):
     record = db.query(ListRecord).filter(ListRecord.id == record_id).first()
     if not record:
         from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Registro no encontrado")
+    if user_role == "medico" and record.created_by != user_id:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=403, detail="No puedes eliminar un expediente creado por otro médico")
+    if user_role == "direccion":
+        from fastapi import HTTPException
+        raise HTTPException(status_code=403, detail="Dirección no puede eliminar registros")
     db.delete(record)
     db.commit()
 
