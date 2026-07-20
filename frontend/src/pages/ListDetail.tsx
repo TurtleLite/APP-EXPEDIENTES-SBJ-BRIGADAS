@@ -389,11 +389,11 @@ export function ListDetail() {
       )}
       {showModal && (
         <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl px-5 py-3 w-[95vw] max-w-5xl flex flex-col shadow-2xl">
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl px-5 py-3 w-[95vw] max-w-5xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
             <h2 className="text-lg font-bold mb-4 shrink-0 text-slate-900">
               {editingRecord ? 'Editar Registro' : 'Nuevo Registro'}
             </h2>
-            <div className="space-y-3 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto min-h-0 space-y-3">
               {list?.columns_config.map((col) => (
                 <div key={col.key}>
                   <label className="block text-sm font-medium text-slate-700 mb-1">{col.label}</label>
@@ -422,7 +422,7 @@ export function ListDetail() {
                 </div>
               ))}
             </div>
-            <div className="flex justify-end gap-2 mt-4">
+            <div className="flex justify-end gap-2 mt-4 shrink-0">
               <button onClick={() => { setShowModal(false); setEditingRecord(null) }} className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-xl transition-all duration-200">
                 Cancelar
               </button>
