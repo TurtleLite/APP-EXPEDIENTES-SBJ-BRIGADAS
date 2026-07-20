@@ -172,7 +172,7 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
         c = ws.cell(r, 1, "Centro Médico San Benito José")
         c.font = Font(name=arial, bold=True, size=16, u='single')
         c.alignment = center_wrap
-        if os.path.exists(logo_path):
+        if logo_path and os.path.exists(logo_path):
             img = Image(logo_path)
             img.anchor = f'A{r}'
             img.width = 105

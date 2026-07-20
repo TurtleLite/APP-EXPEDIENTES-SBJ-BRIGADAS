@@ -173,7 +173,10 @@ def import_excel(
     current_user: User = Depends(require_role("admin", "direccion")),
 ):
     os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
-    file_path = os.path.join(settings.UPLOAD_DIR, f"import_{list_id}_{file.filename}")
+    safe_filename = os.path.basename(file.filename or "import.xlsx")
+    if not safe_filename:
+        safe_filename = "import.xlsx"
+    file_path = os.path.join(settings.UPLOAD_DIR, f"import_{list_id}_{safe_filename}")
     with open(file_path, "wb") as f:
         f.write(file.file.read())
     count = import_records_from_excel(db, list_id, file_path)

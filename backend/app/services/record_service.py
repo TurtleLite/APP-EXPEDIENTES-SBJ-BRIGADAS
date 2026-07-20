@@ -62,6 +62,10 @@ def get_records_by_ids(db: Session, ids: list[int]) -> list[ListRecord]:
 
 
 def get_distinct_field_values(db: Session, list_id: int, field: str) -> list:
+    import re
+    if not re.match(r'^[a-zA-Z0-9_]+$', field):
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail="Nombre de campo inválido")
     from sqlalchemy import text
     sql = text(f"SELECT DISTINCT data->>'{field}' AS val FROM list_records WHERE list_definition_id = :lid AND data->>'{field}' IS NOT NULL AND data->>'{field}' != '' ORDER BY val")
     result = db.execute(sql, {"lid": list_id})
