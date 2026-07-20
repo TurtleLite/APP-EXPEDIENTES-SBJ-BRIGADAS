@@ -191,7 +191,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
 
   return (
     <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white/95 rounded-xl w-[95vw] max-w-5xl max-h-[90vh] flex flex-col">
+      <div className="bg-white/95 rounded-xl w-[95vw] max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
         <div className="px-5 py-3 border-b border-slate-200 flex items-center justify-between shrink-0">
           <div>
             <h2 className="text-xl font-bold text-slate-900">Nuevo Expediente Médico</h2>
