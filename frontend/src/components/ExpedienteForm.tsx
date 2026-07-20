@@ -232,7 +232,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto min-h-0 px-5 pb-3 space-y-2">
+        <div className="flex-1 overflow-y-auto min-h-0 h-0 px-5 pb-3 space-y-2">
           {sections.map((section) => {
             const done = isSectionComplete(section, data)
             const isOpen = expanded === section.title
