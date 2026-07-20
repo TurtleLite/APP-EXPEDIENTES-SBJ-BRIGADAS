@@ -13,6 +13,7 @@ import fnmatch
 ALLOWED_ORIGINS = [
     "https://app-expedientes-sbj-brigadas.onrender.com",
     "https://*.trycloudflare.com",
+    "https://api.trycloudflare.com",
     "http://localhost:5173",
     "http://localhost:8000",
 ]
