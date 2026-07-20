@@ -8,8 +8,11 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+import fnmatch
+
 ALLOWED_ORIGINS = [
     "https://app-expedientes-sbj-brigadas.onrender.com",
+    "https://*.trycloudflare.com",
     "http://localhost:5173",
     "http://localhost:8000",
 ]
@@ -54,29 +57,36 @@ app = FastAPI(
     version="1.0.0",
 )
 
+def _origin_allowed(origin: str) -> bool:
+    for allowed in ALLOWED_ORIGINS:
+        if fnmatch.fnmatch(origin, allowed):
+            return True
+    return False
+
 @app.middleware("http")
 async def cors_and_logging(request: Request, call_next):
     origin = request.headers.get("origin", "")
     method = request.method
 
-    if origin in ALLOWED_ORIGINS:
-        if method == "OPTIONS":
-            response = Response()
+    if method == "OPTIONS":
+        response = Response()
+        if _origin_allowed(origin):
             response.headers["Access-Control-Allow-Origin"] = origin
             response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, PATCH, OPTIONS"
             response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, X-Requested-With"
             response.headers["Access-Control-Allow-Credentials"] = "true"
             response.headers["Access-Control-Max-Age"] = "86400"
-            logger.info(f"OPTIONS {request.url.path} -> CORS preflight OK")
-            return response
+            logger.info(f"OPTIONS {request.url.path} -> CORS preflight OK ({origin})")
+        else:
+            logger.info(f"OPTIONS {request.url.path} -> origin blocked ({origin})")
+        return response
 
     logger.info(f"{method} {request.url.path}")
     try:
         response = await call_next(request)
-        if origin in ALLOWED_ORIGINS:
+        if _origin_allowed(origin):
             response.headers["Access-Control-Allow-Origin"] = origin
             response.headers["Access-Control-Allow-Credentials"] = "true"
-        logger.info(f"  -> {response.status_code}")
         return response
     except Exception as e:
         logger.error(f"  -> ERROR: {e}", exc_info=True)
