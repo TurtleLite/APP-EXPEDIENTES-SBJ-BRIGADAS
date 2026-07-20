@@ -97,7 +97,7 @@ const SECTIONS: Section[] = [
     ],
   },
   {
-    title: 'Médico y Cirugía',
+    title: 'Médico',
     icon: <UserCircle size={18} />,
     fields: [
       { key: 'nombre_medico', label: 'Nombre del Médico', type: 'text' },
@@ -131,7 +131,7 @@ interface Props {
 function filterSections(role?: string): Section[] {
   if (role === 'medico') {
     return SECTIONS.filter((s) => s.title !== 'Centro y Clasificación').map((s) => {
-      if (s.title === 'Médico y Cirugía') {
+      if (s.title === 'Médico') {
         return { ...s, fields: s.fields.filter((f) => ['nombre_medico'].includes(f.key)) }
       }
       return s
@@ -270,7 +270,13 @@ export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
                               type="text"
                               list="especialidad-list"
                               value={data[field.key] || ''}
-                              onChange={(e) => setValue(field.key, e.target.value.toUpperCase())}
+                              onChange={(e) => {
+                                const cleaned = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '').toUpperCase()
+                                setValue(field.key, cleaned)
+                                if (cleaned && !especialidades.includes(cleaned)) {
+                                  setEspecialidades((prev) => [...prev, cleaned].sort())
+                                }
+                              }}
                               placeholder="Escriba o seleccione una especialidad"
                               className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                             />
