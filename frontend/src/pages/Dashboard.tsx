@@ -16,7 +16,6 @@ export function Dashboard() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [stats, setStats] = useState<Stats>({ lists: 0, records: 0, reports: 0 })
-  const [loading, setLoading] = useState(true)
   const [recentLists, setRecentLists] = useState<ListDefinition[]>([])
   const [recentReports, setRecentReports] = useState<Report[]>([])
 
@@ -55,18 +54,9 @@ export function Dashboard() {
         setRecentLists(lists.slice(0, 4))
         setRecentReports(reports.slice(0, 4))
       } catch {}
-      setLoading(false)
     }
     load()
   }, [user])
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
-      </div>
-    )
-  }
 
   return (
     <div className="space-y-6">
