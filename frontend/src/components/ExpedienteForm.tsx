@@ -101,6 +101,9 @@ const SECTIONS: Section[] = [
     icon: <UserCircle size={18} />,
     fields: [
       { key: 'nombre_medico', label: 'Nombre del Médico', type: 'text' },
+      { key: 'centro_medico', label: 'Centro Médico', type: 'text' },
+      { key: 'cirujano', label: 'Cirujano', type: 'text' },
+      { key: 'fecha_cirugia', label: 'Fecha de Cirugía', type: 'date' },
       { key: 'estatus_cirugia', label: 'Estatus de Cirugía', type: 'text' },
     ],
   },
@@ -133,7 +136,7 @@ function filterSections(role?: string): Section[] {
   if (role === 'medico') {
     return SECTIONS.filter((s) => s.title !== 'Centro y Clasificación').map((s) => {
       if (s.title === 'Médico y Cirugía') {
-        return { ...s, fields: s.fields.filter((f) => f.key === 'nombre_medico') }
+        return { ...s, fields: s.fields.filter((f) => ['nombre_medico', 'centro_medico', 'cirujano', 'fecha_cirugia'].includes(f.key)) }
       }
       return s
     })
