@@ -29,7 +29,7 @@ const navItems: NavItem[] = [
   { label: 'Usuarios', path: '/users', icon: <Users size={18} />, roles: ['admin'] },
   { label: 'Listas', path: '/lists', icon: <Table2 size={18} />, roles: ['admin', 'direccion', 'medico'] },
   { label: 'Reportes', path: '/reports', icon: <FileText size={18} />, roles: ['admin', 'direccion'] },
-  { label: 'Estatus Cirugía', path: '/estado-cirugia', icon: <Activity size={18} />, roles: ['admin', 'direccion'] },
+  { label: 'Estatus Cirugía', path: '/estado-cirugia', icon: <Activity size={18} />, roles: ['direccion'] },
 ]
 
 export function Layout({ children }: { children: ReactNode }) {

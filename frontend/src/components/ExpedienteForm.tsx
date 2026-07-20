@@ -102,9 +102,6 @@ const SECTIONS: Section[] = [
     fields: [
       { key: 'nombre_medico', label: 'Nombre del Médico', type: 'text' },
       { key: 'centro_medico', label: 'Centro Médico', type: 'text' },
-      { key: 'cirujano', label: 'Cirujano', type: 'text' },
-      { key: 'fecha_cirugia', label: 'Fecha de Cirugía', type: 'date' },
-      { key: 'estatus_cirugia', label: 'Estatus de Cirugía', type: 'text' },
     ],
   },
 ]

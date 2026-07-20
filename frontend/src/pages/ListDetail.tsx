@@ -7,7 +7,7 @@ import { useNotification } from '../contexts/NotificationContext'
 import { ArrowLeft, Plus, Upload, Search, Pencil, Trash2, Download, Stethoscope, CheckSquare, Square } from 'lucide-react'
 import { ExpedienteForm } from '../components/ExpedienteForm'
 
-const RECORD_COLUMNS = ['nombre', 'edad', 'diagnostico', 'perfil', 'domicilio', 'telefono', 'albergue', 'nombre_medico', 'cirujano', 'fecha_cirugia']
+const RECORD_COLUMNS = ['nombre', 'edad', 'diagnostico', 'perfil', 'domicilio', 'telefono', 'albergue', 'nombre_medico']
 
 export function ListDetail() {
   const { id } = useParams()
