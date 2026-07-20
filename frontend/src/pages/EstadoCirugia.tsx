@@ -4,7 +4,7 @@ import { ListRecord } from '../types'
 import { useNotification } from '../contexts/NotificationContext'
 import { FileSpreadsheet, Search, ChevronDown } from 'lucide-react'
 
-const STATUS_OPTIONS = ['Operado', 'No se presentó', 'Reprogramar', 'Fuera de perfil']
+const STATUS_OPTIONS = ['En espera', 'Reprogramar', 'Cancelado', 'Fuera de perfil San Benito', 'Operado']
 const EXPEDIENTE_LIST_ID = 1
 
 const statusStyles: Record<string, string> = {

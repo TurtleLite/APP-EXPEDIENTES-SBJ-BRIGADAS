@@ -8,12 +8,14 @@ import {
 const roleLabels: Record<string, string> = {
   admin: 'Administrador',
   direccion: 'Dirección',
+  direccion_medica: 'Dirección Médica',
   medico: 'Médico',
 }
 
 const roleColors: Record<string, string> = {
   admin: 'bg-slate-100 text-slate-700 border-slate-200',
   direccion: 'bg-slate-100 text-slate-700 border-slate-200',
+  direccion_medica: 'bg-slate-100 text-slate-700 border-slate-200',
   medico: 'bg-slate-100 text-slate-700 border-slate-200',
 }
 
@@ -25,10 +27,10 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { label: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={18} />, roles: ['admin', 'direccion', 'medico'] },
+  { label: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={18} />, roles: ['admin', 'direccion', 'direccion_medica', 'medico'] },
   { label: 'Usuarios', path: '/users', icon: <Users size={18} />, roles: ['admin'] },
-  { label: 'Listas', path: '/lists', icon: <Table2 size={18} />, roles: ['admin', 'direccion', 'medico'] },
-  { label: 'Reportes', path: '/reports', icon: <FileText size={18} />, roles: ['admin', 'direccion'] },
+  { label: 'Listas', path: '/lists', icon: <Table2 size={18} />, roles: ['admin', 'direccion', 'direccion_medica', 'medico'] },
+  { label: 'Reportes', path: '/reports', icon: <FileText size={18} />, roles: ['admin', 'direccion', 'direccion_medica'] },
   { label: 'Estatus Cirugía', path: '/estado-cirugia', icon: <Activity size={18} />, roles: ['admin', 'direccion'] },
 ]
 

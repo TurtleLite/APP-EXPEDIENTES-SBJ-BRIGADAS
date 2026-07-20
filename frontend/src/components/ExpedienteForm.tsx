@@ -363,10 +363,11 @@ export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
                             className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                           >
                             <option value="">Seleccione...</option>
-                            <option value="Operado">Operado</option>
-                            <option value="No se presentó">No se presentó</option>
+                            <option value="En espera">En espera</option>
                             <option value="Reprogramar">Reprogramar</option>
-                            <option value="Fuera de perfil">Fuera de perfil</option>
+                            <option value="Cancelado">Cancelado</option>
+                            <option value="Fuera de perfil San Benito">Fuera de perfil San Benito</option>
+                            <option value="Operado">Operado</option>
                           </select>
                         ) : field.key === 'identidad' ? (
                           <input

@@ -190,7 +190,7 @@ export function ListDetail() {
           {list?.description && <p className="text-sm text-slate-600 mt-1">{list.description}</p>}
         </div>
         <div className="flex gap-2">
-          {list?.is_system ? (
+          {user?.role !== 'direccion' && (list?.is_system ? (
             <button
               onClick={() => setShowExpedienteForm(true)}
               className="flex items-center gap-1.5 bg-gradient-to-r from-slate-500 to-slate-600 text-white px-5 py-2.5 rounded-xl hover:from-slate-600 hover:to-slate-700 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] text-sm font-medium"
@@ -212,7 +212,7 @@ export function ListDetail() {
               <Plus size={16} />
               Nuevo
             </button>
-          )}
+          ))}
         </div>
       </div>
 
@@ -308,7 +308,7 @@ export function ListDetail() {
                       }
                     </td>
                   ))}
-                  {(user?.role === 'admin' || user?.role === 'direccion' || user?.role === 'medico') && (
+                  {user?.role && ['admin', 'direccion', 'direccion_medica', 'medico'].includes(user.role as string) && (
                     <td className="px-6 py-4 text-right">
                       {list?.is_system && (
                         <button
@@ -319,8 +319,7 @@ export function ListDetail() {
                           <Download size={15} className="text-slate-600" />
                         </button>
                       )}
-                      {/* admin: edit any; direccion: no edit; medico: edit own */}
-                      {(user?.role === 'admin' || (user?.role === 'medico' && (!list?.is_system || record.created_by === user.id))) && (
+                      {(['admin', 'direccion_medica'].includes(user.role as string) || (user.role === 'medico' && (!list?.is_system || (record.created_by === user.id)))) && (
                         <button
                           onClick={() => {
                             setEditingRecord(record)
@@ -332,8 +331,7 @@ export function ListDetail() {
                           <Pencil size={15} className="text-slate-600" />
                         </button>
                       )}
-                      {/* admin: delete any; medico: delete own; direccion: no delete */}
-                      {(user?.role === 'admin' || (user?.role === 'medico' && record.created_by === user.id)) && (
+                      {(['admin', 'direccion_medica'].includes(user.role as string) || (user.role === 'medico' && record.created_by === user.id)) && (
                         <button
                           onClick={() => handleDeleteRecord(record.id)}
                           className="p-1.5 hover:bg-red-100 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 ml-1"
