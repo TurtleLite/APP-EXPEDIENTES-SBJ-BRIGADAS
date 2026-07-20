@@ -41,7 +41,7 @@ export function Layout({ children }: { children: ReactNode }) {
 
   return (
     <div className="h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex overflow-hidden">
-      <aside className="w-56 bg-gradient-to-b from-slate-100 to-slate-200 flex flex-col shrink-0 h-screen sticky top-0 shadow-xl">
+      <aside className="w-48 bg-gradient-to-b from-slate-100 to-slate-200 flex flex-col shrink-0 h-screen sticky top-0 shadow-xl">
         <div className="p-5 border-b border-slate-200/50">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-500 to-slate-600 flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-slate-500/20">
@@ -120,7 +120,7 @@ export function Layout({ children }: { children: ReactNode }) {
         </header>
         <main className="flex-1 p-6 flex flex-col overflow-y-auto min-h-0 relative">
           {children}
-          <div className="absolute bottom-2 right-6 text-[10px] font-semibold text-slate-300 tracking-[0.2em] select-none pointer-events-none">
+          <div className="fixed bottom-2 right-6 text-[10px] font-semibold text-slate-300 tracking-[0.2em] select-none pointer-events-none z-0">
             TURTLELITE
           </div>
         </main>

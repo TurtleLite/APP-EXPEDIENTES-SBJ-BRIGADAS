@@ -265,7 +265,7 @@ export function ListDetail() {
           )}
         </div>
 
-        <div className="flex-1 overflow-auto min-h-0">
+        <div className="flex-1 overflow-auto min-h-0 max-h-[280px]">
           <table className="w-full">
             <thead>
               <tr className="bg-slate-50/50 border-b border-slate-200">
