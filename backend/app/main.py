@@ -74,34 +74,42 @@ def _origin_allowed(origin: str) -> bool:
             return True
     return False
 
+def _cors_headers(origin: str) -> dict:
+    if not _origin_allowed(origin):
+        return {}
+    return {
+        "Access-Control-Allow-Origin": origin,
+        "Access-Control-Allow-Credentials": "true",
+    }
+
+
 @app.middleware("http")
 async def cors_and_logging(request: Request, call_next):
     origin = request.headers.get("origin", "")
     method = request.method
 
     if method == "OPTIONS":
-        response = Response()
-        if _origin_allowed(origin):
-            response.headers["Access-Control-Allow-Origin"] = origin
-            response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, PATCH, OPTIONS"
-            response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, X-Requested-With"
-            response.headers["Access-Control-Allow-Credentials"] = "true"
-            response.headers["Access-Control-Max-Age"] = "86400"
+        headers = _cors_headers(origin)
+        if headers:
+            headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+            headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, X-Requested-With"
+            headers["Access-Control-Max-Age"] = "86400"
             logger.info(f"OPTIONS {request.url.path} -> CORS preflight OK ({origin})")
         else:
             logger.info(f"OPTIONS {request.url.path} -> origin blocked ({origin})")
-        return response
+        return Response(headers=headers)
 
     logger.info(f"{method} {request.url.path}")
     try:
         response = await call_next(request)
-        if _origin_allowed(origin):
-            response.headers["Access-Control-Allow-Origin"] = origin
-            response.headers["Access-Control-Allow-Credentials"] = "true"
+        headers = _cors_headers(origin)
+        for k, v in headers.items():
+            response.headers[k] = v
         return response
     except Exception as e:
         logger.error(f"  -> ERROR: {e}", exc_info=True)
-        return JSONResponse({"detail": str(e)}, status_code=500)
+        headers = _cors_headers(origin)
+        return JSONResponse({"detail": str(e)}, status_code=500, headers=headers)
 
 app.include_router(auth.router)
 app.include_router(users.router)
