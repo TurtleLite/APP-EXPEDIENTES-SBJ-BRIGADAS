@@ -37,7 +37,11 @@ export function ListDetail() {
     try {
       const res = await listsApi.get(Number(id))
       setList(res.data)
-    } catch (err) { console.error(err) }
+    } catch (err) {
+      if ((err as any)?.response?.status === 404) {
+        navigate('/lists', { replace: true })
+      }
+    }
   }
 
   const loadRecords = async () => {
