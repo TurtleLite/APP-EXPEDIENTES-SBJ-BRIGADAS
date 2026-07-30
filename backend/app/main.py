@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import JSONResponse
 from app.api import auth, users, lists, reports
@@ -12,50 +13,59 @@ import fnmatch
 
 ALLOWED_ORIGINS = [
     "https://app-expedientes-sbj-brigadas.onrender.com",
+    "https://expedientes-api-2dje.onrender.com",
     "https://*.trycloudflare.com",
     "https://api.trycloudflare.com",
     "http://localhost:5173",
     "http://localhost:8000",
 ]
 
-Base.metadata.create_all(bind=engine)
 
-# Add columns if they don't exist (for existing DBs)
-try:
-    inspector = inspect(engine)
-    if "list_definitions" in inspector.get_table_names():
-        columns = [c["name"] for c in inspector.get_columns("list_definitions")]
-        if "is_system" not in columns:
-            with engine.connect() as conn:
-                conn.execute(text("ALTER TABLE list_definitions ADD COLUMN is_system BOOLEAN DEFAULT FALSE"))
-                conn.commit()
-            logger.info("Added is_system column to list_definitions")
-    if "list_records" in inspector.get_table_names():
-        columns = [c["name"] for c in inspector.get_columns("list_records")]
-        if "created_by" not in columns:
-            with engine.connect() as conn:
-                conn.execute(text("ALTER TABLE list_records ADD COLUMN created_by INTEGER REFERENCES users(id)"))
-                conn.commit()
-            logger.info("Added created_by column to list_records")
-except Exception as e:
-    logger.warning(f"Could not add column: {e}")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    try:
+        Base.metadata.create_all(bind=engine)
+        logger.info("Tablas creadas")
+    except Exception as e:
+        logger.warning(f"Error creando tablas: {e}")
 
-# Create system lists on startup
-try:
-    db = SessionLocal()
-    from app.services.list_service import ensure_system_lists
-    ensure_system_lists(db)
-    from app.services.user_service import reset_default_users
-    reset_default_users(db)
-    db.close()
-    logger.info("Usuarios por defecto reseteados")
-except Exception as e:
-    logger.warning(f"Startup error: {e}")
+    try:
+        inspector = inspect(engine)
+        if "list_definitions" in inspector.get_table_names():
+            columns = [c["name"] for c in inspector.get_columns("list_definitions")]
+            if "is_system" not in columns:
+                with engine.connect() as conn:
+                    conn.execute(text("ALTER TABLE list_definitions ADD COLUMN is_system BOOLEAN DEFAULT FALSE"))
+                    conn.commit()
+                logger.info("Added is_system column to list_definitions")
+        if "list_records" in inspector.get_table_names():
+            columns = [c["name"] for c in inspector.get_columns("list_records")]
+            if "created_by" not in columns:
+                with engine.connect() as conn:
+                    conn.execute(text("ALTER TABLE list_records ADD COLUMN created_by INTEGER REFERENCES users(id)"))
+                    conn.commit()
+                logger.info("Added created_by column to list_records")
+    except Exception as e:
+        logger.warning(f"Could not add column: {e}")
+
+    try:
+        db = SessionLocal()
+        from app.services.list_service import ensure_system_lists
+        ensure_system_lists(db)
+        from app.services.user_service import reset_default_users
+        reset_default_users(db)
+        db.close()
+        logger.info("Usuarios por defecto reseteados")
+    except Exception as e:
+        logger.warning(f"Startup error: {e}")
+
+    yield
 
 app = FastAPI(
     title="APP EXPEDIENTES SBJ BRIGADAS",
     description="Sistema de gestión de expedientes para SBJ Brigadas",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 def _origin_allowed(origin: str) -> bool:
