@@ -10,7 +10,7 @@ import { ExpedienteForm } from '../components/ExpedienteForm'
 const RECORD_COLUMNS = ['nombre', 'edad', 'diagnostico', 'perfil', 'domicilio', 'telefono', 'albergue', 'nombre_medico']
 
 export function ListDetail() {
-  const { id } = useParams()
+  const { id } = useParams() as { id: string }
   const navigate = useNavigate()
   const { user } = useAuth()
   const { toast, confirm } = useNotification()
