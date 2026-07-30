@@ -15,12 +15,15 @@ def ensure_system_lists(db: Session):
             db.commit()
             db.refresh(existing)
         return existing
+    from app.models.user import User
+    admin = db.query(User).filter(User.role == "admin").first()
+    admin_id = admin.id if admin else 1
     ld = ListDefinition(
         name="Expediente Médico",
         description="Plantilla predefinida de expediente médico. Solo el administrador puede modificar esta plantilla.",
         columns_config=EXPEDIENTE_COLUMNS,
         is_system=True,
-        created_by=1,
+        created_by=admin_id,
     )
     db.add(ld)
     db.commit()
