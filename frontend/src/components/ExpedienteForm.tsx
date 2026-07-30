@@ -122,7 +122,7 @@ function filledFields(data: Record<string, any>): number {
 }
 
 interface Props {
-  listId: number
+  listId: string
   role?: string
   onClose: () => void
   onSaved: () => void

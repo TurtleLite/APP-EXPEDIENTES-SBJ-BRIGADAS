@@ -30,7 +30,7 @@ def create_list(
     cols = [{"key": c["key"], "label": c["label"], "type": c.get("type", "text")} for c in data["columns_config"]]
     schema = ListDefinitionCreate(name=data["name"], description=data.get("description"), columns_config=cols)
     ld = create_list_definition(db, schema, current_user.id)
-    return {"id": ld.id, "name": ld.name, "message": "Lista creada correctamente"}
+    return {"id": str(ld.id), "name": ld.name, "message": "Lista creada correctamente"}
 
 
 @router.get("/")
@@ -42,12 +42,12 @@ def list_lists(
     lists = get_list_definitions(db)
     return [
         {
-            "id": ld.id,
+            "id": str(ld.id),
             "name": ld.name,
             "description": ld.description,
             "columns_config": ld.columns_config,
             "is_system": ld.is_system,
-            "created_by": ld.created_by,
+            "created_by": str(ld.created_by),
             "created_at": str(ld.created_at),
         }
         for ld in lists
@@ -63,12 +63,12 @@ def get_list(
     from app.services.list_service import get_list_definition
     ld = get_list_definition(db, list_id)
     return {
-        "id": ld.id,
+        "id": str(ld.id),
         "name": ld.name,
         "description": ld.description,
         "columns_config": ld.columns_config,
         "is_system": ld.is_system,
-        "created_by": ld.created_by,
+        "created_by": str(ld.created_by),
         "created_at": str(ld.created_at),
     }
 
@@ -218,10 +218,10 @@ def list_records(
     records = get_records(db, list_id, skip, limit, search, search_field)
     return [
         {
-            "id": r.id,
-            "list_definition_id": r.list_definition_id,
+            "id": str(r.id),
+            "list_definition_id": str(r.list_definition_id),
             "data": r.data,
-            "created_by": r.created_by,
+            "created_by": str(r.created_by) if r.created_by else None,
             "created_at": str(r.created_at),
         }
         for r in records
@@ -237,7 +237,7 @@ def create_record(
 ):
     from app.services.record_service import add_record
     record = add_record(db, list_id, data.get("data", data), user_id=current_user.id)
-    return {"id": record.id, "message": "Registro creado correctamente"}
+    return {"id": str(record.id), "message": "Registro creado correctamente"}
 
 
 @router.put("/{list_id}/records/{record_id}")

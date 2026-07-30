@@ -31,7 +31,7 @@ def create_report(
     db.add(report)
     db.commit()
     db.refresh(report)
-    return {"id": report.id, "message": "Reporte creado correctamente"}
+    return {"id": str(report.id), "message": "Reporte creado correctamente"}
 
 
 @router.get("/")
@@ -42,11 +42,11 @@ def list_reports(
     reports = db.query(Report).order_by(Report.created_at.desc()).all()
     return [
         {
-            "id": r.id,
+            "id": str(r.id),
             "name": r.name,
             "description": r.description,
-            "list_definition_id": r.list_definition_id,
-            "created_by": r.created_by,
+            "list_definition_id": str(r.list_definition_id) if r.list_definition_id else None,
+            "created_by": str(r.created_by),
             "file_path_excel": r.file_path_excel,
             "file_path_pdf": r.file_path_pdf,
             "created_at": str(r.created_at),
@@ -65,10 +65,10 @@ def get_report(
     if not report:
         raise HTTPException(status_code=404, detail="Reporte no encontrado")
     return {
-        "id": report.id,
+        "id": str(report.id),
         "name": report.name,
         "description": report.description,
-        "list_definition_id": report.list_definition_id,
+        "list_definition_id": str(report.list_definition_id) if report.list_definition_id else None,
         "filters": report.filters,
         "columns_selected": report.columns_selected,
         "file_path_excel": report.file_path_excel,

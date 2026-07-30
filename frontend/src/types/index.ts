@@ -1,5 +1,5 @@
 export interface User {
-  id: number
+  id: string
   username: string
   email: string
   full_name: string
@@ -15,12 +15,12 @@ export interface AuthResponse {
 }
 
 export interface ListDefinition {
-  id: number
+  id: string
   name: string
   description?: string
   columns_config: ColumnConfig[]
   is_system: boolean
-  created_by: number
+  created_by: string
   created_at: string
 }
 
@@ -31,21 +31,21 @@ export interface ColumnConfig {
 }
 
 export interface ListRecord {
-  id: number
-  list_definition_id: number
+  id: string
+  list_definition_id: string
   data: Record<string, any>
-  created_by: number | null
+  created_by: string | null
   created_at: string
 }
 
 export interface Report {
-  id: number
+  id: string
   name: string
   description?: string
-  list_definition_id?: number
+  list_definition_id?: string
   filters?: Record<string, any>
   columns_selected?: string[]
-  created_by: number
+  created_by: string
   file_path_excel?: string
   file_path_pdf?: string
   created_at: string

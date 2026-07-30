@@ -35,38 +35,38 @@ export const authApi = {
 export const usersApi = {
   list: () => api.get('/users/'),
   me: () => api.get('/users/me'),
-  get: (id: number) => api.get(`/users/${id}`),
+  get: (id: string | number) => api.get(`/users/${id}`),
   create: (data: any) => api.post('/users/', data),
-  update: (id: number, data: any) => api.put(`/users/${id}`, data),
-  delete: (id: number) => api.delete(`/users/${id}`),
+  update: (id: string | number, data: any) => api.put(`/users/${id}`, data),
+  delete: (id: string | number) => api.delete(`/users/${id}`),
 }
 
 export const listsApi = {
   create: (data: any) => api.post('/lists/', data),
   list: () => api.get('/lists/'),
-  get: (id: number) => api.get(`/lists/${id}`),
-  update: (id: number, data: any) => api.put(`/lists/${id}`, data),
-  delete: (id: number) => api.delete(`/lists/${id}`),
-  getRecords: (id: number, params?: any) => api.get(`/lists/${id}/records`, { params }),
-  createRecord: (id: number, data: any) => api.post(`/lists/${id}/records`, data),
-  updateRecord: (listId: number, recordId: number, data: any) =>
+  get: (id: string | number) => api.get(`/lists/${id}`),
+  update: (id: string | number, data: any) => api.put(`/lists/${id}`, data),
+  delete: (id: string | number) => api.delete(`/lists/${id}`),
+  getRecords: (id: string | number, params?: any) => api.get(`/lists/${id}/records`, { params }),
+  createRecord: (id: string | number, data: any) => api.post(`/lists/${id}/records`, data),
+  updateRecord: (listId: string | number, recordId: string | number, data: any) =>
     api.put(`/lists/${listId}/records/${recordId}`, data),
-  deleteRecord: (listId: number, recordId: number) =>
+  deleteRecord: (listId: string | number, recordId: string | number) =>
     api.delete(`/lists/${listId}/records/${recordId}`),
-  importExcel: (listId: number, file: File) => {
+  importExcel: (listId: string | number, file: File) => {
     const formData = new FormData()
     formData.append('file', file)
     return api.post(`/lists/${listId}/import-excel`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
   },
-  exportExcel: (listId: number) =>
+  exportExcel: (listId: string | number) =>
     api.get(`/lists/${listId}/export-excel`, { responseType: 'blob' }),
-  exportExpediente: (listId: number) =>
+  exportExpediente: (listId: string | number) =>
     api.get(`/lists/${listId}/export-expediente`, { responseType: 'blob' }),
-  getEspecialidades: (listId: number) =>
+  getEspecialidades: (listId: string | number) =>
     api.get(`/lists/${listId}/especialidades`),
-  exportExpedienteSelected: async (listId: number, ids: number[]) => {
+  exportExpedienteSelected: async (listId: string | number, ids: string[]) => {
     const res = await api.post(`/lists/${listId}/export-expediente-selected`, { ids }, { responseType: 'blob' })
     const url = window.URL.createObjectURL(new Blob([res.data]))
     const a = document.createElement('a')
@@ -82,12 +82,12 @@ export const listsApi = {
 export const reportsApi = {
   create: (data: any) => api.post('/reports/', data),
   list: () => api.get('/reports/'),
-  get: (id: number) => api.get(`/reports/${id}`),
-  generateExcel: (id: number) => api.post(`/reports/${id}/generate-excel`),
-  generatePdf: (id: number) => api.post(`/reports/${id}/generate-pdf`),
-  download: (id: number, type: 'excel' | 'pdf') =>
+  get: (id: string | number) => api.get(`/reports/${id}`),
+  generateExcel: (id: string | number) => api.post(`/reports/${id}/generate-excel`),
+  generatePdf: (id: string | number) => api.post(`/reports/${id}/generate-pdf`),
+  download: (id: string | number, type: 'excel' | 'pdf') =>
     api.get(`/reports/${id}/download/${type}`, { responseType: 'blob' }),
-  delete: (id: number) => api.delete(`/reports/${id}`),
+  delete: (id: string | number) => api.delete(`/reports/${id}`),
 }
 
 export default api

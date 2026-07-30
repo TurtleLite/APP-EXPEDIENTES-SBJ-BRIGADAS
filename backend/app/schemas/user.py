@@ -20,7 +20,7 @@ class UserUpdate(BaseModel):
 
 
 class UserResponse(BaseModel):
-    id: int
+    id: str
     username: str
     email: str
     full_name: str

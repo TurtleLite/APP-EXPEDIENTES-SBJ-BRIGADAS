@@ -22,12 +22,12 @@ class ListDefinitionUpdate(BaseModel):
 
 
 class ListDefinitionResponse(BaseModel):
-    id: int
+    id: str
     name: str
     description: Optional[str]
     columns_config: list
     is_system: bool = False
-    created_by: int
+    created_by: str
     created_at: datetime
 
     class Config:

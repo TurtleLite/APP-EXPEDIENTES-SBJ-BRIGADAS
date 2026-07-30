@@ -5,7 +5,7 @@ import { useNotification } from '../contexts/NotificationContext'
 import { FileSpreadsheet, Search, ChevronDown } from 'lucide-react'
 
 const STATUS_OPTIONS = ['En espera', 'Reprogramar', 'Cancelado', 'Fuera de perfil San Benito', 'Operado']
-const EXPEDIENTE_LIST_ID = 1
+const EXPEDIENTE_LIST_ID = '1'
 
 const statusStyles: Record<string, string> = {
   'Operado': 'bg-emerald-100 text-emerald-600 border-emerald-200',
@@ -18,7 +18,7 @@ export function EstadoCirugia() {
   const [records, setRecords] = useState<ListRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('')
-  const [editingId, setEditingId] = useState<number | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
   const { toast } = useNotification()
 
   const loadRecords = async () => {
@@ -39,7 +39,7 @@ export function EstadoCirugia() {
     ? records.filter((r) => (r.data?.estatus_cirugia || '') === filter)
     : records
 
-  const updateStatus = async (recordId: number, status: string) => {
+  const updateStatus = async (recordId: string, status: string) => {
     try {
       const record = records.find((r) => r.id === recordId)
       if (!record) return

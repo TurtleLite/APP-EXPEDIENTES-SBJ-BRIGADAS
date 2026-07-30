@@ -22,20 +22,20 @@ export function ListDetail() {
   const [showExpedienteForm, setShowExpedienteForm] = useState(false)
   const [editingRecord, setEditingRecord] = useState<ListRecord | null>(null)
   const [formData, setFormData] = useState<Record<string, any>>({})
-  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [especialidades, setEspecialidades] = useState<string[]>([])
   const [especialidadFilter, setEspecialidadFilter] = useState('')
 
   const loadEspecialidades = async () => {
     try {
-      const res = await listsApi.getEspecialidades(Number(id))
+      const res = await listsApi.getEspecialidades(id)
       setEspecialidades(res.data)
     } catch { /* ignore */ }
   }
 
   const loadList = async () => {
     try {
-      const res = await listsApi.get(Number(id))
+      const res = await listsApi.get(id)
       setList(res.data)
     } catch (err) {
       if ((err as any)?.response?.status === 404) {
@@ -54,7 +54,7 @@ export function ListDetail() {
         params.search = search
         if (searchField) params.search_field = searchField
       }
-      const res = await listsApi.getRecords(Number(id), params)
+      const res = await listsApi.getRecords(id, params)
       setRecords(res.data)
     } catch (err) { console.error(err) }
   }
@@ -74,7 +74,7 @@ export function ListDetail() {
     if (id && list?.is_system) loadEspecialidades()
   }, [id, list?.is_system])
 
-  const toggleSelect = (recordId: number) => {
+  const toggleSelect = (recordId: string) => {
     setSelectedIds((prev) => {
       const next = new Set(prev)
       if (next.has(recordId)) next.delete(recordId)
@@ -106,7 +106,8 @@ export function ListDetail() {
           filename = `${nameParts}_${especialidad}.xlsx`.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
         }
       }
-      const res = await api.post(`/lists/${id}/export-expediente-selected`, { ids }, { responseType: 'blob' })
+      const numericIds = ids.map(Number).filter(n => !isNaN(n))
+      const res = await api.post(`/lists/${id}/export-expediente-selected`, { ids: numericIds }, { responseType: 'blob' })
       const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -123,7 +124,7 @@ export function ListDetail() {
     const file = e.target.files?.[0]
     if (!file) return
     try {
-      const res = await listsApi.importExcel(Number(id), file)
+      const res = await listsApi.importExcel(id, file)
       toast(res.data.message, 'success')
       loadRecords()
     } catch (err: any) {
@@ -134,9 +135,9 @@ export function ListDetail() {
   const handleSaveRecord = async () => {
     try {
       if (editingRecord) {
-        await listsApi.updateRecord(Number(id), editingRecord.id, { data: formData })
+        await listsApi.updateRecord(id, editingRecord.id, { data: formData })
       } else {
-        await listsApi.createRecord(Number(id), { data: formData })
+        await listsApi.createRecord(id, { data: formData })
       }
       setShowModal(false)
       setEditingRecord(null)
@@ -147,10 +148,10 @@ export function ListDetail() {
     }
   }
 
-  const handleDeleteRecord = async (recordId: number) => {
+  const handleDeleteRecord = async (recordId: string) => {
     if (!await confirm('¿Eliminar este registro?')) return
     try {
-      await listsApi.deleteRecord(Number(id), recordId)
+      await listsApi.deleteRecord(id, recordId)
       loadRecords()
       toast('Registro eliminado correctamente', 'success')
     } catch (err) { toast('Error al eliminar', 'error') }
@@ -163,7 +164,7 @@ export function ListDetail() {
       const especialidad = record.data?.especialidad || ''
       const nameParts = [nombre, apellido].filter(Boolean).join(' ')
       const filename = `${nameParts}_${especialidad}.xlsx`.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-      const res = await api.post(`/lists/${id}/export-expediente-selected`, { ids: [record.id] }, { responseType: 'blob' })
+      const res = await api.post(`/lists/${id}/export-expediente-selected`, { ids: [Number(record.id)] }, { responseType: 'blob' })
       const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -361,7 +362,7 @@ export function ListDetail() {
 
       {showExpedienteForm && (
         <ExpedienteForm
-          listId={Number(id)}
+          listId={id}
           role={user?.role}
           onClose={() => setShowExpedienteForm(false)}
           onSaved={loadRecords}

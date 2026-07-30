@@ -9,9 +9,9 @@ export function Reports() {
   const [reports, setReports] = useState<Report[]>([])
   const [lists, setLists] = useState<ListDefinition[]>([])
   const [showModal, setShowModal] = useState(false)
-  const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null)
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [form, setForm] = useState({
-    name: '', description: '', list_definition_id: 0, columns_selected: [] as string[],
+    name: '', description: '', list_definition_id: '', columns_selected: [] as string[],
   })
   const { user } = useAuth()
   const { toast } = useNotification()
@@ -36,14 +36,14 @@ export function Reports() {
     try {
       await reportsApi.create(form)
       setShowModal(false)
-      setForm({ name: '', description: '', list_definition_id: 0, columns_selected: [] })
+      setForm({ name: '', description: '', list_definition_id: '', columns_selected: [] })
       loadReports()
     } catch (err: any) {
       toast(err.response?.data?.detail || 'Error al crear reporte', 'error')
     }
   }
 
-  const handleGenerate = async (reportId: number, type: 'excel' | 'pdf') => {
+  const handleGenerate = async (reportId: string | number, type: 'excel' | 'pdf') => {
     try {
       if (type === 'excel') {
         await reportsApi.generateExcel(reportId)
@@ -57,7 +57,7 @@ export function Reports() {
     }
   }
 
-  const handleDownload = async (reportId: number, type: 'excel' | 'pdf') => {
+  const handleDownload = async (reportId: string | number, type: 'excel' | 'pdf') => {
     try {
       const res = await reportsApi.download(reportId, type)
       const url = window.URL.createObjectURL(new Blob([res.data]))
@@ -71,7 +71,7 @@ export function Reports() {
     }
   }
 
-  const handleDelete = async (reportId: number) => {
+  const handleDelete = async (reportId: string) => {
     try {
       await reportsApi.delete(reportId)
       loadReports()
@@ -193,10 +193,10 @@ export function Reports() {
               />
               <select
                 value={form.list_definition_id}
-                onChange={(e) => setForm({ ...form, list_definition_id: Number(e.target.value) })}
+                onChange={(e) => setForm({ ...form, list_definition_id: e.target.value })}
                 className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               >
-                <option value={0}>Seleccionar lista</option>
+                <option value="">Seleccionar lista</option>
                 {lists.map((l) => (
                   <option key={l.id} value={l.id}>{l.name}</option>
                 ))}

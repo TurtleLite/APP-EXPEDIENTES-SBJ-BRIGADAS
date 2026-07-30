@@ -40,7 +40,7 @@ export function Users() {
     }
   }
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (!await confirm('¿Eliminar este usuario?')) return
     try {
       await usersApi.delete(id)

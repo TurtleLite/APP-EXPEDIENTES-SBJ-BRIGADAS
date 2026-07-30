@@ -55,7 +55,7 @@ export function Lists() {
     }
   }
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (!await confirm('¿Eliminar esta lista?')) return
     try {
       await listsApi.delete(id)
