@@ -34,31 +34,6 @@ def _records_for_report(db: Session, report: Report):
         conds.append("data->>'estatus_cirugia' = :estat")
         params["estat"] = estatus
 
-    nombre = (filt.get("nombre") or "").strip()
-    if nombre:
-        conds.append("(data->>'nombre' ILIKE :nom OR data->>'apellido' ILIKE :nom)")
-        params["nom"] = f"%{nombre}%"
-
-    fecha_inicio = filt.get("fecha_inicio")
-    if fecha_inicio:
-        conds.append("data->>'fecha_elaboracion' >= :fini")
-        params["fini"] = fecha_inicio
-
-    fecha_fin = filt.get("fecha_fin")
-    if fecha_fin:
-        conds.append("data->>'fecha_elaboracion' <= :ffin")
-        params["ffin"] = fecha_fin
-
-    edad_min = filt.get("edad_min")
-    if edad_min not in (None, ""):
-        conds.append("NULLIF(REGEXP_REPLACE(data->>'edad', '[^0-9]', '', 'g'), '')::int >= :emin")
-        params["emin"] = int(edad_min)
-
-    edad_max = filt.get("edad_max")
-    if edad_max not in (None, ""):
-        conds.append("NULLIF(REGEXP_REPLACE(data->>'edad', '[^0-9]', '', 'g'), '')::int <= :emax")
-        params["emax"] = int(edad_max)
-
     if not conds:
         return db.query(ListRecord).filter(ListRecord.list_definition_id == report.list_definition_id).all()
     from sqlalchemy import text

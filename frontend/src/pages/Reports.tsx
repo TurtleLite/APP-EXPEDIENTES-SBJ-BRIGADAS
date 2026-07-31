@@ -3,7 +3,7 @@ import { reportsApi, listsApi } from '../services/api'
 import { Report, ListDefinition } from '../types'
 import { useAuth } from '../contexts/AuthContext'
 import { useNotification } from '../contexts/NotificationContext'
-import { Plus, FileText, FileSpreadsheet, Download, Trash2, Eye, X, Search } from 'lucide-react'
+import { Plus, FileText, FileSpreadsheet, Download, Trash2, Eye, X } from 'lucide-react'
 
 const STATUS_OPTIONS = ['En espera', 'Reprogramar', 'Cancelado', 'Fuera de perfil San Benito', 'Operado']
 
@@ -25,8 +25,7 @@ export function Reports() {
   const [loadingPreview, setLoadingPreview] = useState(false)
   const [form, setForm] = useState({
     name: '', description: '', list_definition_id: '', especialidad: '', perfil: '',
-    estatus_cirugia: '', nombre: '', edad_min: '', edad_max: '',
-    fecha_inicio: '', fecha_fin: '', columns_selected: [] as string[],
+    estatus_cirugia: '', columns_selected: [] as string[],
   })
   const { user } = useAuth()
   const { toast } = useNotification()
@@ -66,10 +65,6 @@ export function Reports() {
       toast('El nombre del reporte es obligatorio', 'error')
       return
     }
-    if (form.fecha_inicio && form.fecha_fin && form.fecha_fin < form.fecha_inicio) {
-      toast('La fecha final no puede ser anterior a la fecha de inicio', 'error')
-      return
-    }
     try {
       await reportsApi.create({
         ...form,
@@ -78,15 +73,10 @@ export function Reports() {
           especialidad: form.especialidad || undefined,
           perfil: form.perfil || undefined,
           estatus_cirugia: form.estatus_cirugia || undefined,
-          nombre: form.nombre.trim() || undefined,
-          edad_min: form.edad_min || undefined,
-          edad_max: form.edad_max || undefined,
-          fecha_inicio: form.fecha_inicio || undefined,
-          fecha_fin: form.fecha_fin || undefined,
         },
       })
       setShowModal(false)
-      setForm({ name: '', description: '', list_definition_id: '', especialidad: '', perfil: '', estatus_cirugia: '', nombre: '', edad_min: '', edad_max: '', fecha_inicio: '', fecha_fin: '', columns_selected: [] })
+      setForm({ name: '', description: '', list_definition_id: '', especialidad: '', perfil: '', estatus_cirugia: '', columns_selected: [] })
       setEspecialidades([])
       setPerfiles([])
       loadReports()
@@ -151,9 +141,6 @@ export function Reports() {
     if (filters?.especialidad) items.push({ label: 'Especialidad', value: filters.especialidad, cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' })
     if (filters?.perfil) items.push({ label: 'Perfil', value: filters.perfil, cls: 'bg-sky-50 text-sky-700 border-sky-200' })
     if (filters?.estatus_cirugia) items.push({ label: 'Estatus', value: filters.estatus_cirugia, cls: 'bg-violet-50 text-violet-700 border-violet-200' })
-    if (filters?.nombre) items.push({ label: 'Nombre', value: filters.nombre, cls: 'bg-amber-50 text-amber-700 border-amber-200' })
-    if (filters?.edad_min || filters?.edad_max) items.push({ label: 'Edad', value: `${filters.edad_min || '?'}-${filters.edad_max || '?'}`, cls: 'bg-teal-50 text-teal-700 border-[#a9ded6]' })
-    if (filters?.fecha_inicio || filters?.fecha_fin) items.push({ label: 'Fechas', value: `Del ${filters.fecha_inicio || 'inicio'} al ${filters.fecha_fin || 'hoy'}`, cls: 'bg-cyan-50 text-cyan-700 border-cyan-200' })
     return items
   }
 
@@ -356,52 +343,6 @@ export function Reports() {
                       <option key={s} value={s}>{s}</option>
                     ))}
                   </select>
-                  <div className="relative">
-                    <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input
-                      type="text"
-                      placeholder="Nombre o apellido del paciente"
-                      value={form.nombre}
-                      onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-                      className="w-full pl-9 pr-3 py-2.5 border border-[#a9ded6] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <input
-                      type="number"
-                      placeholder="Edad mín"
-                      value={form.edad_min}
-                      onChange={(e) => setForm({ ...form, edad_min: e.target.value })}
-                      className="w-full px-3 py-2.5 border border-[#a9ded6] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
-                    />
-                    <input
-                      type="number"
-                      placeholder="Edad máx"
-                      value={form.edad_max}
-                      onChange={(e) => setForm({ ...form, edad_max: e.target.value })}
-                      className="w-full px-3 py-2.5 border border-[#a9ded6] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">Fecha de inicio</label>
-                    <input
-                      type="date"
-                      value={form.fecha_inicio}
-                      onChange={(e) => setForm({ ...form, fecha_inicio: e.target.value })}
-                      className="w-full px-3 py-2.5 border border-[#a9ded6] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">Fecha de fin</label>
-                    <input
-                      type="date"
-                      value={form.fecha_fin}
-                      onChange={(e) => setForm({ ...form, fecha_fin: e.target.value })}
-                      className="w-full px-3 py-2.5 border border-[#a9ded6] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
-                    />
-                  </div>
                 </div>
               </div>
             </div>

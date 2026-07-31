@@ -19,11 +19,6 @@ FILTER_LABELS = {
     "especialidad": "Especialidad",
     "perfil": "Perfil",
     "estatus_cirugia": "Estatus de cirugía",
-    "nombre": "Nombre",
-    "edad_min": "Edad mínima",
-    "edad_max": "Edad máxima",
-    "fecha_inicio": "Desde",
-    "fecha_fin": "Hasta",
 }
 
 
