@@ -30,21 +30,21 @@ export function Login() {
 
   return (
     <div className="min-h-screen flex bg-slate-50">
-      <div className="hidden lg:flex flex-col justify-between w-[55%] bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 p-12 relative overflow-hidden">
-        <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-white/5" />
-        <div className="absolute -bottom-40 -left-24 w-[28rem] h-[28rem] rounded-full bg-white/5" />
-        <div className="absolute top-1/2 left-1/3 w-40 h-40 rounded-full bg-white/5" />
+      <div className="hidden lg:flex flex-col justify-between w-[55%] bg-gradient-to-br from-slate-100 via-slate-200 to-slate-300 p-12 relative overflow-hidden">
+        <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-white/40" />
+        <div className="absolute -bottom-40 -left-24 w-[28rem] h-[28rem] rounded-full bg-white/40" />
+        <div className="absolute top-1/2 left-1/3 w-40 h-40 rounded-full bg-white/40" />
 
         <div className="relative z-10">
           <img src="/logo_sbj.png" alt="Logo SBJ Brigadas" className="w-40 h-auto" />
-          <h1 className="text-4xl font-bold text-white mt-8">EXPEDIENTES SBJ</h1>
-          <p className="text-lg text-slate-300 mt-2">Centro Médico San Benito José</p>
+          <h1 className="text-4xl font-bold text-slate-900 mt-8">EXPEDIENTES SBJ</h1>
+          <p className="text-lg text-slate-600 mt-2">Centro Médico San Benito José</p>
         </div>
 
         <div className="relative z-10 space-y-4">
           {features.map((f) => (
-            <div key={f.text} className="flex items-center gap-3 text-slate-200">
-              <span className="w-9 h-9 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center shrink-0">
+            <div key={f.text} className="flex items-center gap-3 text-slate-700">
+              <span className="w-9 h-9 rounded-xl bg-white/70 border border-slate-200 flex items-center justify-center shrink-0 shadow-sm">
                 {f.icon}
               </span>
               <span className="text-sm">{f.text}</span>
@@ -53,7 +53,7 @@ export function Login() {
         </div>
 
         <div className="relative z-10 text-xs text-slate-500">
-          © {new Date().getFullYear()} SBJ Brigadas · Centro Médico San Benito José
+          © {new Date().getFullYear()} TurtleLite · Centro Médico San Benito José
         </div>
       </div>
 
