@@ -2,7 +2,7 @@ import os
 import datetime
 from typing import List, Dict, Any, Optional
 
-from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib.pagesizes import letter, landscape
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import mm
@@ -47,7 +47,7 @@ def export_to_pdf(
     count: Optional[int] = None,
     institution: str = "Centro Médico San Benito José",
 ):
-    page = landscape(A4)
+    page = landscape(letter)
     doc = SimpleDocTemplate(
         filepath,
         pagesize=page,

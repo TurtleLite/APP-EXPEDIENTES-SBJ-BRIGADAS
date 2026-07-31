@@ -41,6 +41,12 @@ def import_records_from_excel(db: Session, list_id: int, filepath: str) -> int:
 def export_to_excel(records: list[dict], columns: list[str], filepath: str):
     wb = openpyxl.Workbook()
     ws = wb.active
+    ws.title = "Reporte"
+
+    ws.page_setup.paperSize = 1
+    ws.page_setup.orientation = 'landscape'
+    ws.page_setup.fitToWidth = 1
+    ws.page_setup.fitToHeight = 0
 
     header_fill = PatternFill(start_color="1F4E79", end_color="1F4E79", fill_type="solid")
     header_font = Font(color="FFFFFF", bold=True, size=11)
