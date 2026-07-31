@@ -108,7 +108,6 @@ export function Reports() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="font-serif text-2xl font-bold text-[#1c1c1c]">Reportes</h1>
-          <p className="text-sm text-slate-500 mt-1">Genera y descarga reportes del sistema</p>
         </div>
         {(user?.role === 'admin' || user?.role === 'direccion') && (
           <button

@@ -79,7 +79,6 @@ export function Users() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="font-serif text-2xl font-bold text-[#1c1c1c]">Usuarios</h1>
-          <p className="text-sm text-slate-500 mt-1">Gestiona los usuarios del sistema</p>
         </div>
         {currentUser?.role === 'admin' && (
           <button
