@@ -38,10 +38,10 @@ export function Layout({ children }: { children: ReactNode }) {
   const filteredNav = navItems.filter(item => item.roles.includes(user?.role || ''))
 
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex overflow-hidden">
-      <aside className="w-48 bg-gradient-to-b from-slate-100 to-slate-200 flex flex-col shrink-0 h-screen sticky top-0 shadow-xl">
-        <div className="p-5 border-b border-slate-200/50 text-center">
-          <h1 className="text-sm font-bold text-slate-900 mb-3">EXPEDIENTES SBJ</h1>
+    <div className="h-screen bg-[#f7f5f0] flex overflow-hidden">
+      <aside className="w-48 bg-[#1c1c1c] flex flex-col shrink-0 h-screen sticky top-0 shadow-lg">
+        <div className="p-5 border-b border-white/10 text-center">
+          <h1 className="text-sm font-bold text-white mb-3 tracking-wide">EXPEDIENTES SBJ</h1>
           <img src="/logo_sbj.png" alt="Logo SBJ Cirugias" className="w-24 h-auto mx-auto" />
         </div>
         <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
@@ -51,13 +51,13 @@ export function Layout({ children }: { children: ReactNode }) {
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 relative ${
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 relative ${
                   isActive
-                    ? 'bg-white/40 text-slate-900 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-800 hover:bg-white/40 hover:scale-[1.02] active:scale-[0.98]'
+                    ? 'bg-white/10 text-white'
+                    : 'text-white/60 hover:text-white hover:bg-white/5'
                 }`}
               >
-                {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-slate-500 rounded-full shadow-lg shadow-slate-500/50" />}
+                {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-[#d9a441] rounded-full" />}
                 <span className={`transition-transform duration-200 ${isActive ? 'scale-110' : ''}`}>
                   {item.icon}
                 </span>
@@ -66,7 +66,7 @@ export function Layout({ children }: { children: ReactNode }) {
             )
           })}
         </nav>
-        <div className="p-4 border-t border-slate-200/50">
+        <div className="p-4 border-t border-white/10">
           <button
             onClick={() => navigate('/perfil')}
             className="w-full flex items-center gap-3 mb-3 text-left group"
@@ -75,7 +75,7 @@ export function Layout({ children }: { children: ReactNode }) {
               <RoleAvatar role={user?.role} size="sm" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-slate-900 truncate">
+              <p className="text-sm font-semibold text-white truncate">
                 {(() => {
                   const parts = user?.full_name?.split(' ') || []
                   const first = parts[0] || ''
@@ -93,7 +93,7 @@ export function Layout({ children }: { children: ReactNode }) {
           </button>
           <button
             onClick={logout}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-500 hover:text-red-400 hover:bg-white/40 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/50 hover:text-red-400 hover:bg-white/5 rounded-lg transition-colors duration-200"
           >
             <LogOut size={15} />
             Cerrar sesión
@@ -101,22 +101,19 @@ export function Layout({ children }: { children: ReactNode }) {
         </div>
       </aside>
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200 px-6 py-2 flex items-center shadow-sm">
+        <header className="bg-white border-b border-[#e8e3da] px-6 py-2 flex items-center">
           <div className="flex-1 flex items-center justify-center gap-4">
-            <img src="/logo_sbj.png" alt="Logo" className="w-16 h-auto" />
-            <span className="font-bold text-base text-slate-800">Centro Médico San Benito José</span>
+            <img src="/logo_sbj.png" alt="Logo" className="w-12 h-auto" />
+            <span className="font-serif font-bold text-base text-[#1c1c1c]">Centro Médico San Benito José</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-medium border shadow-sm ${ROLE_META[user?.role || '']?.badge || ''}`}>
+            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-medium border ${ROLE_META[user?.role || '']?.badge || ''}`}>
               {roleLabels[user?.role || '']}
             </span>
           </div>
         </header>
         <main className="flex-1 p-6 flex flex-col overflow-y-auto min-h-0 relative">
           {children}
-          <div className="fixed bottom-2 right-6 text-[10px] font-semibold text-slate-300 tracking-[0.2em] select-none pointer-events-none z-0">
-            TURTLELITE
-          </div>
         </main>
       </div>
     </div>

@@ -81,7 +81,7 @@ export function Dashboard() {
         <div className="flex items-center gap-3.5 min-w-0">
           <RoleAvatar role={role} size="md" />
           <div className="min-w-0">
-            <h1 className="text-xl font-bold text-slate-900 truncate">Hola, {user?.full_name}</h1>
+            <h1 className="font-serif text-xl font-bold text-[#1c1c1c] truncate">Hola, {user?.full_name}</h1>
             <p className="text-xs text-slate-500 capitalize truncate">{hoy} · Panel de {roleLabels[role]}</p>
           </div>
         </div>
@@ -98,7 +98,7 @@ export function Dashboard() {
             label="Usuarios"
             value={stats.users ?? 0}
             iconBg="bg-sky-500"
-            cardBg="from-sky-50 to-white"
+            cardBg="bg-sky-50"
             onClick={() => navigate('/users')}
           />
         )}
@@ -107,7 +107,7 @@ export function Dashboard() {
           label="Listas"
           value={stats.lists}
           iconBg="bg-violet-500"
-          cardBg="from-violet-50 to-white"
+          cardBg="bg-violet-50"
           onClick={() => navigate('/lists')}
         />
         <StatCard
@@ -115,7 +115,7 @@ export function Dashboard() {
           label="Registros"
           value={stats.records}
           iconBg="bg-emerald-500"
-          cardBg="from-emerald-50 to-white"
+          cardBg="bg-emerald-50"
           onClick={() => navigate('/lists')}
         />
         {canReports && (
@@ -124,16 +124,16 @@ export function Dashboard() {
             label="Reportes"
             value={stats.reports}
             iconBg="bg-amber-500"
-            cardBg="from-amber-50 to-white"
+            cardBg="bg-amber-50"
             onClick={() => navigate('/reports')}
           />
         )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1 min-h-0">
-        <section className="lg:col-span-3 bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-col min-h-0">
+        <section className="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-[#e8e3da] p-5 flex flex-col min-h-0">
           <div className="flex items-center justify-between mb-4 shrink-0">
-            <h2 className="text-sm font-semibold text-slate-900">Acciones rápidas</h2>
+            <h2 className="font-serif text-sm font-semibold text-[#1c1c1c]">Acciones rápidas</h2>
             <span className="text-[10px] text-slate-400 uppercase tracking-wider">Atajos</span>
           </div>
           <div className="space-y-2.5 overflow-y-auto min-h-0">
@@ -183,9 +183,9 @@ export function Dashboard() {
           </div>
         </section>
 
-        <section className={`${showReports ? 'lg:col-span-5' : 'lg:col-span-9'} bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-col min-h-0`}>
+        <section className={`${showReports ? 'lg:col-span-5' : 'lg:col-span-9'} bg-white rounded-2xl shadow-sm border border-[#e8e3da] p-5 flex flex-col min-h-0`}>
           <div className="flex items-center justify-between mb-4 shrink-0">
-            <h2 className="text-sm font-semibold text-slate-900">Listas recientes</h2>
+            <h2 className="font-serif text-sm font-semibold text-[#1c1c1c]">Listas recientes</h2>
             <button
               onClick={() => navigate('/lists')}
               className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-700 transition-colors duration-200"
@@ -205,9 +205,9 @@ export function Dashboard() {
                 <button
                   key={list.id}
                   onClick={() => navigate(`/lists/${list.id}`)}
-                  className="w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl border border-slate-100 hover:border-slate-200 hover:bg-slate-50/70 text-left transition-all duration-200 group"
+                  className="w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl border border-slate-100 hover:border-[#e8e3da] hover:bg-slate-50/70 text-left transition-all duration-200 group"
                 >
-                  <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-violet-100 to-violet-200 flex items-center justify-center text-violet-600 group-hover:scale-105 transition-transform duration-200 shrink-0">
+                  <div className="w-9 h-9 rounded-lg bg-violet-100 flex items-center justify-center text-violet-600 group-hover:scale-105 transition-transform duration-200 shrink-0">
                     <Table2 size={16} />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -227,9 +227,9 @@ export function Dashboard() {
         </section>
 
         {showReports && (
-          <section className="lg:col-span-4 bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-col min-h-0">
+          <section className="lg:col-span-4 bg-white rounded-2xl shadow-sm border border-[#e8e3da] p-5 flex flex-col min-h-0">
             <div className="flex items-center justify-between mb-4 shrink-0">
-              <h2 className="text-sm font-semibold text-slate-900">Reportes recientes</h2>
+              <h2 className="font-serif text-sm font-semibold text-[#1c1c1c]">Reportes recientes</h2>
               <button
                 onClick={() => navigate('/reports')}
                 className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-700 transition-colors duration-200"
@@ -245,7 +245,7 @@ export function Dashboard() {
                   onClick={() => navigate('/reports')}
                   className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl border border-slate-100 hover:border-amber-200 hover:bg-amber-50/40 text-left transition-all duration-200 group"
                 >
-                  <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center text-amber-600 shrink-0">
+                  <div className="w-9 h-9 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
                     <FileSpreadsheet size={16} />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -262,7 +262,7 @@ export function Dashboard() {
                         </span>
                       )}
                       {!report.filters?.especialidad && !report.filters?.fecha_inicio && !report.filters?.fecha_fin && (
-                        <span className="px-1.5 py-0.5 bg-slate-50 text-slate-500 rounded text-[9px] font-medium border border-slate-200">
+                        <span className="px-1.5 py-0.5 bg-slate-50 text-slate-500 rounded text-[9px] font-medium border border-[#e8e3da]">
                           General
                         </span>
                       )}
@@ -290,7 +290,7 @@ function StatCard({ icon, label, value, iconBg, cardBg, onClick }: {
   return (
     <button
       onClick={onClick}
-      className={`group relative overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br ${cardBg} p-4 text-left shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200`}
+      className={`group relative overflow-hidden rounded-2xl border border-[#e8e3da] ${cardBg} p-4 text-left shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200`}
     >
       <div className={`w-10 h-10 rounded-lg ${iconBg} text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform duration-200`}>
         {icon}
@@ -312,7 +312,7 @@ function QuickAction({ icon, label, hint, color, onClick }: {
   return (
     <button
       onClick={onClick}
-      className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl border border-slate-100 bg-white hover:border-slate-200 hover:shadow-sm transition-all duration-200 group text-left"
+      className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl border border-slate-100 bg-white hover:border-[#e8e3da] hover:shadow-sm transition-all duration-200 group text-left"
     >
       <div className={`w-9 h-9 rounded-lg ${color} flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform duration-200 shrink-0`}>
         {icon}

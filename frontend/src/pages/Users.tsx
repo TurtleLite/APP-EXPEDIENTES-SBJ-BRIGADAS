@@ -78,7 +78,7 @@ export function Users() {
     <div>
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Usuarios</h1>
+          <h1 className="font-serif text-2xl font-bold text-[#1c1c1c]">Usuarios</h1>
           <p className="text-sm text-slate-500 mt-1">Gestiona los usuarios del sistema</p>
         </div>
         {currentUser?.role === 'admin' && (
@@ -88,7 +88,7 @@ export function Users() {
               setForm({ username: '', telefono: '', full_name: '', password: '', role: 'medico' })
               setShowModal(true)
             }}
-            className="flex items-center gap-1.5 bg-gradient-to-r from-slate-500 to-slate-600 text-white px-4 py-2 rounded-xl hover:from-slate-600 hover:to-slate-700 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] text-sm font-medium"
+            className="flex items-center gap-1.5 bg-[#1c1c1c] text-white px-4 py-2 rounded-xl hover:bg-black shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
           >
             <UserPlus size={16} />
             Nuevo Usuario
@@ -96,10 +96,10 @@ export function Users() {
         )}
       </div>
 
-      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-[#e8e3da] overflow-hidden">
         <table className="w-full">
           <thead>
-            <tr className="bg-slate-50/50 border-b border-slate-200">
+            <tr className="bg-slate-50/50 border-b border-[#e8e3da]">
               <th className="text-left px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Nombre</th>
               <th className="text-left px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Usuario</th>
               <th className="text-left px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Teléfono</th>
@@ -155,8 +155,8 @@ export function Users() {
 
       {showModal && (
         <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl px-5 py-3 w-[95vw] max-w-5xl shadow-2xl">
-            <h2 className="text-lg font-bold mb-4 text-slate-900">
+          <div className="bg-white rounded-xl px-5 py-3 w-[95vw] max-w-5xl shadow-2xl">
+            <h2 className="font-serif text-lg font-bold mb-4 text-[#1c1c1c]">
               {editingUser ? 'Editar Usuario' : 'Nuevo Usuario'}
             </h2>
             <div className="space-y-3">
@@ -164,31 +164,31 @@ export function Users() {
                 placeholder="Nombre completo"
                 value={form.full_name}
                 onChange={(e) => setForm({ ...form, full_name: e.target.value })}
-                className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                className="w-full px-3 py-2.5 border border-[#e8e3da] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               />
               <input
                 placeholder="Usuario"
                 value={form.username}
                 onChange={(e) => setForm({ ...form, username: e.target.value })}
-                className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                className="w-full px-3 py-2.5 border border-[#e8e3da] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               />
               <input
                 placeholder="Teléfono"
                 type="tel"
                 value={form.telefono}
                 onChange={(e) => setForm({ ...form, telefono: e.target.value })}
-                className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                className="w-full px-3 py-2.5 border border-[#e8e3da] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               />
               <PasswordInput
                 placeholder={editingUser ? 'Nueva contraseña (dejar vacío)' : 'Contraseña'}
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                className="w-full px-3 py-2.5 border border-[#e8e3da] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               />
               <select
                 value={form.role}
                 onChange={(e) => setForm({ ...form, role: e.target.value })}
-                className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                className="w-full px-3 py-2.5 border border-[#e8e3da] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               >
                 <option value="medico">Médico</option>
                 <option value="direccion_medica">Dirección Médica</option>
@@ -200,7 +200,7 @@ export function Users() {
               <button onClick={() => setShowModal(false)} className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-xl transition-all duration-200">
                 Cancelar
               </button>
-              <button onClick={handleSave} className="px-4 py-2 text-sm bg-gradient-to-r from-slate-500 to-slate-600 text-white rounded-xl hover:from-slate-600 hover:to-slate-700 shadow-sm hover:shadow-md transition-all duration-200 font-medium">
+              <button onClick={handleSave} className="px-4 py-2 text-sm bg-[#1c1c1c] text-white rounded-xl hover:bg-black shadow-sm hover:shadow-md transition-all duration-200 font-medium">
                 {editingUser ? 'Actualizar' : 'Crear'}
               </button>
             </div>

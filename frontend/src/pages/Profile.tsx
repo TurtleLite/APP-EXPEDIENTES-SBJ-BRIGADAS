@@ -60,7 +60,7 @@ export function Profile() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <section className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 p-6">
+        <section className="bg-white rounded-2xl shadow-sm border border-[#e8e3da] p-6">
           <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-5">
             <UserCircle2 size={18} className="text-slate-500" />
             Mis datos
@@ -71,7 +71,7 @@ export function Profile() {
               <input
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                className="w-full px-3 py-2.5 border border-[#e8e3da] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               />
             </div>
             <div>
@@ -86,7 +86,7 @@ export function Profile() {
                 type="tel"
                 value={telefono}
                 onChange={(e) => setTelefono(e.target.value)}
-                className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                className="w-full px-3 py-2.5 border border-[#e8e3da] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               />
             </div>
             <div>
@@ -95,7 +95,7 @@ export function Profile() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Dejar vacío para no cambiarla"
-                className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                className="w-full px-3 py-2.5 border border-[#e8e3da] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               />
             </div>
             <button
@@ -109,7 +109,7 @@ export function Profile() {
           </div>
         </section>
 
-        <section className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 p-6">
+        <section className="bg-white rounded-2xl shadow-sm border border-[#e8e3da] p-6">
           <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-5">
             <ShieldCheck size={18} className="text-slate-500" />
             Accesos según tu rol
