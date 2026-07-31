@@ -182,6 +182,32 @@ export function ListDetail() {
     setShowModal(true)
   }
 
+  const handleEditSelected = () => {
+    const record = records.find(r => selectedIds.has(r.id))
+    if (!record) return
+    setSelectedIds(new Set())
+    if (list?.is_system) {
+      setEditingRecord(record)
+      setShowExpedienteForm(true)
+    } else {
+      openEditRecord(record)
+    }
+  }
+
+  const handleDeleteSelected = async () => {
+    const ids = Array.from(selectedIds)
+    if (ids.length === 0) return
+    if (!await confirm(`¿Eliminar ${ids.length} registro(s) seleccionado(s)?`)) return
+    try {
+      const res = await api.post(`/lists/${id}/records/bulk-delete`, { ids })
+      setSelectedIds(new Set())
+      loadRecords()
+      toast(res.data.message, 'success')
+    } catch (err: any) {
+      toast(err.response?.data?.detail || 'Error al eliminar', 'error')
+    }
+  }
+
   return (
     <div className="h-full flex flex-col gap-4">
       <div className="flex items-center justify-between shrink-0">
@@ -257,13 +283,31 @@ export function ListDetail() {
                 ))}
               </select>
               {selectedIds.size > 0 && (
-                <button
-                  onClick={handleExportSelected}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-slate-400 to-slate-500 text-white rounded-xl hover:from-slate-500 hover:to-slate-600 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] text-sm font-medium"
-                >
-                  <Download size={16} />
-                  Exportar {selectedIds.size} seleccionados
-                </button>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    onClick={handleExportSelected}
+                    className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-slate-400 to-slate-500 text-white rounded-xl hover:from-slate-500 hover:to-slate-600 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] text-sm font-medium"
+                  >
+                    <Download size={16} />
+                    Exportar {selectedIds.size} seleccionados
+                  </button>
+                  {selectedIds.size === 1 && (
+                    <button
+                      onClick={handleEditSelected}
+                      className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-slate-500 to-slate-600 text-white rounded-xl hover:from-slate-600 hover:to-slate-700 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] text-sm font-medium"
+                    >
+                      <Pencil size={16} />
+                      Editar
+                    </button>
+                  )}
+                  <button
+                    onClick={handleDeleteSelected}
+                    className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-red-400 to-red-500 text-white rounded-xl hover:from-red-500 hover:to-red-600 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] text-sm font-medium"
+                  >
+                    <Trash2 size={16} />
+                    Eliminar
+                  </button>
+                </div>
               )}
             </div>
           )}

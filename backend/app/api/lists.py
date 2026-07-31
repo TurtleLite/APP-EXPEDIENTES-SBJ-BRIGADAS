@@ -268,4 +268,29 @@ def delete_record_endpoint(
     return {"message": "Registro eliminado correctamente"}
 
 
+@router.post("/{list_id}/records/bulk-delete")
+def bulk_delete_records_endpoint(
+    list_id: int,
+    payload: dict,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    from fastapi import HTTPException
+    from app.services.record_service import delete_record
+    ids = payload.get("ids", [])
+    deleted = 0
+    errors = []
+    for record_id in ids:
+        try:
+            delete_record(db, record_id, user_id=current_user.id, user_role=current_user.role)
+            deleted += 1
+        except HTTPException as e:
+            errors.append({"id": record_id, "detail": e.detail})
+    message = f"{deleted} registro(s) eliminado(s)"
+    if errors:
+        message += f", {len(errors)} no eliminado(s) por permisos"
+    return {"message": message, "deleted": deleted, "errors": errors}
+
+
+
 
