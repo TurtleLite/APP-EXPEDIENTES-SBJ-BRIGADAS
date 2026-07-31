@@ -79,7 +79,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="APP EXPEDIENTES SBJ BRIGADAS",
-    description="Sistema de gestión de expedientes para SBJ Brigadas",
+    description="Sistema de gestión de expedientes para SBJ Cirugias",
     version="1.0.0",
     lifespan=lifespan,
 )

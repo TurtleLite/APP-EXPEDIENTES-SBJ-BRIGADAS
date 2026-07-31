@@ -36,7 +36,7 @@ export function Login() {
         <div className="absolute top-1/2 left-1/3 w-40 h-40 rounded-full bg-white/40" />
 
         <div className="relative z-10">
-          <img src="/logo_sbj.png" alt="Logo SBJ Brigadas" className="w-40 h-auto" />
+          <img src="/logo_sbj.png" alt="Logo SBJ Cirugias" className="w-40 h-auto" />
           <h1 className="text-4xl font-bold text-slate-900 mt-8">EXPEDIENTES SBJ</h1>
           <p className="text-lg text-slate-600 mt-2">Centro Médico San Benito José</p>
         </div>
@@ -60,7 +60,7 @@ export function Login() {
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="w-full max-w-md">
           <div className="lg:hidden text-center mb-8">
-            <img src="/logo_sbj.png" alt="Logo SBJ Brigadas" className="w-32 h-auto mx-auto mb-4" />
+            <img src="/logo_sbj.png" alt="Logo SBJ Cirugias" className="w-32 h-auto mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-slate-900">EXPEDIENTES SBJ</h1>
             <p className="text-sm text-slate-500 mt-1">Centro Médico San Benito José</p>
           </div>
@@ -113,7 +113,7 @@ export function Login() {
 
           <div className="mt-8 flex items-center justify-center gap-2 text-xs text-slate-400">
             <CheckCircle2 size={13} />
-            Sistema de expedientes · SBJ Brigadas
+            Sistema de expedientes · SBJ Cirugias
           </div>
         </div>
       </div>

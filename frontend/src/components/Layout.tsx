@@ -42,7 +42,7 @@ export function Layout({ children }: { children: ReactNode }) {
       <aside className="w-48 bg-gradient-to-b from-slate-100 to-slate-200 flex flex-col shrink-0 h-screen sticky top-0 shadow-xl">
         <div className="p-5 border-b border-slate-200/50 text-center">
           <h1 className="text-sm font-bold text-slate-900 mb-3">EXPEDIENTES SBJ</h1>
-          <img src="/logo_sbj.png" alt="Logo SBJ Brigadas" className="w-24 h-auto mx-auto" />
+          <img src="/logo_sbj.png" alt="Logo SBJ Cirugias" className="w-24 h-auto mx-auto" />
         </div>
         <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
           {filteredNav.map((item) => {
