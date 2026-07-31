@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
-import { User, Lock, CheckCircle2, ClipboardList, FileText, Activity } from 'lucide-react'
+import { User, Lock } from 'lucide-react'
 import { PasswordInput } from '../components/PasswordInput'
 
 export function Login() {
@@ -22,102 +22,92 @@ export function Login() {
     }
   }
 
-  const features = [
-    { icon: <ClipboardList size={16} />, text: 'Gestión completa de expedientes médicos' },
-    { icon: <FileText size={16} />, text: 'Reportes por especialidad, fechas y estatus' },
-    { icon: <Activity size={16} />, text: 'Control del estatus de cirugía' },
-  ]
-
   return (
-    <div className="min-h-screen flex bg-slate-50">
-      <div className="hidden lg:flex flex-col justify-between w-[55%] bg-gradient-to-br from-slate-100 via-slate-200 to-slate-300 p-12 relative overflow-hidden">
-        <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-white/40" />
-        <div className="absolute -bottom-40 -left-24 w-[28rem] h-[28rem] rounded-full bg-white/40" />
-        <div className="absolute top-1/2 left-1/3 w-40 h-40 rounded-full bg-white/40" />
-
-        <div className="relative z-10 text-center">
-          <img src="/logo_sbj.png" alt="Logo SBJ Cirugias" className="w-56 h-auto mx-auto" />
-          <h1 className="text-4xl font-bold text-slate-900 mt-8">
+    <div className="min-h-screen flex bg-white">
+      <div className="hidden lg:flex flex-col justify-between w-[55%] bg-[#f4f1ec] p-12">
+        <div className="text-center">
+          <img src="/logo_sbj.png" alt="Logo San Benito José" className="w-64 h-auto mx-auto" />
+          <p className="mt-10 text-xs font-semibold text-[#8a8378] uppercase tracking-[0.3em]">
+            Centro Médico San Benito José
+          </p>
+          <h1 className="font-serif text-4xl text-[#1c1c1c] mt-4 leading-tight">
             Sistema Web
-            <span className="block text-2xl mt-1">Gestion de Expedientes Medicos</span>
+            <span className="block text-2xl font-normal mt-1 text-[#3d3a34]">
+              Gestión de Expedientes Médicos
+            </span>
           </h1>
-          <p className="text-lg text-slate-600 mt-3">Centro Médico San Benito José</p>
+          <p className="mt-8 text-sm text-[#6f6a61] max-w-sm mx-auto leading-relaxed">
+            Registro y control de expedientes médicos para las brigadas quirúrgicas
+            del centro médico.
+          </p>
         </div>
 
-        <div className="relative z-10 space-y-4 mx-auto">
-          {features.map((f) => (
-            <div key={f.text} className="flex items-center gap-3 text-slate-700 text-left">
-              <span className="w-9 h-9 rounded-xl bg-white/70 border border-slate-200 flex items-center justify-center shrink-0 shadow-sm">
-                {f.icon}
-              </span>
-              <span className="text-sm">{f.text}</span>
-            </div>
-          ))}
-        </div>
-
-        <div className="relative z-10 text-xs text-slate-500 text-center">
+        <div className="text-center text-xs text-[#9a948a]">
           © {new Date().getFullYear()} TurtleLite · Centro Médico San Benito José
         </div>
       </div>
 
       <div className="flex-1 flex items-center justify-center p-6">
-        <div className="w-full max-w-md">
-          <div className="lg:hidden text-center mb-8">
-            <img src="/logo_sbj.png" alt="Logo SBJ Cirugias" className="w-40 h-auto mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-slate-900">EXPEDIENTES SBJ</h1>
-            <p className="text-sm text-slate-500 mt-1">Centro Médico San Benito José</p>
+        <div className="w-full max-w-sm">
+          <div className="lg:hidden text-center mb-10">
+            <img src="/logo_sbj.png" alt="Logo San Benito José" className="w-40 h-auto mx-auto mb-6" />
+            <h1 className="font-serif text-2xl text-[#1c1c1c]">
+              Sistema Web
+              <span className="block text-lg font-normal mt-1 text-[#3d3a34]">
+                Gestión de Expedientes Médicos
+              </span>
+            </h1>
           </div>
 
-          <div className="hidden lg:block mb-8">
-            <h2 className="text-2xl font-bold text-slate-900">Inicie sesión</h2>
-            <p className="text-sm text-slate-500 mt-1">Acceda a su cuenta para continuar</p>
-          </div>
+          <h2 className="font-serif text-2xl text-[#1c1c1c]">Iniciar sesión</h2>
+          <p className="text-sm text-[#6f6a61] mt-1.5 mb-8">
+            Ingrese sus credenciales para continuar.
+          </p>
 
           {error && (
-            <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl text-sm mb-4 border border-red-200">
+            <div className="bg-red-50 text-red-700 px-4 py-3 rounded-md text-sm mb-5 border border-red-100">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Usuario</label>
+              <label className="block text-sm font-medium text-[#3d3a34] mb-1.5">Usuario</label>
               <div className="relative">
-                <User size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <User size={17} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9a948a]" />
                 <input
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 outline-none transition-all duration-200 shadow-sm"
-                  placeholder="Ingrese su usuario"
+                  className="w-full pl-9 pr-3 py-2.5 border border-[#d8d2c8] rounded-md text-sm bg-white focus:border-[#1c1c1c] outline-none transition-colors duration-200"
+                  placeholder="Nombre de usuario"
                   required
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Contraseña</label>
+              <label className="block text-sm font-medium text-[#3d3a34] mb-1.5">Contraseña</label>
               <div className="relative">
-                <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Lock size={17} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9a948a]" />
                 <PasswordInput
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 py-3 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 outline-none transition-all duration-200 shadow-sm"
-                  placeholder="Ingrese su contraseña"
+                  className="w-full pl-9 py-2.5 border border-[#d8d2c8] rounded-md text-sm bg-white focus:border-[#1c1c1c] outline-none transition-colors duration-200"
+                  placeholder="Contraseña"
                 />
               </div>
             </div>
             <button
               type="submit"
-              className="w-full py-3 bg-gradient-to-r from-slate-500 to-slate-600 text-white rounded-xl font-medium hover:from-slate-600 hover:to-slate-700 transition-all duration-200 shadow-lg shadow-slate-500/20 hover:scale-[1.01] active:scale-[0.99]"
+              className="w-full py-2.5 bg-[#1c1c1c] text-white rounded-md text-sm font-medium hover:bg-black transition-colors duration-200"
             >
               Iniciar sesión
             </button>
           </form>
 
-          <div className="mt-8 flex items-center justify-center gap-2 text-xs text-slate-400">
-            <CheckCircle2 size={13} />
-            Sistema de expedientes · SBJ Cirugias
-          </div>
+          <p className="mt-10 text-center text-xs text-[#9a948a]">
+            ¿Olvidó su contraseña? Contacte al administrador del sistema.
+          </p>
         </div>
       </div>
     </div>
