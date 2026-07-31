@@ -752,6 +752,10 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
             for cell in row:
                 if cell.font.name in (None, 'Calibri') and cell.font.size == 11:
                     cell.font = Font(name=arial, size=10)
+                a = cell.alignment
+                if a is not None:
+                    cell.alignment = Alignment(horizontal=a.horizontal, vertical=a.vertical,
+                                               wrap_text=a.wrap_text, shrink_to_fit=True)
                 b = cell.border
                 new_sides = {}
                 for side_name in ('left', 'right', 'top', 'bottom'):
