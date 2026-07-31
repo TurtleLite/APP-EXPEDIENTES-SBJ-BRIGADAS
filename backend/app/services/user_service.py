@@ -20,14 +20,14 @@ def get_user(db: Session, user_id: int) -> User:
 
 def create_user(db: Session, data: UserCreate) -> User:
     existing = db.query(User).filter(
-        (User.username == data.username) | (User.email == data.email)
+        (User.username == data.username) | (User.telefono == data.telefono)
     ).first()
     if existing:
         from fastapi import HTTPException
-        raise HTTPException(status_code=400, detail="Usuario o email ya existe")
+        raise HTTPException(status_code=400, detail="Usuario o teléfono ya existe")
     user = User(
         username=data.username,
-        email=data.email,
+        telefono=data.telefono,
         full_name=data.full_name,
         hashed_password=hash_password(data.password),
         role=data.role,
@@ -37,7 +37,7 @@ def create_user(db: Session, data: UserCreate) -> User:
         db.commit()
     except IntegrityError:
         db.rollback()
-        raise HTTPException(status_code=400, detail="Usuario o email ya existe")
+        raise HTTPException(status_code=400, detail="Usuario o teléfono ya existe")
     db.refresh(user)
     return user
 
@@ -58,7 +58,7 @@ def update_user(db: Session, user_id: int, data) -> User:
         db.commit()
     except IntegrityError:
         db.rollback()
-        raise HTTPException(status_code=400, detail="El usuario o email ya está en uso por otro usuario")
+        raise HTTPException(status_code=400, detail="El usuario o teléfono ya está en uso por otro usuario")
     db.refresh(user)
     return user
 
@@ -74,13 +74,13 @@ def delete_user(db: Session, user_id: int):
 
 def reset_default_users(db: Session):
     defaults = [
-        User(username="admin", email="admin@sistema.com", full_name="Administrador",
+        User(username="admin", telefono="2201-1100", full_name="Administrador",
              hashed_password=hash_password("admin123"), role="admin", is_active=True),
-        User(username="direccion", email="direccion@sistema.com", full_name="Director General",
+        User(username="direccion", telefono="2201-1101", full_name="Director General",
              hashed_password=hash_password("direccion123"), role="direccion", is_active=True),
-        User(username="direccionmedica", email="direccionmedica@sistema.com", full_name="Dirección Médica",
+        User(username="direccionmedica", telefono="2201-1102", full_name="Dirección Médica",
              hashed_password=hash_password("direccionmedica123"), role="direccion_medica", is_active=True),
-        User(username="medico", email="medico@sistema.com", full_name="Dr. Médico",
+        User(username="medico", telefono="2201-1103", full_name="Dr. Médico",
              hashed_password=hash_password("medico123"), role="medico", is_active=True),
     ]
     for u in defaults:

@@ -1,7 +1,7 @@
 export interface User {
   id: string
   username: string
-  email: string
+  telefono: string
   full_name: string
   role: 'admin' | 'direccion' | 'direccion_medica' | 'medico'
   is_active: boolean

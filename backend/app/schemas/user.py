@@ -1,11 +1,11 @@
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, field_validator
 from typing import Optional
 from datetime import datetime
 
 
 class UserCreate(BaseModel):
     username: str
-    email: str
+    telefono: str
     full_name: str
     password: str
     role: str = "medico"
@@ -13,7 +13,7 @@ class UserCreate(BaseModel):
 
 class UserUpdate(BaseModel):
     username: Optional[str] = None
-    email: Optional[str] = None
+    telefono: Optional[str] = None
     full_name: Optional[str] = None
     password: Optional[str] = None
     role: Optional[str] = None
@@ -23,7 +23,7 @@ class UserUpdate(BaseModel):
 class UserResponse(BaseModel):
     id: str
     username: str
-    email: str
+    telefono: str
     full_name: str
     role: str
     is_active: bool

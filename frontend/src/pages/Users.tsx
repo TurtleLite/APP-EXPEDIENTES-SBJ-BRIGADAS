@@ -16,7 +16,7 @@ export function Users() {
   const [users, setUsers] = useState<User[]>([])
   const [showModal, setShowModal] = useState(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
-  const [form, setForm] = useState({ username: '', email: '', full_name: '', password: '', role: 'medico' })
+  const [form, setForm] = useState({ username: '', telefono: '', full_name: '', password: '', role: 'medico' })
   const { user: currentUser } = useAuth()
   const { toast, confirm } = useNotification()
 
@@ -42,7 +42,7 @@ export function Users() {
       }
       setShowModal(false)
       setEditingUser(null)
-      setForm({ username: '', email: '', full_name: '', password: '', role: 'medico' })
+      setForm({ username: '', telefono: '', full_name: '', password: '', role: 'medico' })
       loadUsers()
     } catch (err: any) {
       toast(err.response?.data?.detail || 'Error al guardar usuario', 'error')
@@ -64,7 +64,7 @@ export function Users() {
     setEditingUser(user)
     setForm({
       username: user.username,
-      email: user.email,
+      telefono: user.telefono,
       full_name: user.full_name,
       password: '',
       role: user.role,
@@ -83,7 +83,7 @@ export function Users() {
           <button
             onClick={() => {
               setEditingUser(null)
-              setForm({ username: '', email: '', full_name: '', password: '', role: 'medico' })
+              setForm({ username: '', telefono: '', full_name: '', password: '', role: 'medico' })
               setShowModal(true)
             }}
             className="flex items-center gap-1.5 bg-gradient-to-r from-slate-500 to-slate-600 text-white px-4 py-2 rounded-xl hover:from-slate-600 hover:to-slate-700 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] text-sm font-medium"
@@ -100,7 +100,7 @@ export function Users() {
             <tr className="bg-slate-50/50 border-b border-slate-200">
               <th className="text-left px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Nombre</th>
               <th className="text-left px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Usuario</th>
-              <th className="text-left px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Email</th>
+              <th className="text-left px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Teléfono</th>
               <th className="text-left px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Rol</th>
               <th className="text-left px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Estado</th>
               <th className="text-right px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Acciones</th>
@@ -111,7 +111,7 @@ export function Users() {
               <tr key={u.id} className="border-b border-slate-100 transition-all duration-150 hover:bg-slate-50/50">
                 <td className="px-6 py-4 text-sm font-medium text-slate-900">{u.full_name}</td>
                 <td className="px-6 py-4 text-sm text-slate-600">{u.username}</td>
-                <td className="px-6 py-4 text-sm text-slate-600">{u.email}</td>
+                <td className="px-6 py-4 text-sm text-slate-600">{u.telefono}</td>
                 <td className="px-6 py-4">
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                     u.role === 'admin' ? 'bg-slate-100 text-slate-600' :
@@ -166,10 +166,10 @@ export function Users() {
                 className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               />
               <input
-                placeholder="Email"
-                type="email"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                placeholder="Teléfono"
+                type="tel"
+                value={form.telefono}
+                onChange={(e) => setForm({ ...form, telefono: e.target.value })}
                 className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               />
               <input

@@ -45,6 +45,22 @@ async def lifespan(app: FastAPI):
                     conn.execute(text("ALTER TABLE list_records ADD COLUMN created_by INTEGER REFERENCES users(id)"))
                     conn.commit()
                 logger.info("Added created_by column to list_records")
+        if "users" in inspector.get_table_names():
+            columns = [c["name"] for c in inspector.get_columns("users")]
+            if "email" in columns and "telefono" not in columns:
+                with engine.connect() as conn:
+                    conn.execute(text("ALTER TABLE users RENAME COLUMN email TO telefono"))
+                    conn.execute(text("""
+                        UPDATE users SET telefono = CASE username
+                            WHEN 'admin' THEN '2201-1100'
+                            WHEN 'direccion' THEN '2201-1101'
+                            WHEN 'direccionmedica' THEN '2201-1102'
+                            WHEN 'medico' THEN '2201-1103'
+                            ELSE telefono END
+                        WHERE telefono LIKE '%@%'
+                    """))
+                    conn.commit()
+                logger.info("Renamed users.email to users.telefono")
     except Exception as e:
         logger.warning(f"Could not add column: {e}")
 

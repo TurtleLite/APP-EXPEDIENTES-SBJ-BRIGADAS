@@ -13,7 +13,7 @@ def reset_users():
 
         admin = User(
             username="admin",
-            email="admin@sistema.com",
+            telefono="2201-1100",
             full_name="Administrador",
             hashed_password=hash_password("admin123"),
             role="admin",
@@ -23,7 +23,7 @@ def reset_users():
 
         direccion = User(
             username="direccion",
-            email="direccion@sistema.com",
+            telefono="2201-1101",
             full_name="Director General",
             hashed_password=hash_password("direccion123"),
             role="direccion",
@@ -33,7 +33,7 @@ def reset_users():
 
         direccion_medica = User(
             username="direccionmedica",
-            email="direccionmedica@sistema.com",
+            telefono="2201-1102",
             full_name="Dirección Médica",
             hashed_password=hash_password("direccionmedica123"),
             role="direccion_medica",
@@ -43,7 +43,7 @@ def reset_users():
 
         medico = User(
             username="medico",
-            email="medico@sistema.com",
+            telefono="2201-1103",
             full_name="Dr. Médico",
             hashed_password=hash_password("medico123"),
             role="medico",
