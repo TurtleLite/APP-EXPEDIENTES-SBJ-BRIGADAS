@@ -107,12 +107,12 @@ export function Reports() {
     <div>
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="font-serif text-2xl font-bold text-[#1c1c1c]">Reportes</h1>
+          <h1 className="font-serif text-2xl font-bold text-[#134e4a]">Reportes</h1>
         </div>
         {(user?.role === 'admin' || user?.role === 'direccion') && (
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-1.5 bg-[#1c1c1c] text-white px-4 py-2 rounded-xl hover:bg-black shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
+            className="flex items-center gap-1.5 bg-[#0d9488] text-white px-4 py-2 rounded-xl hover:bg-[#0f766e] shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
           >
             <Plus size={16} />
             Nuevo Reporte
@@ -122,7 +122,7 @@ export function Reports() {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {reports.map((report) => (
-          <div key={report.id} className="bg-white rounded-xl shadow-sm border border-[#e8e3da] p-6 hover:shadow-md hover:border-[#e8e3da] transition-all duration-200">
+          <div key={report.id} className="bg-white rounded-xl shadow-sm border border-[#a9ded6] p-6 hover:shadow-md hover:border-[#a9ded6] transition-all duration-200">
             <h3 className="font-semibold text-slate-900 mb-1">{report.name}</h3>
             {report.description && (
               <p className="text-sm text-slate-500 mb-3">{report.description}</p>
@@ -132,7 +132,7 @@ export function Reports() {
                 Por especialidad: {report.filters.especialidad}
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-50 text-slate-500 rounded-lg text-xs font-medium border border-[#e8e3da]">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-teal-50 text-slate-500 rounded-lg text-xs font-medium border border-[#a9ded6]">
                 General
               </span>
             )}
@@ -144,14 +144,14 @@ export function Reports() {
             <div className="flex flex-wrap gap-2 mt-3">
               <button
                 onClick={() => handleGenerate(report.id, 'excel')}
-                className="flex items-center gap-1 px-3 py-1.5 bg-slate-50 text-slate-600 rounded-xl text-xs font-medium hover:bg-slate-100 border border-[#e8e3da] transition-all duration-200 hover:scale-105 active:scale-95"
+                className="flex items-center gap-1 px-3 py-1.5 bg-teal-50 text-slate-600 rounded-xl text-xs font-medium hover:bg-slate-100 border border-[#a9ded6] transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 <FileSpreadsheet size={14} />
                 Gen. Excel
               </button>
               <button
                 onClick={() => handleGenerate(report.id, 'pdf')}
-                className="flex items-center gap-1 px-3 py-1.5 bg-slate-50 text-slate-600 rounded-xl text-xs font-medium hover:bg-slate-100 border border-[#e8e3da] transition-all duration-200 hover:scale-105 active:scale-95"
+                className="flex items-center gap-1 px-3 py-1.5 bg-teal-50 text-slate-600 rounded-xl text-xs font-medium hover:bg-slate-100 border border-[#a9ded6] transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 <FileText size={14} />
                 Gen. PDF
@@ -159,7 +159,7 @@ export function Reports() {
               {report.file_path_excel && (
                 <button
                   onClick={() => handleDownload(report.id, 'excel')}
-                  className="flex items-center gap-1 px-3 py-1.5 bg-slate-50 text-slate-600 rounded-xl text-xs font-medium hover:bg-slate-100 border border-[#e8e3da] transition-all duration-200 hover:scale-105 active:scale-95"
+                  className="flex items-center gap-1 px-3 py-1.5 bg-teal-50 text-slate-600 rounded-xl text-xs font-medium hover:bg-slate-100 border border-[#a9ded6] transition-all duration-200 hover:scale-105 active:scale-95"
                 >
                   <Download size={14} />
                   Excel
@@ -168,14 +168,14 @@ export function Reports() {
               {report.file_path_pdf && (
                 <button
                   onClick={() => handleDownload(report.id, 'pdf')}
-                  className="flex items-center gap-1 px-3 py-1.5 bg-slate-50 text-slate-600 rounded-xl text-xs font-medium hover:bg-slate-100 border border-[#e8e3da] transition-all duration-200 hover:scale-105 active:scale-95"
+                  className="flex items-center gap-1 px-3 py-1.5 bg-teal-50 text-slate-600 rounded-xl text-xs font-medium hover:bg-slate-100 border border-[#a9ded6] transition-all duration-200 hover:scale-105 active:scale-95"
                 >
                   <Download size={14} />
                   PDF
                 </button>
               )}
             </div>
-            <div className="flex justify-end mt-2 pt-2 border-t border-[#e8e3da]">
+            <div className="flex justify-end mt-2 pt-2 border-t border-[#a9ded6]">
               {(user?.role === 'admin' || user?.role === 'direccion') && (
                 deleteConfirm === report.id ? (
                   <div className="flex items-center gap-2 text-xs">
@@ -211,19 +211,19 @@ export function Reports() {
       {showModal && (
         <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-xl px-5 py-3 w-[95vw] max-w-5xl shadow-2xl">
-            <h2 className="font-serif text-lg font-bold mb-4 text-[#1c1c1c]">Nuevo Reporte</h2>
+            <h2 className="font-serif text-lg font-bold mb-4 text-[#134e4a]">Nuevo Reporte</h2>
             <div className="space-y-3">
               <input
                 placeholder="Nombre del reporte"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full px-3 py-2.5 border border-[#e8e3da] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                className="w-full px-3 py-2.5 border border-[#a9ded6] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               />
               <input
                 placeholder="Descripción (opcional)"
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
-                className="w-full px-3 py-2.5 border border-[#e8e3da] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                className="w-full px-3 py-2.5 border border-[#a9ded6] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               />
               <select
                 value={form.list_definition_id}
@@ -232,7 +232,7 @@ export function Reports() {
                   setForm({ ...form, list_definition_id: v, especialidad: '' })
                   if (v) loadEspecialidades(v)
                 }}
-                className="w-full px-3 py-2.5 border border-[#e8e3da] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                className="w-full px-3 py-2.5 border border-[#a9ded6] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               >
                 <option value="">Seleccionar lista</option>
                 {lists.map((l) => (
@@ -243,7 +243,7 @@ export function Reports() {
                 <select
                   value={form.especialidad}
                   onChange={(e) => setForm({ ...form, especialidad: e.target.value })}
-                  className="w-full px-3 py-2.5 border border-[#e8e3da] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                  className="w-full px-3 py-2.5 border border-[#a9ded6] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
                 >
                   <option value="">Todas las especialidades (general)</option>
                   {especialidades.map((esp) => (
@@ -258,7 +258,7 @@ export function Reports() {
                     type="date"
                     value={form.fecha_inicio}
                     onChange={(e) => setForm({ ...form, fecha_inicio: e.target.value })}
-                    className="w-full px-3 py-2.5 border border-[#e8e3da] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                    className="w-full px-3 py-2.5 border border-[#a9ded6] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
                   />
                 </div>
                 <div>
@@ -267,16 +267,16 @@ export function Reports() {
                     type="date"
                     value={form.fecha_fin}
                     onChange={(e) => setForm({ ...form, fecha_fin: e.target.value })}
-                    className="w-full px-3 py-2.5 border border-[#e8e3da] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                    className="w-full px-3 py-2.5 border border-[#a9ded6] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
                   />
                 </div>
               </div>
             </div>
             <div className="flex justify-end gap-2 mt-4">
-              <button onClick={() => setShowModal(false)} className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-xl transition-all duration-200">
+              <button onClick={() => setShowModal(false)} className="px-4 py-2 text-sm text-slate-600 hover:bg-teal-50 rounded-xl transition-all duration-200">
                 Cancelar
               </button>
-              <button onClick={handleCreate} className="px-4 py-2 text-sm bg-[#1c1c1c] text-white rounded-xl hover:bg-black shadow-sm hover:shadow-md transition-all duration-200 font-medium">
+              <button onClick={handleCreate} className="px-4 py-2 text-sm bg-[#0d9488] text-white rounded-xl hover:bg-[#0f766e] shadow-sm hover:shadow-md transition-all duration-200 font-medium">
                 Crear Reporte
               </button>
             </div>
