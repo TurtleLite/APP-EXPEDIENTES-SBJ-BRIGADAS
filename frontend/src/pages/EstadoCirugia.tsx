@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { listsApi } from '../services/api'
-import { ListRecord } from '../types'
+import { ListRecord, ListDefinition } from '../types'
 import { useNotification } from '../contexts/NotificationContext'
 import { FileSpreadsheet, Search, ChevronDown } from 'lucide-react'
 
@@ -28,7 +28,8 @@ export function EstadoCirugia() {
         setLoading(true)
         if (!listId) {
           const listsRes = await listsApi.list()
-          const system = listsRes.data.find((l) => l.is_system)
+          const lists: ListDefinition[] = listsRes.data
+          const system = lists.find((l) => l.is_system)
           if (!cancelled && system) {
             setListId(system.id)
             return
