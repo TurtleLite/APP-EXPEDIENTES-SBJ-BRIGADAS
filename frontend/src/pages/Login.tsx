@@ -35,15 +35,15 @@ export function Login() {
         <div className="absolute -bottom-40 -left-24 w-[28rem] h-[28rem] rounded-full bg-white/40" />
         <div className="absolute top-1/2 left-1/3 w-40 h-40 rounded-full bg-white/40" />
 
-        <div className="relative z-10">
-          <img src="/logo_sbj.png" alt="Logo SBJ Cirugias" className="w-56 h-auto" />
+        <div className="relative z-10 text-center">
+          <img src="/logo_sbj.png" alt="Logo SBJ Cirugias" className="w-56 h-auto mx-auto" />
           <h1 className="text-4xl font-bold text-slate-900 mt-8">EXPEDIENTES SBJ</h1>
           <p className="text-lg text-slate-600 mt-2">Centro Médico San Benito José</p>
         </div>
 
-        <div className="relative z-10 space-y-4">
+        <div className="relative z-10 space-y-4 mx-auto">
           {features.map((f) => (
-            <div key={f.text} className="flex items-center gap-3 text-slate-700">
+            <div key={f.text} className="flex items-center gap-3 text-slate-700 text-left">
               <span className="w-9 h-9 rounded-xl bg-white/70 border border-slate-200 flex items-center justify-center shrink-0 shadow-sm">
                 {f.icon}
               </span>
@@ -52,7 +52,7 @@ export function Login() {
           ))}
         </div>
 
-        <div className="relative z-10 text-xs text-slate-500">
+        <div className="relative z-10 text-xs text-slate-500 text-center">
           © {new Date().getFullYear()} TurtleLite · Centro Médico San Benito José
         </div>
       </div>
