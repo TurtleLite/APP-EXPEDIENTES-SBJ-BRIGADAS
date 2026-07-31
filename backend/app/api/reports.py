@@ -32,7 +32,7 @@ def _records_for_report(db: Session, report: Report):
 def create_report(
     data: dict,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "direccion")),
+    current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
 ):
     report = Report(
         name=data["name"],
@@ -96,7 +96,7 @@ def get_report(
 def generate_excel_report(
     report_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "direccion")),
+    current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
 ):
     report = db.query(Report).filter(Report.id == report_id).first()
     if not report:
@@ -123,7 +123,7 @@ def generate_excel_report(
 def generate_pdf_report(
     report_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "direccion")),
+    current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
 ):
     report = db.query(Report).filter(Report.id == report_id).first()
     if not report:
@@ -166,7 +166,7 @@ def download_report(
 def delete_report(
     report_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "direccion")),
+    current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
 ):
     report = db.query(Report).filter(Report.id == report_id).first()
     if not report:

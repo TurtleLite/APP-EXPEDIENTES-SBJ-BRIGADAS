@@ -69,6 +69,8 @@ def reset_default_users(db: Session):
              hashed_password=hash_password("admin123"), role="admin", is_active=True),
         User(username="direccion", email="direccion@sistema.com", full_name="Director General",
              hashed_password=hash_password("direccion123"), role="direccion", is_active=True),
+        User(username="direccionmedica", email="direccionmedica@sistema.com", full_name="Dirección Médica",
+             hashed_password=hash_password("direccionmedica123"), role="direccion_medica", is_active=True),
         User(username="medico", email="medico@sistema.com", full_name="Dr. Médico",
              hashed_password=hash_password("medico123"), role="medico", is_active=True),
     ]

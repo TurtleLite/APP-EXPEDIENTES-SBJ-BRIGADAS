@@ -5,6 +5,13 @@ import { useAuth } from '../contexts/AuthContext'
 import { useNotification } from '../contexts/NotificationContext'
 import { Plus, Pencil, Trash2, UserPlus } from 'lucide-react'
 
+const roleLabels: Record<string, string> = {
+  admin: 'Administrador',
+  direccion: 'Dirección',
+  direccion_medica: 'Dirección Médica',
+  medico: 'Médico',
+}
+
 export function Users() {
   const [users, setUsers] = useState<User[]>([])
   const [showModal, setShowModal] = useState(false)
@@ -109,7 +116,7 @@ export function Users() {
                     u.role === 'direccion' ? 'bg-slate-100 text-slate-600' :
                     'bg-slate-100 text-slate-600'
                   }`}>
-                    {u.role}
+                    {roleLabels[u.role] || u.role}
                   </span>
                 </td>
                 <td className="px-6 py-4">
@@ -176,6 +183,7 @@ export function Users() {
                 className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               >
                 <option value="medico">Médico</option>
+                <option value="direccion_medica">Dirección Médica</option>
                 <option value="direccion">Dirección</option>
                 <option value="admin">Administrador</option>
               </select>

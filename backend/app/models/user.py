@@ -7,6 +7,7 @@ import enum
 class UserRole(str, enum.Enum):
     ADMIN = "admin"
     DIRECCION = "direccion"
+    DIRECCION_MEDICA = "direccion_medica"
     MEDICO = "medico"
 
 

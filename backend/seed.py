@@ -33,6 +33,16 @@ def seed():
         )
         db.add(direccion)
 
+        direccion_medica = User(
+            username="direccionmedica",
+            email="direccionmedica@sistema.com",
+            full_name="Dirección Médica",
+            hashed_password=hash_password("direccionmedica123"),
+            role="direccion_medica",
+            is_active=True,
+        )
+        db.add(direccion_medica)
+
         medico = User(
             username="medico",
             email="medico@sistema.com",
@@ -47,6 +57,7 @@ def seed():
         print("Usuarios creados correctamente:")
         print("  admin / admin123")
         print("  direccion / direccion123")
+        print("  direccionmedica / direccionmedica123")
         print("  medico / medico123")
     except Exception as e:
         print(f"Error: {e}")

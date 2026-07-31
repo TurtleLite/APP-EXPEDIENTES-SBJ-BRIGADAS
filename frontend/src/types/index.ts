@@ -3,7 +3,7 @@ export interface User {
   username: string
   email: string
   full_name: string
-  role: 'admin' | 'direccion' | 'medico'
+  role: 'admin' | 'direccion' | 'direccion_medica' | 'medico'
   is_active: boolean
   created_at: string
 }
