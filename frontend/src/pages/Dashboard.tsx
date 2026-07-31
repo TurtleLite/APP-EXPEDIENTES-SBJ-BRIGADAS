@@ -22,9 +22,10 @@ export function Dashboard() {
   useEffect(() => {
     async function load() {
       try {
+        const canReports = user?.role === 'admin' || user?.role === 'direccion' || user?.role === 'direccion_medica'
         const [listsRes, reportsRes] = await Promise.all([
           listsApi.list(),
-          reportsApi.list(),
+          canReports ? reportsApi.list() : Promise.resolve({ data: [] }),
         ])
         const lists: ListDefinition[] = listsRes.data
         const reports: Report[] = reportsRes.data
@@ -64,7 +65,7 @@ export function Dashboard() {
         <h1 className="text-2xl font-bold text-slate-900">
           Bienvenido, {user?.full_name}
         </h1>
-        <p className="text-slate-500 mt-1">Panel de {user?.role === 'admin' ? 'Administrador' : user?.role === 'direccion' ? 'Dirección' : 'Médico'}</p>
+        <p className="text-slate-500 mt-1">Panel de {user?.role === 'admin' ? 'Administrador' : user?.role === 'direccion' ? 'Dirección' : user?.role === 'direccion_medica' ? 'Dirección Médica' : 'Médico'}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -88,12 +89,14 @@ export function Dashboard() {
           value={stats.records}
           color="bg-gradient-to-br from-slate-300 to-slate-400"
         />
-        <StatCard
-          icon={<BarChart3 size={24} />}
-          label="Reportes"
-          value={stats.reports}
-          color="bg-gradient-to-br from-slate-300 to-slate-400"
-        />
+        {(user?.role === 'admin' || user?.role === 'direccion' || user?.role === 'direccion_medica') && (
+          <StatCard
+            icon={<BarChart3 size={24} />}
+            label="Reportes"
+            value={stats.reports}
+            color="bg-gradient-to-br from-slate-300 to-slate-400"
+          />
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -119,7 +122,7 @@ export function Dashboard() {
                 onClick={() => navigate('/lists')}
               />
             )}
-            {(user?.role === 'admin' || user?.role === 'direccion') && (
+            {(user?.role === 'admin' || user?.role === 'direccion' || user?.role === 'direccion_medica') && (
               <QuickAction
                 icon={<FileText size={18} />}
                 label="Nuevo reporte"
