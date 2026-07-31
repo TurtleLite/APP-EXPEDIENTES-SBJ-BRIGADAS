@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import Optional, List, Any
 from datetime import datetime
 
@@ -29,6 +29,11 @@ class ListDefinitionResponse(BaseModel):
     is_system: bool = False
     created_by: str
     created_at: datetime
+
+    @field_validator('id', 'created_by', mode='before')
+    @classmethod
+    def coerce_id(cls, v):
+        return str(v)
 
     class Config:
         from_attributes = True
