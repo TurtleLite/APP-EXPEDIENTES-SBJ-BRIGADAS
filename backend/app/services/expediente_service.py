@@ -745,6 +745,16 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
 
     for idx, record in enumerate(records):
         d = record.data if record.data else {}
+        data_values = [str(v) for v in d.values() if v not in (None, '')]
+
+        def _is_data_value(s):
+            for v in data_values:
+                if s == v:
+                    return True
+                if len(v) >= 3 and v in s:
+                    return True
+            return False
+
         ws = wb.create_sheet()
         ws.title = f"Hoja{idx+1}"
         _write_record_sheet(ws, d, styles)
@@ -752,6 +762,11 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
             for cell in row:
                 if cell.font.name in (None, 'Calibri') and cell.font.size == 11:
                     cell.font = Font(name=arial, size=10)
+                if cell.value not in (None, '') and _is_data_value(str(cell.value)):
+                    a = cell.alignment
+                    if a is not None:
+                        cell.alignment = Alignment(horizontal=a.horizontal, vertical=a.vertical,
+                                                   wrap_text=a.wrap_text, shrink_to_fit=True)
                 b = cell.border
                 new_sides = {}
                 for side_name in ('left', 'right', 'top', 'bottom'):
