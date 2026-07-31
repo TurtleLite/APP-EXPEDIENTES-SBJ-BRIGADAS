@@ -125,13 +125,6 @@ export function Lists() {
             {list.description && (
               <p className="text-sm text-slate-500 mb-3">{list.description}</p>
             )}
-            <div className="flex flex-wrap gap-1 mb-3">
-              {list.columns_config.map((col, i) => (
-                <span key={i} className="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-xs">
-                  {col.label}
-                </span>
-              ))}
-            </div>
             <button
               onClick={() => navigate(`/lists/${list.id}`)}
               className="text-sm text-slate-500 hover:text-slate-700 font-medium transition-colors duration-200"
