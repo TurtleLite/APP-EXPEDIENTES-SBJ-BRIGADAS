@@ -15,17 +15,27 @@ router = APIRouter(prefix="/reports", tags=["Reportes"])
 
 
 def _records_for_report(db: Session, report: Report):
-    query = db.query(ListRecord).filter(ListRecord.list_definition_id == report.list_definition_id)
     filt = report.filters or {}
+    conds = []
+    params = {"lid": report.list_definition_id}
     especialidad = filt.get("especialidad")
     if especialidad:
-        from sqlalchemy import text
-        ids = db.execute(
-            text("SELECT id FROM list_records WHERE list_definition_id = :lid AND data->>'especialidad' = :esp"),
-            {"lid": report.list_definition_id, "esp": especialidad},
-        ).scalars().all()
-        query = query.filter(ListRecord.id.in_(ids))
-    return query.all()
+        conds.append("data->>'especialidad' = :esp")
+        params["esp"] = especialidad
+    fecha_inicio = filt.get("fecha_inicio")
+    if fecha_inicio:
+        conds.append("data->>'fecha_elaboracion' >= :fini")
+        params["fini"] = fecha_inicio
+    fecha_fin = filt.get("fecha_fin")
+    if fecha_fin:
+        conds.append("data->>'fecha_elaboracion' <= :ffin")
+        params["ffin"] = fecha_fin
+    if not conds:
+        return db.query(ListRecord).filter(ListRecord.list_definition_id == report.list_definition_id).all()
+    from sqlalchemy import text
+    sql = text(f"SELECT id FROM list_records WHERE list_definition_id = :lid AND {' AND '.join(conds)}")
+    ids = db.execute(sql, params).scalars().all()
+    return db.query(ListRecord).filter(ListRecord.id.in_(ids)).all()
 
 
 @router.post("/")

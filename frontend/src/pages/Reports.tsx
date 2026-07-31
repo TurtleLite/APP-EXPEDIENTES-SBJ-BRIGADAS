@@ -12,7 +12,7 @@ export function Reports() {
   const [showModal, setShowModal] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [form, setForm] = useState({
-    name: '', description: '', list_definition_id: '', especialidad: '', columns_selected: [] as string[],
+    name: '', description: '', list_definition_id: '', especialidad: '', fecha_inicio: '', fecha_fin: '', columns_selected: [] as string[],
   })
   const { user } = useAuth()
   const { toast } = useNotification()
@@ -41,14 +41,22 @@ export function Reports() {
   useEffect(() => { loadReports(); loadLists() }, [])
 
   const handleCreate = async () => {
+    if (form.fecha_inicio && form.fecha_fin && form.fecha_fin < form.fecha_inicio) {
+      toast('La fecha final no puede ser anterior a la fecha de inicio', 'error')
+      return
+    }
     try {
       await reportsApi.create({
         ...form,
         list_definition_id: form.list_definition_id || undefined,
-        filters: form.especialidad ? { especialidad: form.especialidad } : undefined,
+        filters: {
+          especialidad: form.especialidad || undefined,
+          fecha_inicio: form.fecha_inicio || undefined,
+          fecha_fin: form.fecha_fin || undefined,
+        },
       })
       setShowModal(false)
-      setForm({ name: '', description: '', list_definition_id: '', especialidad: '', columns_selected: [] })
+      setForm({ name: '', description: '', list_definition_id: '', especialidad: '', fecha_inicio: '', fecha_fin: '', columns_selected: [] })
       setEspecialidades([])
       loadReports()
     } catch (err: any) {
@@ -127,6 +135,11 @@ export function Reports() {
             ) : (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-50 text-slate-500 rounded-lg text-xs font-medium border border-slate-200">
                 General
+              </span>
+            )}
+            {(report.filters?.fecha_inicio || report.filters?.fecha_fin) && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-sky-50 text-sky-700 rounded-lg text-xs font-medium border border-sky-200 ml-1">
+                Del {report.filters.fecha_inicio || 'inicio'} al {report.filters.fecha_fin || 'hoy'}
               </span>
             )}
             <div className="flex flex-wrap gap-2 mt-3">
@@ -239,6 +252,26 @@ export function Reports() {
                   ))}
                 </select>
               )}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">Fecha de inicio</label>
+                  <input
+                    type="date"
+                    value={form.fecha_inicio}
+                    onChange={(e) => setForm({ ...form, fecha_inicio: e.target.value })}
+                    className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">Fecha de fin</label>
+                  <input
+                    type="date"
+                    value={form.fecha_fin}
+                    onChange={(e) => setForm({ ...form, fecha_fin: e.target.value })}
+                    className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                  />
+                </div>
+              </div>
             </div>
             <div className="flex justify-end gap-2 mt-4">
               <button onClick={() => setShowModal(false)} className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-xl transition-all duration-200">
