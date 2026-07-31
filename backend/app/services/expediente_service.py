@@ -720,8 +720,7 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
         r += 1
 
         # === ROW 50: Surgery Date ===
-        surgery_date = d.get("fecha_cirugia", "")
-        label = f"Surgery Date/ Day of the Week   Fecha de Cirugía/Día de la Semana:  {surgery_date}"
+        label = "Surgery Date/ Day of the Week   Fecha de Cirugía/Día de la Semana:"
         c = ws.cell(r, 1, label)
         c.font = Font(name=arial, bold=True, size=10)
         _apply_borders_range(ws, r, 1, r, 5, medium_bottom)
