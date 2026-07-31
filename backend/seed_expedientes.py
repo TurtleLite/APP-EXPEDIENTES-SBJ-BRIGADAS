@@ -216,7 +216,7 @@ def main():
             fecha_elab = (date.today() - timedelta(days=random.randint(1, 400))).isoformat()
 
             data = {
-                "especialidad": esp,
+                "especialidad": esp.upper(),
                 "criticidad": criticidad,
                 "estatus": perfil,
                 "nombre": nombre,
