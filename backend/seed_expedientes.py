@@ -31,9 +31,8 @@ RESPONSABLES_F = ["Sr. José Martínez", "Sr. Francisco Cruz", "Sr. Daniel Aguil
 MEDICOS = ["Dra. Danelia Hernandez", "Dr. Carlos Mejía", "Dra. Ana Sofía Zelaya", "Dr. Marco Tulio Barahona",
            "Dra. Rebeca Villeda", "Dr. Jorge Maldonado", "Dra. Karla Suazo"]
 CIRUJANOS = ["Dr. Jorge Maldonado", "Dr. Roberto Aguilera", "Dra. Karla Suazo", "Dr. Óscar Fernández", "Dra. Lourdes Villeda"]
-PERFILES = ["Ambulatorio", "Hospitalizado", "Quirúrgico", "Crítico"]
+PERFILES_CODIGO = ["1", "2", "3", "4"]
 ESTATUS_CIRUGIA = ["En espera", "Reprogramar", "Cancelado", "Fuera de perfil San Benito", "Operado"]
-ALBERGUES = ["Casa Hogar Santa Teresa", "Albergue San Juan", "Refugio Divina Providencia", "Centro de Rehabilitación El Buen Samaritano"]
 
 ESPECIALIDADES = {
     "Cirugía General": {
@@ -170,7 +169,7 @@ def gen_peso_talla(edad):
     else:
         peso = round(random.uniform(52, 110), 1); talla = round(random.uniform(1.45, 1.85), 2)
     bmi = round(peso / (talla ** 2), 1)
-    return str(peso), str(talla), str(bmi)
+    return f"{peso} kg", f"{talla} mts", str(bmi)
 
 
 def main():
@@ -204,17 +203,15 @@ def main():
             historia = diagnostico_historia(diag)
             peso, talla, bmi = gen_peso_talla(edad)
 
-            estatus_cirugia = ""
+            estatus_cirugia = random.choice(ESTATUS_CIRUGIA)
             cirujano = ""
             fecha_cirugia = ""
-            if cfg["quirurgica"] and random.random() < 0.7:
-                estatus_cirugia = random.choice(ESTATUS_CIRUGIA)
-                if estatus_cirugia in ("En espera", "Operado", "Reprogramar"):
-                    cirujano = random.choice(CIRUJANOS)
-                    dias = random.randint(1, 180)
-                    fecha_cirugia = (date.today() - timedelta(days=dias)).isoformat()
+            if estatus_cirugia in ("En espera", "Operado", "Reprogramar"):
+                cirujano = random.choice(CIRUJANOS)
+                dias = random.randint(1, 180)
+                fecha_cirugia = (date.today() - timedelta(days=dias)).isoformat()
 
-            perfil = random.choice(PERFILES)
+            perfil = random.choice(PERFILES_CODIGO)
             criticidad = random.choice(["baja", "media", "alta"])
             fecha_elab = (date.today() - timedelta(days=random.randint(1, 400))).isoformat()
 
@@ -225,11 +222,11 @@ def main():
                 "nombre": nombre,
                 "apellido": f"{apellido} {apellido2}",
                 "sexo": sexo,
-                "edad": edad,
+                "edad": f"{edad} a",
                 "fecha_elaboracion": fecha_elab,
                 "identidad": gen_identidad(edad, sexo, i),
                 "persona_responsable": responsable,
-                "albergue": random.choice(ALBERGUES) if random.random() < 0.2 else "",
+                "albergue": "Si" if random.random() < 0.25 else "No",
                 "perfil": perfil,
                 "telefono": gen_tel(),
                 "telefono2": gen_tel() if random.random() < 0.3 else "",
