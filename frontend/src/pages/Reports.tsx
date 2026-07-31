@@ -366,9 +366,8 @@ export function Reports() {
       )}
 
       {preview && (
-        <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-[95vw] max-w-6xl flex flex-col max-h-[90vh]">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#a9ded6] shrink-0">
+        <div className="fixed inset-0 bg-[#f0fdfa] z-50 flex flex-col">
+          <div className="flex items-center justify-between px-8 py-4 border-b border-[#a9ded6] bg-white shrink-0">
               <div>
                 <h2 className="font-serif text-lg font-bold text-[#134e4a]">{preview.name}</h2>
                 <p className="text-xs text-slate-500 mt-0.5">
@@ -409,12 +408,11 @@ export function Reports() {
                 </tbody>
               </table>
             </div>
-            <div className="flex justify-end px-6 py-3 border-t border-[#a9ded6] shrink-0">
+            <div className="flex justify-end px-8 py-3 border-t border-[#a9ded6] bg-white shrink-0">
               <button onClick={() => setPreview(null)} className="px-4 py-2 text-sm bg-[#0d9488] text-white rounded-xl hover:bg-[#0f766e] shadow-sm transition-all duration-200 font-medium">
                 Cerrar
               </button>
             </div>
-          </div>
         </div>
       )}
     </div>
