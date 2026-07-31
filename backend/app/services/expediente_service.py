@@ -199,8 +199,8 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
         # === ROW 2: Especialidad (G-H, size 16) / Criticidad clínica (I, yellow) ===
         ws.cell(r, 1).font = Font(name=arial, bold=True, size=11)
         ws.merge_cells(start_row=r, start_column=7, end_row=r, end_column=8)
-        c = ws.cell(r, 7, "Especialidad")
-        c.font = Font(name=arial, bold=True, size=16)
+        c = ws.cell(r, 7, d.get("especialidad", ""))
+        c.font = Font(name=arial, bold=True, size=16, color="FF0000")
         c.alignment = center_wrap
         cellb(r, 7, thin)
         cellb(r, 8, Border(right=Side(style='thin'), top=Side(style='thin'), bottom=Side(style='thin')))
