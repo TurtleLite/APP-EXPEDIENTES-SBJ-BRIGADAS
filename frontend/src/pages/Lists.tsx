@@ -65,8 +65,8 @@ export function Lists() {
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-8">
+    <div className="h-full flex flex-col gap-4">
+      <div className="flex items-center justify-between shrink-0">
         <div>
           <h1 className="font-serif text-2xl font-bold text-[#134e4a]">Listas Personalizables</h1>
         </div>
@@ -93,8 +93,9 @@ export function Lists() {
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {lists.map((list) => (
+      <div className="flex-1 overflow-y-auto min-h-0 pr-1">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {lists.map((list) => (
           <div key={list.id} className="bg-white rounded-xl shadow-sm border border-[#a9ded6] p-6 hover:shadow-md hover:border-[#a9ded6] transition-all duration-200">
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-2">
@@ -132,6 +133,7 @@ export function Lists() {
             </button>
           </div>
         ))}
+        </div>
       </div>
 
       {showModal && (

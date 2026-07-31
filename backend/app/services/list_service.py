@@ -20,7 +20,7 @@ def ensure_system_lists(db: Session):
     admin_id = admin.id if admin else 1
     ld = ListDefinition(
         name="Expediente Médico",
-        description="Plantilla predefinida de expediente médico. Solo el administrador puede modificar esta plantilla.",
+        description="",
         columns_config=EXPEDIENTE_COLUMNS,
         is_system=True,
         created_by=admin_id,
