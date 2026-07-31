@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
-import { Stethoscope, User, Lock } from 'lucide-react'
+import { User, Lock } from 'lucide-react'
 import { PasswordInput } from '../components/PasswordInput'
 
 export function Login() {
@@ -26,8 +26,8 @@ export function Login() {
     <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center p-4">
       <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl w-full max-w-md p-8">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-500 to-slate-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-slate-500/20">
-            <Stethoscope size={32} className="text-white" />
+          <div className="w-20 h-20 rounded-2xl bg-white border border-slate-200 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-slate-500/10 p-2">
+            <img src="/logo_sbj.png" alt="Logo SBJ Brigadas" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-xl font-bold text-slate-900">APP EXPEDIENTES</h1>
           <p className="text-sm text-slate-500 mt-1">SBJ Brigadas · Inicie sesión para continuar</p>

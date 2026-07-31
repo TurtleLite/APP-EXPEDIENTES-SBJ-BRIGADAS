@@ -42,8 +42,8 @@ export function Layout({ children }: { children: ReactNode }) {
       <aside className="w-48 bg-gradient-to-b from-slate-100 to-slate-200 flex flex-col shrink-0 h-screen sticky top-0 shadow-xl">
         <div className="p-5 border-b border-slate-200/50">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-500 to-slate-600 flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-slate-500/20">
-              SBJ
+            <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-lg shadow-slate-500/10 p-1">
+              <img src="/logo_sbj.png" alt="Logo SBJ Brigadas" className="w-full h-full object-contain" />
             </div>
             <div>
               <h1 className="text-sm font-bold text-slate-900 leading-tight">APP EXPEDIENTES</h1>
