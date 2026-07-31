@@ -19,17 +19,10 @@ interface Section {
 
 const SECTIONS: Section[] = [
   {
-    title: 'Centro y Clasificación',
-    icon: <Stethoscope size={18} />,
-    fields: [
-      { key: 'especialidad', label: 'Especialidad', type: 'text' },
-      { key: 'criticidad', label: 'Criticidad Clínica', type: 'text' },
-    ],
-  },
-  {
     title: 'Datos Personales',
     icon: <User size={18} />,
     fields: [
+      { key: 'especialidad', label: 'Especialidad', type: 'text' },
       { key: 'nombre', label: 'Nombre / First Name', type: 'text' },
       { key: 'apellido', label: 'Apellido / Last Name', type: 'text' },
       { key: 'sexo', label: 'Sexo / Sex', type: 'text' },
@@ -132,7 +125,7 @@ interface Props {
 
 function filterSections(role?: string): Section[] {
   if (role === 'medico') {
-    return SECTIONS.filter((s) => s.title !== 'Centro y Clasificación').map((s) => {
+    return SECTIONS.map((s) => {
       if (s.title === 'Médico') {
         return { ...s, fields: s.fields.filter((f) => ['nombre_medico'].includes(f.key)) }
       }
