@@ -39,14 +39,14 @@ export function Profile() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className={`rounded-2xl overflow-hidden shadow-md bg-gradient-to-br ${meta.gradient}`}>
-        <div className="px-8 py-8 flex flex-col sm:flex-row sm:items-center gap-6">
+    <div className="h-full flex flex-col gap-4">
+      <div className={`rounded-2xl overflow-hidden shadow-md bg-gradient-to-br ${meta.gradient} shrink-0`}>
+        <div className="px-6 py-5 flex flex-col sm:flex-row sm:items-center gap-4">
           <RoleAvatar role={user.role} size="lg" />
           <div className="flex-1 min-w-0">
-            <h1 className="text-2xl font-bold text-white">{user.full_name}</h1>
+            <h1 className="text-xl font-bold text-white">{user.full_name}</h1>
             <p className="text-white/80 text-sm mt-0.5">@{user.username}</p>
-            <div className="mt-3 flex flex-wrap gap-2">
+            <div className="mt-2.5 flex flex-wrap gap-2">
               <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${meta.badge}`}>
                 {meta.label}
               </span>
@@ -59,8 +59,8 @@ export function Profile() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <section className="bg-white rounded-2xl shadow-sm border border-[#a9ded6] p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-0 lg:grid-rows-[minmax(0,1fr)] overflow-y-auto">
+        <section className="bg-white rounded-2xl shadow-sm border border-[#a9ded6] p-5 lg:overflow-y-auto lg:min-h-0">
           <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-5">
             <UserCircle2 size={18} className="text-slate-500" />
             Mis datos
@@ -109,7 +109,7 @@ export function Profile() {
           </div>
         </section>
 
-        <section className="bg-white rounded-2xl shadow-sm border border-[#a9ded6] p-6">
+        <section className="bg-white rounded-2xl shadow-sm border border-[#a9ded6] p-5 lg:overflow-y-auto lg:min-h-0">
           <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-5">
             <ShieldCheck size={18} className="text-slate-500" />
             Accesos según tu rol
