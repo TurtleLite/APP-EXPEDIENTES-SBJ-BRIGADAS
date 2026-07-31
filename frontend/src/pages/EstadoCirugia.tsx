@@ -5,7 +5,6 @@ import { useNotification } from '../contexts/NotificationContext'
 import { FileSpreadsheet, Search, ChevronDown } from 'lucide-react'
 
 const STATUS_OPTIONS = ['En espera', 'Reprogramar', 'Cancelado', 'Fuera de perfil San Benito', 'Operado']
-const EXPEDIENTE_LIST_ID = '1'
 
 const statusStyles: Record<string, string> = {
   'Operado': 'bg-emerald-100 text-emerald-600 border-emerald-200',
@@ -19,34 +18,50 @@ export function EstadoCirugia() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [listId, setListId] = useState<string | null>(null)
   const { toast } = useNotification()
 
-  const loadRecords = async () => {
-    try {
-      setLoading(true)
-      const res = await listsApi.getRecords(EXPEDIENTE_LIST_ID)
-      setRecords(res.data)
-    } catch {
-      toast('Error al cargar registros', 'error')
-    } finally {
-      setLoading(false)
+  useEffect(() => {
+    let cancelled = false
+    async function load() {
+      try {
+        setLoading(true)
+        if (!listId) {
+          const listsRes = await listsApi.list()
+          const system = listsRes.data.find((l) => l.is_system)
+          if (!cancelled && system) {
+            setListId(system.id)
+            return
+          }
+          if (!cancelled) toast('No se encontró la lista de expedientes', 'error')
+        } else {
+          const res = await listsApi.getRecords(listId)
+          if (!cancelled) setRecords(res.data)
+        }
+      } catch {
+        if (!cancelled) toast('Error al cargar registros', 'error')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
     }
-  }
-
-  useEffect(() => { loadRecords() }, [])
+    load()
+    return () => { cancelled = true }
+  }, [listId])
 
   const filtered = filter
     ? records.filter((r) => (r.data?.estatus_cirugia || '') === filter)
     : records
 
   const updateStatus = async (recordId: string, status: string) => {
+    if (!listId) return
     try {
       const record = records.find((r) => r.id === recordId)
       if (!record) return
-      await listsApi.updateRecord(EXPEDIENTE_LIST_ID, recordId, {
+      await listsApi.updateRecord(listId, recordId, {
         data: { ...record.data, estatus_cirugia: status },
       })
-      loadRecords()
+      const res = await listsApi.getRecords(listId)
+      setRecords(res.data)
       setEditingId(null)
       toast('Estatus actualizado', 'success')
     } catch {
@@ -55,8 +70,9 @@ export function EstadoCirugia() {
   }
 
   const handleReport = async () => {
+    if (!listId) return
     try {
-      const res = await listsApi.exportExcel(EXPEDIENTE_LIST_ID)
+      const res = await listsApi.exportExcel(listId)
       const url = window.URL.createObjectURL(new Blob([res.data]))
       const a = document.createElement('a')
       a.href = url
