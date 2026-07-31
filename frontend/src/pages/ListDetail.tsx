@@ -4,7 +4,7 @@ import { listsApi, default as api } from '../services/api'
 import { ListDefinition, ListRecord } from '../types'
 import { useAuth } from '../contexts/AuthContext'
 import { useNotification } from '../contexts/NotificationContext'
-import { ArrowLeft, Plus, Upload, Search, Pencil, Trash2, Download, Stethoscope, CheckSquare, Square } from 'lucide-react'
+import { Plus, Upload, Search, Pencil, Trash2, Download, Stethoscope, CheckSquare, Square } from 'lucide-react'
 import { ExpedienteForm } from '../components/ExpedienteForm'
 
 const RECORD_COLUMNS = ['nombre', 'edad', 'diagnostico', 'perfil', 'domicilio', 'telefono', 'albergue', 'nombre_medico']
@@ -183,10 +183,6 @@ export function ListDetail() {
     <div className="h-full flex flex-col gap-4">
       <div className="flex items-center justify-between shrink-0">
         <div>
-          <button onClick={() => navigate('/lists')} className="inline-flex items-center gap-1 text-sm text-slate-600 hover:text-slate-700 mb-1 transition-colors duration-200">
-            <ArrowLeft size={15} />
-            Volver a listas
-          </button>
           <h1 className="font-serif text-2xl font-bold text-[#134e4a]">{list?.name || 'Cargando...'}</h1>
           {list?.description && <p className="text-sm text-slate-600 mt-1">{list.description}</p>}
         </div>
