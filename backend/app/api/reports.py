@@ -14,6 +14,20 @@ import os
 router = APIRouter(prefix="/reports", tags=["Reportes"])
 
 
+def _records_for_report(db: Session, report: Report):
+    query = db.query(ListRecord).filter(ListRecord.list_definition_id == report.list_definition_id)
+    filt = report.filters or {}
+    especialidad = filt.get("especialidad")
+    if especialidad:
+        from sqlalchemy import text
+        ids = db.execute(
+            text("SELECT id FROM list_records WHERE list_definition_id = :lid AND data->>'especialidad' = :esp"),
+            {"lid": report.list_definition_id, "esp": especialidad},
+        ).scalars().all()
+        query = query.filter(ListRecord.id.in_(ids))
+    return query.all()
+
+
 @router.post("/")
 def create_report(
     data: dict,
@@ -46,6 +60,7 @@ def list_reports(
             "name": r.name,
             "description": r.description,
             "list_definition_id": str(r.list_definition_id) if r.list_definition_id else None,
+            "filters": r.filters,
             "created_by": str(r.created_by),
             "file_path_excel": r.file_path_excel,
             "file_path_pdf": r.file_path_pdf,
@@ -93,7 +108,7 @@ def generate_excel_report(
     columns = [c["label"] for c in ld.columns_config]
     if report.columns_selected:
         columns = report.columns_selected
-    records = db.query(ListRecord).filter(ListRecord.list_definition_id == report.list_definition_id).all()
+    records = _records_for_report(db, report)
     data = [r.data for r in records]
     os.makedirs(settings.REPORTS_DIR, exist_ok=True)
     filepath = os.path.join(settings.REPORTS_DIR, f"reporte_{report.id}.xlsx")
@@ -120,7 +135,7 @@ def generate_pdf_report(
     columns = [c["label"] for c in ld.columns_config]
     if report.columns_selected:
         columns = report.columns_selected
-    records = db.query(ListRecord).filter(ListRecord.list_definition_id == report.list_definition_id).all()
+    records = _records_for_report(db, report)
     data = [r.data for r in records]
     os.makedirs(settings.REPORTS_DIR, exist_ok=True)
     filepath = os.path.join(settings.REPORTS_DIR, f"reporte_{report.id}.pdf")

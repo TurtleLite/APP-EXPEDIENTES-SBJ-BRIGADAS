@@ -29,28 +29,21 @@ Aplicación web para gestión de usuarios con roles, listas personalizables desd
 | Frontend | React + Vite + TypeScript | MIT |
 | Estilos | Tailwind CSS | MIT |
 | Backend | Python + FastAPI | MIT |
-| Base de Datos | PostgreSQL | PostgreSQL License |
+| Base de Datos | CockroachDB (CockroachLabs Cloud) | BSL (gratuito en la nube) |
 | PDF | ReportLab | BSD |
 | Excel | openpyxl | MIT |
 | Autenticación | JWT | MIT |
 
 ## Instalación y Ejecución
 
-### 1. Base de Datos (PostgreSQL)
+### 1. Base de Datos (CockroachDB en CockroachLabs Cloud)
 
-```bash
-# Instalar PostgreSQL
-sudo apt update && sudo apt install postgresql postgresql-contrib -y
+La base de datos está alojada en la nube de **CockroachLabs** (SQL distribuido, compatible con PostgreSQL). No requiere instalación ni servidor local.
 
-# Iniciar servicio
-sudo systemctl start postgresql
-sudo systemctl enable postgresql
-
-# Crear base de datos y usuario
-sudo -u postgres psql -c "CREATE USER gestion_user WITH PASSWORD 'gestion_pass';"
-sudo -u postgres psql -c "CREATE DATABASE gestion_db OWNER gestion_user;"
-sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE gestion_db TO gestion_user;"
-```
+- **Cluster:** `sanbenitojose-bancodepacientes-30660` (región `aws-us-east-1`)
+- **Host:** `sanbenitojose-bancodepacientes-30660.j77.aws-us-east-1.cockroachlabs.cloud:26257`
+- **Base de datos:** `defaultdb`
+- **Credenciales:** en `backend/.env` como `DATABASE_URL` con formato `cockroachdb://usuario:password@host:26257/defaultdb`
 
 ### 2. Backend
 

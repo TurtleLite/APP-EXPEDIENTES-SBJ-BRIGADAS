@@ -8,13 +8,21 @@ import { Plus, FileText, FileSpreadsheet, Download, Trash2 } from 'lucide-react'
 export function Reports() {
   const [reports, setReports] = useState<Report[]>([])
   const [lists, setLists] = useState<ListDefinition[]>([])
+  const [especialidades, setEspecialidades] = useState<string[]>([])
   const [showModal, setShowModal] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [form, setForm] = useState({
-    name: '', description: '', list_definition_id: '', columns_selected: [] as string[],
+    name: '', description: '', list_definition_id: '', especialidad: '', columns_selected: [] as string[],
   })
   const { user } = useAuth()
   const { toast } = useNotification()
+
+  const loadEspecialidades = async (listId: string) => {
+    try {
+      const res = await listsApi.getEspecialidades(listId)
+      setEspecialidades(res.data || [])
+    } catch { setEspecialidades([]) }
+  }
 
   const loadReports = async () => {
     try {
@@ -34,9 +42,14 @@ export function Reports() {
 
   const handleCreate = async () => {
     try {
-      await reportsApi.create(form)
+      await reportsApi.create({
+        ...form,
+        list_definition_id: form.list_definition_id || undefined,
+        filters: form.especialidad ? { especialidad: form.especialidad } : undefined,
+      })
       setShowModal(false)
-      setForm({ name: '', description: '', list_definition_id: '', columns_selected: [] })
+      setForm({ name: '', description: '', list_definition_id: '', especialidad: '', columns_selected: [] })
+      setEspecialidades([])
       loadReports()
     } catch (err: any) {
       toast(err.response?.data?.detail || 'Error al crear reporte', 'error')
@@ -106,6 +119,15 @@ export function Reports() {
             <h3 className="font-semibold text-slate-900 mb-1">{report.name}</h3>
             {report.description && (
               <p className="text-sm text-slate-500 mb-3">{report.description}</p>
+            )}
+            {report.filters?.especialidad ? (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-medium border border-emerald-200">
+                Por especialidad: {report.filters.especialidad}
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-50 text-slate-500 rounded-lg text-xs font-medium border border-slate-200">
+                General
+              </span>
             )}
             <div className="flex flex-wrap gap-2 mt-3">
               <button
@@ -193,7 +215,11 @@ export function Reports() {
               />
               <select
                 value={form.list_definition_id}
-                onChange={(e) => setForm({ ...form, list_definition_id: e.target.value })}
+                onChange={(e) => {
+                  const v = e.target.value
+                  setForm({ ...form, list_definition_id: v, especialidad: '' })
+                  if (v) loadEspecialidades(v)
+                }}
                 className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               >
                 <option value="">Seleccionar lista</option>
@@ -201,6 +227,18 @@ export function Reports() {
                   <option key={l.id} value={l.id}>{l.name}</option>
                 ))}
               </select>
+              {form.list_definition_id && especialidades.length > 0 && (
+                <select
+                  value={form.especialidad}
+                  onChange={(e) => setForm({ ...form, especialidad: e.target.value })}
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                >
+                  <option value="">Todas las especialidades (general)</option>
+                  {especialidades.map((esp) => (
+                    <option key={esp} value={esp}>{esp}</option>
+                  ))}
+                </select>
+              )}
             </div>
             <div className="flex justify-end gap-2 mt-4">
               <button onClick={() => setShowModal(false)} className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-xl transition-all duration-200">
