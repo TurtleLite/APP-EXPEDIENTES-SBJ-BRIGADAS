@@ -40,8 +40,6 @@ EXPEDIENTE_COLUMNS = [
     {"key": "examen_fisico", "label": "Examen Físico", "type": "text"},
     {"key": "diagnostico", "label": "Diagnóstico", "type": "text"},
     {"key": "nombre_medico", "label": "Nombre del Médico", "type": "text"},
-    {"key": "cirujano", "label": "Cirujano", "type": "text"},
-    {"key": "fecha_cirugia", "label": "Fecha de Cirugía", "type": "date"},
     {"key": "estatus_cirugia", "label": "Estatus de Cirugía", "type": "text"},
 ]
 
@@ -667,29 +665,6 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
         c.alignment = center_nowrap
         _apply_borders_range(ws, r, 2, r, 7, medium_top)
         r += 3
-
-        # === ROW 48: Surgeon ===
-        c = ws.cell(r, 1, "Surgeon/ Cirujano:")
-        c.font = Font(name=arial, bold=True, size=10)
-        _apply_border(ws, r, 1, medium_bottom)
-        _apply_border(ws, r, 2, medium_bottom)
-        ws.merge_cells(start_row=r, start_column=3, end_row=r, end_column=8)
-        c = ws.cell(r, 3, d.get("cirujano", ""))
-        c.font = Font(name=arial, size=10)
-        c.alignment = center_wrap
-        _apply_borders_range(ws, r, 3, r, 8, medium_bottom)
-        r += 2
-
-        # === ROW 50: Surgery Date ===
-        surgery_date = d.get("fecha_cirugia", "")
-        c = ws.cell(r, 1, f"Surgery Date/ Day of the Week   Fecha de Cirugía/Día de la Semana:   {surgery_date}")
-        c.font = Font(name=arial, bold=True, size=10)
-        _apply_borders_range(ws, r, 1, r, 5, medium_bottom)
-        ws.merge_cells(start_row=r, start_column=6, end_row=r, end_column=8)
-        c = ws.cell(r, 6, "")
-        c.font = Font(name=arial, size=10)
-        c.alignment = center_wrap
-        _apply_borders_range(ws, r, 6, r, 8, medium_bottom)
 
         # Column widths
         for col_letter, w in col_widths.items():
