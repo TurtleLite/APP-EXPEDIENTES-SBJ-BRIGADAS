@@ -30,7 +30,6 @@ RESPONSABLES_F = ["Sr. José Martínez", "Sr. Francisco Cruz", "Sr. Daniel Aguil
                   "Sra. Gloria Suazo", "Sr. Miguel Osorio", "Sra. Iris Barahona", "Sr. Eduardo Benítez", "Sra. Nury Ramos"]
 MEDICOS = ["Dra. Danelia Hernandez", "Dr. Carlos Mejía", "Dra. Ana Sofía Zelaya", "Dr. Marco Tulio Barahona",
            "Dra. Rebeca Villeda", "Dr. Jorge Maldonado", "Dra. Karla Suazo"]
-CIRUJANOS = ["Dr. Roberto Aguilera", "Dr. Óscar Fernández", "Dra. Lourdes Villeda", "Dr. Héctor Ponce", "Dra. Mercedes Alvarado"]
 PERFILES_CODIGO = ["1", "2", "3", "4"]
 ESTATUS_CIRUGIA = ["En espera", "Reprogramar", "Cancelado", "Fuera de perfil San Benito", "Operado"]
 
@@ -204,10 +203,8 @@ def main():
             peso, talla, bmi = gen_peso_talla(edad)
 
             estatus_cirugia = random.choice(ESTATUS_CIRUGIA)
-            cirujano = ""
             fecha_cirugia = ""
             if estatus_cirugia in ("En espera", "Operado", "Reprogramar"):
-                cirujano = random.choice(CIRUJANOS)
                 dias = random.randint(1, 180)
                 fecha_cirugia = (date.today() - timedelta(days=dias)).isoformat()
 
@@ -250,7 +247,7 @@ def main():
                 "diagnostico": diag,
                 "nombre_medico": random.choice(MEDICOS),
                 "estatus_cirugia": estatus_cirugia,
-                "cirujano": cirujano,
+                "cirujano": "",
                 "fecha_cirugia": fecha_cirugia,
             }
             records.append(data)
