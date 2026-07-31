@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useNotification } from '../contexts/NotificationContext'
 import { Plus, Pencil, Trash2, UserPlus } from 'lucide-react'
 import { RoleAvatar } from '../components/RoleAvatar'
+import { PasswordInput } from '../components/PasswordInput'
 
 const roleLabels: Record<string, string> = {
   admin: 'Administrador',
@@ -178,9 +179,8 @@ export function Users() {
                 onChange={(e) => setForm({ ...form, telefono: e.target.value })}
                 className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               />
-              <input
+              <PasswordInput
                 placeholder={editingUser ? 'Nueva contraseña (dejar vacío)' : 'Contraseña'}
-                type="password"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
                 className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"

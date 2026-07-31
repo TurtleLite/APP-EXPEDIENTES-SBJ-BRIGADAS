@@ -4,6 +4,7 @@ import { usersApi } from '../services/api'
 import { useNotification } from '../contexts/NotificationContext'
 import { ROLE_META } from '../constants'
 import { RoleAvatar } from '../components/RoleAvatar'
+import { PasswordInput } from '../components/PasswordInput'
 import { User as UserIcon, KeyRound, ShieldCheck, CheckCircle2, UserCircle2 } from 'lucide-react'
 
 export function Profile() {
@@ -90,8 +91,7 @@ export function Profile() {
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Nueva contraseña</label>
-              <input
-                type="password"
+              <PasswordInput
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Dejar vacío para no cambiarla"

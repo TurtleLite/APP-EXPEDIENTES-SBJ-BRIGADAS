@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { Stethoscope, User, Lock } from 'lucide-react'
+import { PasswordInput } from '../components/PasswordInput'
 
 export function Login() {
   const [username, setUsername] = useState('')
@@ -55,13 +56,11 @@ export function Login() {
             <label className="block text-sm font-medium text-slate-700 mb-1">Contraseña</label>
             <div className="relative">
               <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input
-                type="password"
+              <PasswordInput
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 outline-none transition-all duration-200"
+                className="w-full pl-10 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 outline-none transition-all duration-200"
                 placeholder="Ingrese su contraseña"
-                required
               />
             </div>
           </div>
