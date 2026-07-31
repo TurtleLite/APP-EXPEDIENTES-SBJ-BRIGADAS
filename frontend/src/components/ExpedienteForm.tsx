@@ -23,6 +23,7 @@ const SECTIONS: Section[] = [
     icon: <User size={18} />,
     fields: [
       { key: 'especialidad', label: 'Especialidad', type: 'text' },
+      { key: 'criticidad', label: 'Criticidad', type: 'text' },
       { key: 'nombre', label: 'Nombre / First Name', type: 'text' },
       { key: 'apellido', label: 'Apellido / Last Name', type: 'text' },
       { key: 'sexo', label: 'Sexo / Sex', type: 'text' },
@@ -296,6 +297,18 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
                             <option value="media">Media</option>
                             <option value="alta">Alta</option>
                           </select>
+                        ) : field.key === 'expediente' ? (
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            value={data[field.key] || ''}
+                            onChange={(e) => {
+                              const digits = e.target.value.replace(/\D/g, '').slice(0, 3)
+                              setValue(field.key, digits.padStart(3, '0'))
+                            }}
+                            placeholder="001"
+                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
+                          />
                         ) : field.key === 'sexo' ? (
                           <select
                             value={data[field.key] || ''}

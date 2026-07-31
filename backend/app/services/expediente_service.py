@@ -245,6 +245,9 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
         cellb(r, 7, thin)
         cellb(r, 8, Border(right=Side(style='thin'), top=Side(style='thin'), bottom=Side(style='thin')))
 
+        c = ws.cell(r, 9, d.get("criticidad", ""))
+        c.font = Font(name=arial, bold=True, size=10)
+        c.alignment = center_wrap
         cellb(r, 9, thin)
         r += 1
 

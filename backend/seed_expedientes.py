@@ -228,7 +228,7 @@ def main():
                 "telefono": gen_tel(),
                 "telefono2": gen_tel() if random.random() < 0.3 else "",
                 "telefono3": "",
-                "expediente": f"EXP-2026-{i+1:03d}",
+                "expediente": f"{i+1:03d}",
                 "domicilio": random.choice(DOMICILIOS),
                 "historia_enfermedad": historia,
                 "enfermedades_previas": random.choice(ENFERMEDADES_PREVIAS),
