@@ -103,7 +103,6 @@ export function Layout({ children }: { children: ReactNode }) {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <header className="bg-white border-b border-[#e8e3da] px-12 py-1 flex items-center">
           <div className="flex-1 flex items-center justify-center gap-4">
-            <img src="/logo_sbj.png" alt="Logo" className="w-12 h-auto" />
             <span className="font-serif font-bold text-base text-[#1c1c1c]">Centro Médico San Benito José</span>
           </div>
           <div className="flex items-center gap-2">
@@ -114,7 +113,7 @@ export function Layout({ children }: { children: ReactNode }) {
         </header>
         <main className="flex-1 p-6 flex flex-col overflow-y-auto min-h-0 relative">
           <div className="flex-1">{children}</div>
-          <footer className="pt-6 mt-6 text-center text-xs text-[#9a948a] border-t border-[#e8e3da]">
+          <footer className="pt-2 text-center text-xs text-[#9a948a] border-t border-[#e8e3da]">
             © {new Date().getFullYear()} TurtleLite · Centro Médico San Benito José
           </footer>
         </main>
