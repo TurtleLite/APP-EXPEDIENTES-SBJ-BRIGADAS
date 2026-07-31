@@ -147,35 +147,6 @@ export function ListDetail() {
     }
   }
 
-  const handleDeleteRecord = async (recordId: string) => {
-    if (!await confirm('¿Eliminar este registro?')) return
-    try {
-      await listsApi.deleteRecord(id, recordId)
-      loadRecords()
-      toast('Registro eliminado correctamente', 'success')
-    } catch (err) { toast('Error al eliminar', 'error') }
-  }
-
-  const handleExportRecord = async (record: ListRecord) => {
-    try {
-      const nombre = record.data?.nombre || 'expediente'
-      const apellido = record.data?.apellido || ''
-      const especialidad = record.data?.especialidad || ''
-      const nameParts = [nombre, apellido].filter(Boolean).join(' ')
-      const filename = `${nameParts}_${especialidad}.xlsx`.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-      const res = await api.post(`/lists/${id}/export-expediente-selected`, { ids: [record.id] }, { responseType: 'blob' })
-      const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = filename
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      window.URL.revokeObjectURL(url)
-    } catch { toast('Error al exportar expediente', 'error') }
-  }
-
   const openEditRecord = (record: any) => {
     setEditingRecord(record)
     setFormData(record.data)
@@ -331,9 +302,6 @@ export function ListDetail() {
                     {col.label}
                   </th>
                 ))}
-                {(user?.role === 'admin' || user?.role === 'direccion' || user?.role === 'medico') && (
-                  <th className="text-right px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Acciones</th>
-                )}
               </tr>
             </thead>
             <tbody>
@@ -356,44 +324,6 @@ export function ListDetail() {
                       }
                     </td>
                   ))}
-                  {user?.role && ['admin', 'direccion', 'direccion_medica', 'medico'].includes(user.role as string) && (
-                    <td className="px-6 py-4 text-right">
-                      {list?.is_system && (
-                        <button
-                          onClick={() => handleExportRecord(record)}
-                          className="p-1.5 hover:bg-slate-100 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
-                          title="Exportar"
-                        >
-                          <Download size={15} className="text-slate-600" />
-                        </button>
-                      )}
-                      {(['admin', 'direccion_medica'].includes(user.role as string) || (user.role === 'medico' && (!list?.is_system || (record.created_by === user.id)))) && (
-                        <button
-                          onClick={() => {
-                            if (list?.is_system) {
-                              setEditingRecord(record)
-                              setShowExpedienteForm(true)
-                            } else {
-                              setEditingRecord(record)
-                              setFormData(record.data)
-                              setShowModal(true)
-                            }
-                          }}
-                          className="p-1.5 hover:bg-slate-100 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
-                        >
-                          <Pencil size={15} className="text-slate-600" />
-                        </button>
-                      )}
-                      {(['admin', 'direccion_medica'].includes(user.role as string) || (user.role === 'medico' && record.created_by === user.id)) && (
-                        <button
-                          onClick={() => handleDeleteRecord(record.id)}
-                          className="p-1.5 hover:bg-red-100 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 ml-1"
-                        >
-                          <Trash2 size={15} className="text-red-400" />
-                        </button>
-                      )}
-                    </td>
-                  )}
                 </tr>
               ))}
               {records.length === 0 && (
