@@ -55,7 +55,7 @@ async def lifespan(app: FastAPI):
         from app.services.user_service import reset_default_users
         reset_default_users(db)
         db.close()
-        logger.info("Usuarios por defecto reseteados")
+        logger.info("Usuarios por defecto asegurados")
     except Exception as e:
         logger.warning(f"Startup error: {e}")
 

@@ -33,10 +33,12 @@ export function Users() {
 
   const handleSave = async () => {
     try {
+      const payload: any = { ...form }
+      if (editingUser && !payload.password) delete payload.password
       if (editingUser) {
-        await usersApi.update(editingUser.id, form)
+        await usersApi.update(editingUser.id, payload)
       } else {
-        await usersApi.create(form)
+        await usersApi.create(payload)
       }
       setShowModal(false)
       setEditingUser(null)

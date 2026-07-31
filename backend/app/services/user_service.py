@@ -1,4 +1,6 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
+from fastapi import HTTPException
 from app.models.user import User
 from app.core.security import hash_password
 from app.schemas.user import UserCreate, UserUpdate
@@ -31,7 +33,11 @@ def create_user(db: Session, data: UserCreate) -> User:
         role=data.role,
     )
     db.add(user)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Usuario o email ya existe")
     db.refresh(user)
     return user
 
@@ -43,10 +49,16 @@ def update_user(db: Session, user_id: int, data) -> User:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     update_data = data.model_dump(exclude_unset=True)
     if "password" in update_data:
-        update_data["hashed_password"] = hash_password(update_data.pop("password"))
+        password = update_data.pop("password")
+        if password:
+            update_data["hashed_password"] = hash_password(password)
     for key, value in update_data.items():
         setattr(user, key, value)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="El email ya está en uso por otro usuario")
     db.refresh(user)
     return user
 
@@ -61,9 +73,6 @@ def delete_user(db: Session, user_id: int):
 
 
 def reset_default_users(db: Session):
-    db.query(User).delete()
-    db.flush()
-
     defaults = [
         User(username="admin", email="admin@sistema.com", full_name="Administrador",
              hashed_password=hash_password("admin123"), role="admin", is_active=True),
@@ -75,5 +84,7 @@ def reset_default_users(db: Session):
              hashed_password=hash_password("medico123"), role="medico", is_active=True),
     ]
     for u in defaults:
-        db.add(u)
+        existing = db.query(User).filter(User.username == u.username).first()
+        if not existing:
+            db.add(u)
     db.commit()
