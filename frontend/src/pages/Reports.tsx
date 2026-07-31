@@ -146,7 +146,7 @@ export function Reports() {
     }
   }
 
-  const filterBadges = (filters: Record<string, any>) => {
+  const filterBadges = (filters?: Record<string, any>) => {
     const items: { label: string; value: string; cls: string }[] = []
     if (filters?.especialidad) items.push({ label: 'Especialidad', value: filters.especialidad, cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' })
     if (filters?.perfil) items.push({ label: 'Perfil', value: filters.perfil, cls: 'bg-sky-50 text-sky-700 border-sky-200' })
