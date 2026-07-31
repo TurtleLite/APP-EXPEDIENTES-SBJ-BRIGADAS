@@ -303,10 +303,9 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
                             inputMode="numeric"
                             value={data[field.key] || ''}
                             onChange={(e) => {
-                              const digits = e.target.value.replace(/\D/g, '').slice(0, 3)
-                              setValue(field.key, digits.padStart(3, '0'))
+                              setValue(field.key, e.target.value.replace(/\D/g, ''))
                             }}
-                            placeholder="001"
+                            placeholder="Solo números"
                             className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                           />
                         ) : field.key === 'sexo' ? (
