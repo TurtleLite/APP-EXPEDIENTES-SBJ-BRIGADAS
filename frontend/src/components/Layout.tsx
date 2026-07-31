@@ -39,7 +39,7 @@ export function Layout({ children }: { children: ReactNode }) {
 
   return (
     <div className="h-screen bg-[#f7f5f0] flex overflow-hidden">
-      <aside className="w-48 bg-[#f4f1ec] flex flex-col shrink-0 h-screen sticky top-0 shadow-lg">
+      <aside className="w-48 bg-white flex flex-col shrink-0 h-screen sticky top-0 shadow-lg">
         <div className="p-5 border-b border-[#e8e3da] text-center">
           <h1 className="text-sm font-bold text-[#1c1c1c] mb-3 tracking-wide">EXPEDIENTES SBJ</h1>
           <img src="/logo_sbj.png" alt="Logo SBJ Cirugias" className="w-28 h-auto mx-auto" />
@@ -53,8 +53,8 @@ export function Layout({ children }: { children: ReactNode }) {
                 onClick={() => navigate(item.path)}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 relative ${
                   isActive
-                    ? 'bg-white text-[#1c1c1c] shadow-sm'
-                    : 'text-[#6f6a61] hover:text-[#1c1c1c] hover:bg-white/70'
+                    ? 'bg-[#f4f1ec] text-[#1c1c1c]'
+                    : 'text-[#6f6a61] hover:text-[#1c1c1c] hover:bg-[#f7f5f0]'
                 }`}
               >
                 {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-[#d9a441] rounded-full" />}
@@ -93,7 +93,7 @@ export function Layout({ children }: { children: ReactNode }) {
           </button>
           <button
             onClick={logout}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#6f6a61] hover:text-red-500 hover:bg-white/70 rounded-lg transition-colors duration-200"
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#6f6a61] hover:text-red-500 hover:bg-[#f7f5f0] rounded-lg transition-colors duration-200"
           >
             <LogOut size={15} />
             Cerrar sesión
@@ -101,7 +101,7 @@ export function Layout({ children }: { children: ReactNode }) {
         </div>
       </aside>
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <header className="bg-white border-b border-[#e8e3da] px-12 py-3 flex items-center">
+        <header className="bg-white border-b border-[#e8e3da] px-12 py-1 flex items-center">
           <div className="flex-1 flex items-center justify-center gap-4">
             <img src="/logo_sbj.png" alt="Logo" className="w-12 h-auto" />
             <span className="font-serif font-bold text-base text-[#1c1c1c]">Centro Médico San Benito José</span>
