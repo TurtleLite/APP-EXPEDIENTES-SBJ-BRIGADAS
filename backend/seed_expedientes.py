@@ -156,7 +156,7 @@ def gen_identidad(edad, sexo, i):
 
 
 def gen_tel():
-    return f"+504-{random.randint(88, 99)}{random.randint(100000, 999999)}"
+    return f"{random.randint(1000, 9999)}-{random.randint(1000, 9999)}"
 
 
 def gen_peso_talla(edad):
