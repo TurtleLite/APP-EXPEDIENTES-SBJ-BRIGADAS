@@ -1,6 +1,7 @@
-import { ReactNode } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { listsApi } from '../services/api'
 import {
   LayoutDashboard, Users, FileText, Table2, LogOut, Activity, UserCircle2,
 } from 'lucide-react'
@@ -37,6 +38,16 @@ export function Layout({ children }: { children: ReactNode }) {
 
   const filteredNav = navItems.filter(item => item.roles.includes(user?.role || ''))
 
+  const [systemListId, setSystemListId] = useState<string | null>(null)
+  useEffect(() => {
+    listsApi.list()
+      .then(res => {
+        const system = res.data.find((l: any) => l.is_system)
+        if (system) setSystemListId(system.id)
+      })
+      .catch(() => {})
+  }, [])
+
   return (
     <div className="h-screen bg-[#f0fdfa] flex overflow-hidden">
       <aside className="w-48 bg-white flex flex-col shrink-0 h-screen sticky top-0 shadow-lg">
@@ -46,11 +57,12 @@ export function Layout({ children }: { children: ReactNode }) {
         </div>
         <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
           {filteredNav.map((item) => {
-            const isActive = location.pathname === item.path
+            const target = item.path === '/lists' && systemListId ? `/lists/${systemListId}` : item.path
+            const isActive = location.pathname === target || (item.path === '/lists' && location.pathname.startsWith('/lists'))
             return (
               <button
                 key={item.path}
-                onClick={() => navigate(item.path)}
+                onClick={() => navigate(target)}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 relative ${
                   isActive
                     ? 'bg-[#ccfbf1] text-[#134e4a]'
