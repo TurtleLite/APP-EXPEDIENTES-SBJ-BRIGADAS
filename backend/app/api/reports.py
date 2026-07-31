@@ -14,10 +14,20 @@ import os
 router = APIRouter(prefix="/reports", tags=["Reportes"])
 
 
+def _list_for_report(db: Session, report: Report):
+    from app.models.list_definition import ListDefinition
+    if report.list_definition_id:
+        return db.query(ListDefinition).filter(ListDefinition.id == report.list_definition_id).first()
+    return db.query(ListDefinition).filter(ListDefinition.is_system == True).first()
+
+
 def _records_for_report(db: Session, report: Report):
+    ld = _list_for_report(db, report)
+    if not ld:
+        return []
     filt = report.filters or {}
     conds = []
-    params = {"lid": report.list_definition_id}
+    params = {"lid": ld.id}
 
     especialidad = filt.get("especialidad")
     if especialidad:
@@ -72,10 +82,16 @@ def create_report(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
 ):
+    list_id = data.get("list_definition_id")
+    if not list_id and (data.get("filters") or {}):
+        from app.models.list_definition import ListDefinition
+        system_list = db.query(ListDefinition).filter(ListDefinition.is_system == True).first()
+        if system_list:
+            list_id = system_list.id
     report = Report(
         name=data["name"],
         description=data.get("description"),
-        list_definition_id=data.get("list_definition_id"),
+        list_definition_id=list_id,
         filters=data.get("filters"),
         columns_selected=data.get("columns_selected"),
         created_by=current_user.id,
@@ -94,9 +110,7 @@ def list_reports(
     reports = db.query(Report).order_by(Report.created_at.desc()).all()
     result = []
     for r in reports:
-        record_count = 0
-        if r.list_definition_id:
-            record_count = len(_records_for_report(db, r))
+        record_count = len(_records_for_report(db, r))
         result.append({
             "id": str(r.id),
             "name": r.name,
@@ -143,8 +157,7 @@ def generate_excel_report(
     report = db.query(Report).filter(Report.id == report_id).first()
     if not report:
         raise HTTPException(status_code=404, detail="Reporte no encontrado")
-    from app.models.list_definition import ListDefinition, ListRecord
-    ld = db.query(ListDefinition).filter(ListDefinition.id == report.list_definition_id).first()
+    ld = _list_for_report(db, report)
     if not ld:
         raise HTTPException(status_code=404, detail="Lista no encontrada")
     pairs = _column_pairs(ld, report)
@@ -169,8 +182,7 @@ def generate_pdf_report(
     report = db.query(Report).filter(Report.id == report_id).first()
     if not report:
         raise HTTPException(status_code=404, detail="Reporte no encontrado")
-    from app.models.list_definition import ListDefinition, ListRecord
-    ld = db.query(ListDefinition).filter(ListDefinition.id == report.list_definition_id).first()
+    ld = _list_for_report(db, report)
     if not ld:
         raise HTTPException(status_code=404, detail="Lista no encontrada")
     pairs = _column_pairs(ld, report)
@@ -194,8 +206,7 @@ def preview_report(
     report = db.query(Report).filter(Report.id == report_id).first()
     if not report:
         raise HTTPException(status_code=404, detail="Reporte no encontrado")
-    from app.models.list_definition import ListDefinition, ListRecord
-    ld = db.query(ListDefinition).filter(ListDefinition.id == report.list_definition_id).first()
+    ld = _list_for_report(db, report)
     if not ld:
         raise HTTPException(status_code=404, detail="Lista no encontrada")
     pairs = _column_pairs(ld, report)

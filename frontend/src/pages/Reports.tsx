@@ -55,6 +55,13 @@ export function Reports() {
     try {
       const res = await listsApi.list()
       setLists(res.data)
+      const systemList = res.data.find((l: ListDefinition) => l.is_system)
+      const defaultList = systemList || res.data[0]
+      if (defaultList) {
+        setForm((f) => ({ ...f, list_definition_id: defaultList.id }))
+        loadEspecialidades(defaultList.id)
+        loadPerfiles(defaultList.id)
+      }
     } catch (err) { console.error(err) }
   }
 
