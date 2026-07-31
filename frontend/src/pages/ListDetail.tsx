@@ -217,7 +217,7 @@ export function ListDetail() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-[#e8e3da] overflow-hidden flex flex-col min-h-0 flex-1 transition-shadow duration-200 hover:shadow-md">
+      <div className="bg-white rounded-xl shadow-sm border border-[#e8e3da] flex flex-col min-h-0 flex-1 transition-shadow duration-200 hover:shadow-md">
         <div className="p-3 border-b border-[#e8e3da] space-y-2.5 shrink-0 bg-slate-50/30">
         <div className="flex gap-2.5 flex-wrap">
               <select
@@ -284,7 +284,7 @@ export function ListDetail() {
           )}
         </div>
 
-        <div className="flex-1 overflow-auto min-h-0">
+        <div className="flex-1 min-h-0">
           <table className="w-full">
             <thead className="sticky top-0 z-10">
               <tr className="bg-slate-50 border-b border-[#e8e3da]">

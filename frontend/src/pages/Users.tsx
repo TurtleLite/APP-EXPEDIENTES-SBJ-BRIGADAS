@@ -96,7 +96,7 @@ export function Users() {
         )}
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-[#e8e3da] overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-[#e8e3da]">
         <table className="w-full">
           <thead className="sticky top-0 z-10">
             <tr className="bg-slate-50 border-b border-[#e8e3da]">
