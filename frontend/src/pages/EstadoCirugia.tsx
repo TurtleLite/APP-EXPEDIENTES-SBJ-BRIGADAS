@@ -125,8 +125,8 @@ export function EstadoCirugia() {
       <div className="bg-white rounded-xl shadow-sm border border-[#e8e3da] overflow-hidden flex flex-col min-h-0 flex-1 transition-shadow duration-200 hover:shadow-md">
         <div className="flex-1 overflow-auto min-h-0">
           <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-slate-50/50 border-b border-[#e8e3da]">
+            <thead className="sticky top-0 z-10">
+              <tr className="bg-slate-50 border-b border-[#e8e3da]">
                 <th className="text-left px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Paciente</th>
                 <th className="text-left px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Especialidad</th>
                 <th className="text-left px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Perfil</th>

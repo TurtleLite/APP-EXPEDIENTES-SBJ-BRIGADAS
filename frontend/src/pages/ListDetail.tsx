@@ -286,8 +286,8 @@ export function ListDetail() {
 
         <div className="flex-1 overflow-auto min-h-0">
           <table className="w-full">
-            <thead>
-              <tr className="bg-slate-50/50 border-b border-[#e8e3da]">
+            <thead className="sticky top-0 z-10">
+              <tr className="bg-slate-50 border-b border-[#e8e3da]">
                 {list?.is_system && (
                   <th className="w-10 px-3 py-4">
                     <button onClick={toggleSelectAll} className="text-slate-400 hover:text-slate-600 transition-colors duration-200">

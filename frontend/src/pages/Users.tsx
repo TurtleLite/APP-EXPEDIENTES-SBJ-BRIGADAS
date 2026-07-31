@@ -98,8 +98,8 @@ export function Users() {
 
       <div className="bg-white rounded-xl shadow-sm border border-[#e8e3da] overflow-hidden">
         <table className="w-full">
-          <thead>
-            <tr className="bg-slate-50/50 border-b border-[#e8e3da]">
+          <thead className="sticky top-0 z-10">
+            <tr className="bg-slate-50 border-b border-[#e8e3da]">
               <th className="text-left px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Nombre</th>
               <th className="text-left px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Usuario</th>
               <th className="text-left px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Teléfono</th>
