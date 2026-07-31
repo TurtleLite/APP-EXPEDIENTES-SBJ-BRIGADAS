@@ -129,6 +129,17 @@ def list_especialidades(
     return get_distinct_field_values(db, list_id, "especialidad")
 
 
+@router.get("/{list_id}/field-values")
+def list_field_values(
+    list_id: int,
+    field: str = "perfil",
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    from app.services.record_service import get_distinct_field_values
+    return get_distinct_field_values(db, list_id, field)
+
+
 @router.post("/{list_id}/export-expediente-selected")
 def export_expediente_selected(
     list_id: int,

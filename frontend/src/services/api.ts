@@ -67,6 +67,8 @@ export const listsApi = {
     api.get(`/lists/${listId}/export-expediente`, { responseType: 'blob' }),
   getEspecialidades: (listId: string | number) =>
     api.get(`/lists/${listId}/especialidades`),
+  getFieldValues: (listId: string | number, field: string) =>
+    api.get(`/lists/${listId}/field-values`, { params: { field } }),
   exportExpedienteSelected: async (listId: string | number, ids: string[]) => {
     const res = await api.post(`/lists/${listId}/export-expediente-selected`, { ids }, { responseType: 'blob' })
     const url = window.URL.createObjectURL(new Blob([res.data]))
@@ -84,6 +86,7 @@ export const reportsApi = {
   create: (data: any) => api.post('/reports/', data),
   list: () => api.get('/reports/'),
   get: (id: string | number) => api.get(`/reports/${id}`),
+  preview: (id: string | number) => api.get(`/reports/${id}/preview`),
   generateExcel: (id: string | number) => api.post(`/reports/${id}/generate-excel`),
   generatePdf: (id: string | number) => api.post(`/reports/${id}/generate-pdf`),
   download: (id: string | number, type: 'excel' | 'pdf') =>

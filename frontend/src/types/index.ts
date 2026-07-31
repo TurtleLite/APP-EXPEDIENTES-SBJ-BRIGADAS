@@ -49,4 +49,5 @@ export interface Report {
   file_path_excel?: string
   file_path_pdf?: string
   created_at: string
+  record_count?: number
 }
