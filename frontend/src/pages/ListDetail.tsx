@@ -106,8 +106,7 @@ export function ListDetail() {
           filename = `${nameParts}_${especialidad}.xlsx`.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
         }
       }
-      const numericIds = ids.map(Number).filter(n => !isNaN(n))
-      const res = await api.post(`/lists/${id}/export-expediente-selected`, { ids: numericIds }, { responseType: 'blob' })
+      const res = await api.post(`/lists/${id}/export-expediente-selected`, { ids }, { responseType: 'blob' })
       const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -164,7 +163,7 @@ export function ListDetail() {
       const especialidad = record.data?.especialidad || ''
       const nameParts = [nombre, apellido].filter(Boolean).join(' ')
       const filename = `${nameParts}_${especialidad}.xlsx`.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-      const res = await api.post(`/lists/${id}/export-expediente-selected`, { ids: [Number(record.id)] }, { responseType: 'blob' })
+      const res = await api.post(`/lists/${id}/export-expediente-selected`, { ids: [record.id] }, { responseType: 'blob' })
       const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
