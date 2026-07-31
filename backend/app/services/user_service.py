@@ -58,7 +58,7 @@ def update_user(db: Session, user_id: int, data) -> User:
         db.commit()
     except IntegrityError:
         db.rollback()
-        raise HTTPException(status_code=400, detail="El email ya está en uso por otro usuario")
+        raise HTTPException(status_code=400, detail="El usuario o email ya está en uso por otro usuario")
     db.refresh(user)
     return user
 
