@@ -280,7 +280,7 @@ export function ListDetail() {
           )}
         </div>
 
-        <div className="flex-1 min-h-0">
+        <div className="flex-1 min-h-0 overflow-y-auto">
           <table className="w-full">
             <thead className="sticky top-0 z-10">
               <tr className="bg-teal-50 border-b border-[#a9ded6]">

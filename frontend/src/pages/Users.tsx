@@ -75,8 +75,8 @@ export function Users() {
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-8">
+    <div className="h-full flex flex-col gap-4">
+      <div className="flex items-center justify-between shrink-0">
         <div>
           <h1 className="font-serif text-2xl font-bold text-[#134e4a]">Usuarios</h1>
         </div>
@@ -95,7 +95,8 @@ export function Users() {
         )}
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-[#a9ded6]">
+      <div className="bg-white rounded-xl shadow-sm border border-[#a9ded6] flex flex-col min-h-0 flex-1">
+        <div className="flex-1 min-h-0 overflow-y-auto">
         <table className="w-full">
           <thead className="sticky top-0 z-10">
             <tr className="bg-teal-50 border-b border-[#a9ded6]">
@@ -150,6 +151,7 @@ export function Users() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       {showModal && (
