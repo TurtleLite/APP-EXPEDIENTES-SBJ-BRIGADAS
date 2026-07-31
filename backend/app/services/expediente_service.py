@@ -615,7 +615,7 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
         cellb(r, 7, thin)
 
         peso_val = d.get("peso", "")
-        c = ws.cell(r, 8, f"{peso_val} kg" if peso_val else "")
+        c = ws.cell(r, 8, f"{peso_val} kg" if peso_val and not str(peso_val).strip().endswith("kg") else peso_val if peso_val else "")
         c.font = Font(name=arial, bold=True, size=10)
         c.alignment = left_center_wrap
         cellb(r, 8, thin)
