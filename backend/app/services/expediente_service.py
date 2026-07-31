@@ -719,20 +719,6 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
         ws.cell(r, 1).font = Font(name=arial, bold=True, size=10)
         r += 1
 
-        # === ROW 50: Surgery Date ===
-        surgery_date = d.get("fecha_cirugia", "")
-        label = f"Surgery Date/ Day of the Week   Fecha de Cirugía/Día de la Semana:  {surgery_date}"
-        c = ws.cell(r, 1, label)
-        c.font = Font(name=arial, bold=True, size=10)
-        _apply_borders_range(ws, r, 1, r, 5, medium_bottom)
-        for cc in range(2, 6):
-            ws.cell(r, cc).font = Font(name=arial, bold=True, size=10)
-        ws.merge_cells(start_row=r, start_column=6, end_row=r, end_column=8)
-        c = ws.cell(r, 6, "")
-        c.font = Font(name=arial, size=10)
-        c.alignment = center_hnone_wrap
-        _apply_borders_range(ws, r, 6, r, 8, medium_bottom)
-
         # Column widths
         for col_letter, w in col_widths.items():
             ws.column_dimensions[col_letter].width = w
