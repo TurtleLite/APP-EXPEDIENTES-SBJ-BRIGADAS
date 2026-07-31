@@ -42,7 +42,7 @@ export function Layout({ children }: { children: ReactNode }) {
       <aside className="w-48 bg-gradient-to-b from-slate-100 to-slate-200 flex flex-col shrink-0 h-screen sticky top-0 shadow-xl">
         <div className="p-5 border-b border-slate-200/50 text-center">
           <h1 className="text-sm font-bold text-slate-900 mb-3">EXPEDIENTES SBJ</h1>
-          <div className="w-14 h-14 rounded-2xl bg-white border border-slate-200 flex items-center justify-center mx-auto shadow-lg shadow-slate-500/10 p-1.5">
+          <div className="w-24 h-20 rounded-2xl bg-white border border-slate-200 flex items-center justify-center mx-auto shadow-lg shadow-slate-500/10 p-2">
             <img src="/logo_sbj.png" alt="Logo SBJ Brigadas" className="w-full h-full object-contain" />
           </div>
         </div>
@@ -105,7 +105,7 @@ export function Layout({ children }: { children: ReactNode }) {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200 px-6 py-2 flex items-center shadow-sm">
           <div className="flex-1 flex items-center justify-center gap-4">
-            <img src="/logo_sbj.png" alt="Logo" className="w-[50px] h-auto" />
+            <img src="/logo_sbj.png" alt="Logo" className="w-16 h-auto" />
             <span className="font-bold text-base text-slate-800">Centro Médico San Benito José</span>
           </div>
           <div className="flex items-center gap-2">
