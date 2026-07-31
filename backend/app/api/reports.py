@@ -52,27 +52,42 @@ def _records_for_report(db: Session, report: Report):
     return db.query(ListRecord).filter(ListRecord.id.in_(ids)).all()
 
 
-def _column_pairs(ld: ListDefinition, report: Report) -> list[tuple[str, str]]:
-    config = ld.columns_config
-    label_to_key = {c["label"]: c["key"] for c in config}
-    key_to_label = {c["key"]: c["label"] for c in config}
-    if report.columns_selected:
-        pairs = []
-        for sel in report.columns_selected:
-            if sel in label_to_key:
-                pairs.append((sel, label_to_key[sel]))
-            elif sel in key_to_label:
-                pairs.append((key_to_label[sel], sel))
-        if pairs:
-            return pairs
-    return [(c["label"], c["key"]) for c in config]
+REPORT_COLUMNS = [
+    ("No", "no"),
+    ("Nombre/Name", "nombre"),
+    ("Age", "edad"),
+    ("Diagnostic/Procedure", "diagnostico"),
+    ("Pf", "perfil"),
+    ("Origin", "domicilio"),
+    ("Phone NO.", "telefono"),
+    ("Housing", "albergue"),
+    ("Chart", "expediente"),
+    ("Referred by", "nombre_medico"),
+]
 
 
-def _report_rows(records: list[ListRecord], pairs: list[tuple[str, str]]) -> list[dict]:
+def _report_columns() -> list[str]:
+    return [label for label, _ in REPORT_COLUMNS]
+
+
+def _report_rows(records: list[ListRecord]) -> list[dict]:
     rows = []
-    for rec in records:
+    for idx, rec in enumerate(records, 1):
         d = rec.data or {}
-        rows.append({label: d.get(key, "") for label, key in pairs})
+        nombre = " ".join(x for x in [d.get("nombre", ""), d.get("apellido", "")] if x).strip()
+        telefono = " / ".join(x for x in [d.get("telefono"), d.get("telefono2"), d.get("telefono3")] if x)
+        rows.append({
+            "No": idx,
+            "Nombre/Name": nombre,
+            "Age": d.get("edad", ""),
+            "Diagnostic/Procedure": d.get("diagnostico", ""),
+            "Pf": d.get("perfil", ""),
+            "Origin": d.get("domicilio", ""),
+            "Phone NO.": telefono,
+            "Housing": d.get("albergue", ""),
+            "Chart": d.get("expediente", ""),
+            "Referred by": d.get("nombre_medico", ""),
+        })
     return rows
 
 
@@ -160,10 +175,9 @@ def generate_excel_report(
     ld = _list_for_report(db, report)
     if not ld:
         raise HTTPException(status_code=404, detail="Lista no encontrada")
-    pairs = _column_pairs(ld, report)
-    columns = [label for label, _ in pairs]
+    columns = _report_columns()
     records = _records_for_report(db, report)
-    data = _report_rows(records, pairs)
+    data = _report_rows(records)
     os.makedirs(settings.REPORTS_DIR, exist_ok=True)
     filepath = os.path.join(settings.REPORTS_DIR, f"reporte_{report.id}.xlsx")
     from app.services.excel_service import export_to_excel
@@ -185,10 +199,9 @@ def generate_pdf_report(
     ld = _list_for_report(db, report)
     if not ld:
         raise HTTPException(status_code=404, detail="Lista no encontrada")
-    pairs = _column_pairs(ld, report)
-    columns = [label for label, _ in pairs]
+    columns = _report_columns()
     records = _records_for_report(db, report)
-    data = _report_rows(records, pairs)
+    data = _report_rows(records)
     os.makedirs(settings.REPORTS_DIR, exist_ok=True)
     filepath = os.path.join(settings.REPORTS_DIR, f"reporte_{report.id}.pdf")
     export_to_pdf(data, columns, report.name, filepath, filters=report.filters, count=len(data))
@@ -209,10 +222,9 @@ def preview_report(
     ld = _list_for_report(db, report)
     if not ld:
         raise HTTPException(status_code=404, detail="Lista no encontrada")
-    pairs = _column_pairs(ld, report)
-    columns = [label for label, _ in pairs]
+    columns = _report_columns()
     records = _records_for_report(db, report)
-    rows = _report_rows(records, pairs)
+    rows = _report_rows(records)
     return {
         "name": report.name,
         "description": report.description,
