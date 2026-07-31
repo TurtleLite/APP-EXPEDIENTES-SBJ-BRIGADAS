@@ -9,6 +9,7 @@ import { Lists } from './pages/Lists'
 import { ListDetail } from './pages/ListDetail'
 import { Reports } from './pages/Reports'
 import { EstadoCirugia } from './pages/EstadoCirugia'
+import { Profile } from './pages/Profile'
 import { ReactNode } from 'react'
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
@@ -34,6 +35,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/perfil" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/users" element={<RoleRoute roles={['admin']}><Users /></RoleRoute>} />
           <Route path="/lists" element={<ProtectedRoute><Lists /></ProtectedRoute>} />
           <Route path="/lists/:id" element={<ProtectedRoute><ListDetail /></ProtectedRoute>} />

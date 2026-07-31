@@ -35,6 +35,7 @@ export const authApi = {
 export const usersApi = {
   list: () => api.get('/users/'),
   me: () => api.get('/users/me'),
+  updateMe: (data: any) => api.put('/users/me', data),
   get: (id: string | number) => api.get(`/users/${id}`),
   create: (data: any) => api.post('/users/', data),
   update: (id: string | number, data: any) => api.put(`/users/${id}`, data),

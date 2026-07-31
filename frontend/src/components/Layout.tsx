@@ -2,21 +2,15 @@ import { ReactNode } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
-  LayoutDashboard, Users, FileText, Table2, LogOut, Shield, Activity,
+  LayoutDashboard, Users, FileText, Table2, LogOut, Activity, UserCircle2,
 } from 'lucide-react'
+import { ROLE_META } from '../constants'
 
 const roleLabels: Record<string, string> = {
   admin: 'Administrador',
   direccion: 'Dirección',
   direccion_medica: 'Dirección Médica',
   medico: 'Médico',
-}
-
-const roleColors: Record<string, string> = {
-  admin: 'bg-slate-100 text-slate-700 border-slate-200',
-  direccion: 'bg-slate-100 text-slate-700 border-slate-200',
-  direccion_medica: 'bg-slate-100 text-slate-700 border-slate-200',
-  medico: 'bg-slate-100 text-slate-700 border-slate-200',
 }
 
 interface NavItem {
@@ -28,6 +22,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={18} />, roles: ['admin', 'direccion', 'direccion_medica', 'medico'] },
+  { label: 'Mi Perfil', path: '/perfil', icon: <UserCircle2 size={18} />, roles: ['admin', 'direccion', 'direccion_medica', 'medico'] },
   { label: 'Usuarios', path: '/users', icon: <Users size={18} />, roles: ['admin'] },
   { label: 'Listas', path: '/lists', icon: <Table2 size={18} />, roles: ['admin', 'direccion', 'direccion_medica', 'medico'] },
   { label: 'Reportes', path: '/reports', icon: <FileText size={18} />, roles: ['admin', 'direccion', 'direccion_medica'] },
@@ -78,8 +73,11 @@ export function Layout({ children }: { children: ReactNode }) {
           })}
         </nav>
         <div className="p-4 border-t border-slate-200/50">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-500 to-slate-600 flex items-center justify-center text-white text-sm font-bold shadow-lg shadow-slate-500/20 transition-transform duration-200 hover:scale-110">
+          <button
+            onClick={() => navigate('/perfil')}
+            className="w-full flex items-center gap-3 mb-3 text-left group"
+          >
+            <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${ROLE_META[user?.role || '']?.gradient || 'from-slate-500 to-slate-600'} flex items-center justify-center text-white text-sm font-bold shadow-lg shadow-slate-500/20 transition-transform duration-200 group-hover:scale-110`}>
               {user?.full_name?.charAt(0) || 'U'}
             </div>
             <div className="flex-1 min-w-0">
@@ -94,11 +92,11 @@ export function Layout({ children }: { children: ReactNode }) {
                     .join(' ')
                 })()}
               </p>
-              <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-medium border ${roleColors[user?.role || '']}`}>
+              <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-medium border ${ROLE_META[user?.role || '']?.badge || ''}`}>
                 {roleLabels[user?.role || '']}
               </span>
             </div>
-          </div>
+          </button>
           <button
             onClick={logout}
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-500 hover:text-red-400 hover:bg-white/40 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
@@ -115,7 +113,7 @@ export function Layout({ children }: { children: ReactNode }) {
             <span className="font-bold text-base text-slate-800">Centro Médico San Benito José</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-medium border shadow-sm ${roleColors[user?.role || '']}`}>
+            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-medium border shadow-sm ${ROLE_META[user?.role || '']?.badge || ''}`}>
               {roleLabels[user?.role || '']}
             </span>
           </div>

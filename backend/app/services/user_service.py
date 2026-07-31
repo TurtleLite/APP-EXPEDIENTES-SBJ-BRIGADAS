@@ -63,6 +63,25 @@ def update_user(db: Session, user_id: int, data) -> User:
     return user
 
 
+def update_own_profile(db: Session, user: User, data) -> User:
+    update_data = data.model_dump(exclude_unset=True)
+    allowed = {"full_name", "telefono", "password"}
+    update_data = {k: v for k, v in update_data.items() if k in allowed}
+    if "password" in update_data:
+        password = update_data.pop("password")
+        if password:
+            update_data["hashed_password"] = hash_password(password)
+    for key, value in update_data.items():
+        setattr(user, key, value)
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="El teléfono ya está en uso por otro usuario")
+    db.refresh(user)
+    return user
+
+
 def delete_user(db: Session, user_id: int):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
