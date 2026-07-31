@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { listsApi } from '../services/api'
 import { useNotification } from '../contexts/NotificationContext'
+import { ListRecord } from '../types'
 import { CheckCircle2, Circle, ChevronDown, ChevronRight, Stethoscope, User, Home, FileText, Activity, ClipboardList, FlaskConical, Syringe, UserCircle } from 'lucide-react'
 
 interface ColumnDef {
@@ -126,6 +127,7 @@ interface Props {
   role?: string
   onClose: () => void
   onSaved: () => void
+  editingRecord?: ListRecord
 }
 
 function filterSections(role?: string): Section[] {
@@ -140,9 +142,9 @@ function filterSections(role?: string): Section[] {
   return SECTIONS
 }
 
-export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
+export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }: Props) {
   const sections = filterSections(role)
-  const [data, setData] = useState<Record<string, any>>({})
+  const [data, setData] = useState<Record<string, any>>(editingRecord?.data || {})
   const [expanded, setExpanded] = useState<string>(sections.length > 0 ? sections[0].title : '')
   const [saving, setSaving] = useState(false)
   const [especialidades, setEspecialidades] = useState<string[]>([])
@@ -172,7 +174,11 @@ export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
     if (!allComplete) return
     setSaving(true)
     try {
-      await listsApi.createRecord(listId, { data })
+      if (editingRecord) {
+        await listsApi.updateRecord(listId, editingRecord.id, { data })
+      } else {
+        await listsApi.createRecord(listId, { data })
+      }
       onSaved()
       onClose()
     } catch (err: any) {
@@ -191,8 +197,8 @@ export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
       <div className="bg-white/95 rounded-xl w-[95vw] max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
         <div className="px-5 py-3 border-b border-slate-200 flex items-center justify-between shrink-0">
           <div>
-            <h2 className="text-xl font-bold text-slate-900">Nuevo Expediente Médico</h2>
-            <p className="text-sm text-slate-500 mt-1">Complete todas las secciones para crear el registro</p>
+            <h2 className="text-xl font-bold text-slate-900">{editingRecord ? 'Editar Expediente Médico' : 'Nuevo Expediente Médico'}</h2>
+            <p className="text-sm text-slate-500 mt-1">{editingRecord ? 'Modifique los campos necesarios' : 'Complete todas las secciones para crear el registro'}</p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-50 rounded-lg text-slate-400">
             ✕
@@ -510,7 +516,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved }: Props) {
                 : 'bg-slate-100 text-slate-300 cursor-not-allowed'
             }`}
           >
-            {saving ? 'Guardando...' : allComplete ? 'Crear Expediente' : `Complete todas las secciones`}
+            {saving ? 'Guardando...' : allComplete ? (editingRecord ? 'Guardar Cambios' : 'Crear Expediente') : `Complete todas las secciones`}
           </button>
         </div>
       </div>

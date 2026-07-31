@@ -196,7 +196,7 @@ export function ListDetail() {
         <div className="flex gap-2">
           {user?.role !== 'direccion' && (list?.is_system ? (
             <button
-              onClick={() => setShowExpedienteForm(true)}
+              onClick={() => { setEditingRecord(null); setShowExpedienteForm(true) }}
               className="flex items-center gap-1.5 bg-gradient-to-r from-slate-500 to-slate-600 text-white px-5 py-2.5 rounded-xl hover:from-slate-600 hover:to-slate-700 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] text-sm font-medium"
             >
               <Stethoscope size={16} />
@@ -326,9 +326,14 @@ export function ListDetail() {
                       {(['admin', 'direccion_medica'].includes(user.role as string) || (user.role === 'medico' && (!list?.is_system || (record.created_by === user.id)))) && (
                         <button
                           onClick={() => {
-                            setEditingRecord(record)
-                            setFormData(record.data)
-                            setShowModal(true)
+                            if (list?.is_system) {
+                              setEditingRecord(record)
+                              setShowExpedienteForm(true)
+                            } else {
+                              setEditingRecord(record)
+                              setFormData(record.data)
+                              setShowModal(true)
+                            }
                           }}
                           className="p-1.5 hover:bg-slate-100 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
                         >
@@ -363,7 +368,8 @@ export function ListDetail() {
         <ExpedienteForm
           listId={id}
           role={user?.role}
-          onClose={() => setShowExpedienteForm(false)}
+          editingRecord={editingRecord || undefined}
+          onClose={() => { setShowExpedienteForm(false); setEditingRecord(null) }}
           onSaved={loadRecords}
         />
       )}
