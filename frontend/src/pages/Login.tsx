@@ -37,7 +37,10 @@ export function Login() {
 
         <div className="relative z-10 text-center">
           <img src="/logo_sbj.png" alt="Logo SBJ Cirugias" className="w-56 h-auto mx-auto" />
-          <h1 className="text-3xl font-bold text-slate-900 mt-8">SISTEMA WEB DE GESTION DE EXPEDIENTES MEDICOS</h1>
+          <h1 className="text-4xl font-bold text-slate-900 mt-8">
+            Sistema Web
+            <span className="block text-2xl mt-1">Gestion de Expedientes Medicos</span>
+          </h1>
           <p className="text-lg text-slate-600 mt-3">Centro Médico San Benito José</p>
         </div>
 
