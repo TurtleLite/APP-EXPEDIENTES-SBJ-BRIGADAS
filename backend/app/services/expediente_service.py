@@ -163,6 +163,7 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
     def _write_record_sheet(ws, d, styles):
         ws.page_setup.orientation = 'portrait'
         ws.page_setup.scale = 90
+        ws.page_setup.paperSize = 1
         ws.page_setup.fitToWidth = 1
         ws.page_setup.fitToHeight = 1
         ws.page_margins.left = 0.7874015748031495
