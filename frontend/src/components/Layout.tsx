@@ -5,6 +5,7 @@ import {
   LayoutDashboard, Users, FileText, Table2, LogOut, Activity, UserCircle2,
 } from 'lucide-react'
 import { ROLE_META } from '../constants'
+import { RoleAvatar } from './RoleAvatar'
 
 const roleLabels: Record<string, string> = {
   admin: 'Administrador',
@@ -77,8 +78,8 @@ export function Layout({ children }: { children: ReactNode }) {
             onClick={() => navigate('/perfil')}
             className="w-full flex items-center gap-3 mb-3 text-left group"
           >
-            <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${ROLE_META[user?.role || '']?.gradient || 'from-slate-500 to-slate-600'} flex items-center justify-center text-white text-sm font-bold shadow-lg shadow-slate-500/20 transition-transform duration-200 group-hover:scale-110`}>
-              {user?.full_name?.charAt(0) || 'U'}
+            <div className="transition-transform duration-200 group-hover:scale-110">
+              <RoleAvatar role={user?.role} size="sm" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-slate-900 truncate">

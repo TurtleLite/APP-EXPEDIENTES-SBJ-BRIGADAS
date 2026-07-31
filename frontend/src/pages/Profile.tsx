@@ -3,7 +3,8 @@ import { useAuth } from '../contexts/AuthContext'
 import { usersApi } from '../services/api'
 import { useNotification } from '../contexts/NotificationContext'
 import { ROLE_META } from '../constants'
-import { User as UserIcon, Phone, KeyRound, ShieldCheck, CheckCircle2, UserCircle2 } from 'lucide-react'
+import { RoleAvatar } from '../components/RoleAvatar'
+import { User as UserIcon, KeyRound, ShieldCheck, CheckCircle2, UserCircle2 } from 'lucide-react'
 
 export function Profile() {
   const { user, updateUser } = useAuth()
@@ -15,13 +16,6 @@ export function Profile() {
 
   if (!user) return null
   const meta = ROLE_META[user.role] || ROLE_META.medico
-  const initials = user.full_name
-    .split(' ')
-    .map((w) => w[0])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join('')
-    .toUpperCase()
 
   const handleSave = async () => {
     if (!fullName.trim() || !telefono.trim()) {
@@ -47,9 +41,7 @@ export function Profile() {
     <div className="max-w-4xl mx-auto space-y-6">
       <div className={`rounded-2xl overflow-hidden shadow-md bg-gradient-to-br ${meta.gradient}`}>
         <div className="px-8 py-8 flex flex-col sm:flex-row sm:items-center gap-6">
-          <div className="w-20 h-20 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
-            {initials}
-          </div>
+          <RoleAvatar role={user.role} size="lg" />
           <div className="flex-1 min-w-0">
             <h1 className="text-2xl font-bold text-white">{user.full_name}</h1>
             <p className="text-white/80 text-sm mt-0.5">@{user.username}</p>
@@ -86,8 +78,7 @@ export function Profile() {
               <div className="flex items-center gap-2 px-3 py-2.5 border border-slate-100 bg-slate-50 rounded-xl text-sm text-slate-500">
                 <UserIcon size={14} />
                 {user.username}
-              </div>
-            </div>
+              </div>            </div>
             <div>
               <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Teléfono</label>
               <input

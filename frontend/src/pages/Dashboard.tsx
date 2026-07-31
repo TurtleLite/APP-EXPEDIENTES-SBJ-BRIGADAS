@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { usersApi, listsApi, reportsApi } from '../services/api'
 import { Users, FileText, Table2, BarChart3, Plus, Download, ArrowRight, ChevronRight, FileSpreadsheet } from 'lucide-react'
 import type { ListDefinition, Report } from '../types'
+import { RoleAvatar } from '../components/RoleAvatar'
 
 interface Stats {
   users?: number
@@ -72,21 +73,12 @@ export function Dashboard() {
   }, [user])
 
   const hoy = new Date().toLocaleDateString('es-HN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
-  const initials = (user?.full_name || '?')
-    .split(' ')
-    .map((w) => w[0])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join('')
-    .toUpperCase()
 
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-600 to-slate-800 text-white flex items-center justify-center text-base font-bold shadow-md">
-            {initials}
-          </div>
+          <RoleAvatar role={role} size="md" />
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Hola, {user?.full_name}</h1>
             <p className="text-sm text-slate-500 capitalize mt-0.5">{hoy} · Panel de {roleLabels[role]}</p>

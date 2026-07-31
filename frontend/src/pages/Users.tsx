@@ -4,6 +4,7 @@ import { User } from '../types'
 import { useAuth } from '../contexts/AuthContext'
 import { useNotification } from '../contexts/NotificationContext'
 import { Plus, Pencil, Trash2, UserPlus } from 'lucide-react'
+import { RoleAvatar } from '../components/RoleAvatar'
 
 const roleLabels: Record<string, string> = {
   admin: 'Administrador',
@@ -109,7 +110,12 @@ export function Users() {
           <tbody>
             {users.map((u) => (
               <tr key={u.id} className="border-b border-slate-100 transition-all duration-150 hover:bg-slate-50/50">
-                <td className="px-6 py-4 text-sm font-medium text-slate-900">{u.full_name}</td>
+                <td className="px-6 py-4 text-sm font-medium text-slate-900">
+                  <div className="flex items-center gap-3">
+                    <RoleAvatar role={u.role} size="sm" />
+                    {u.full_name}
+                  </div>
+                </td>
                 <td className="px-6 py-4 text-sm text-slate-600">{u.username}</td>
                 <td className="px-6 py-4 text-sm text-slate-600">{u.telefono}</td>
                 <td className="px-6 py-4">
