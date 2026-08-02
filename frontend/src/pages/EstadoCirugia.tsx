@@ -20,6 +20,7 @@ export function EstadoCirugia() {
   const [records, setRecords] = useState<ListRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('')
+  const [search, setSearch] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [listId, setListId] = useState<string | null>(null)
   const { toast } = useNotification()
@@ -52,9 +53,16 @@ export function EstadoCirugia() {
     return () => { cancelled = true }
   }, [listId])
 
-  const filtered = filter
-    ? records.filter((r) => (r.data?.estatus_cirugia || '') === filter)
-    : records
+  const filtered = records.filter((r) => {
+    const matchesStatus = !filter || (r.data?.estatus_cirugia || '') === filter
+    const q = search.trim().toLowerCase()
+    const haystack = [r.data?.nombre, r.data?.apellido, r.data?.especialidad, r.data?.perfil, r.data?.estatus_cirugia]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase()
+    const matchesSearch = !q || haystack.includes(q)
+    return matchesStatus && matchesSearch
+  })
 
   const updateStatus = async (recordId: string, status: string) => {
     if (!listId) return
@@ -83,7 +91,16 @@ export function EstadoCirugia() {
 
       <div className="bg-white rounded-xl shadow-sm border border-[#f0e0c0] p-3 shrink-0 transition-shadow duration-200 hover:shadow-md">
         <div className="flex items-center gap-2.5">
-          <Search size={16} className="text-slate-400" />
+          <div className="relative flex-1 max-w-sm">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar por paciente, especialidad o perfil..."
+              className="w-full pl-9 pr-3 py-2 border border-[#f0e0c0] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+            />
+          </div>
           <div className="relative">
             <select
               value={filter}
