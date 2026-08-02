@@ -48,9 +48,10 @@ export function Dashboard() {
   useEffect(() => {
     async function load() {
       try {
-        const [listsRes, reportsRes] = await Promise.all([
+        const [listsRes, reportsRes, usersRes] = await Promise.all([
           listsApi.list(),
           canReports ? reportsApi.list() : Promise.resolve({ data: [] }),
+          canManageUsers ? usersApi.list() : Promise.resolve({ data: [] }),
         ])
         const lists: ListDefinition[] = listsRes.data
         const reports: Report[] = reportsRes.data
@@ -58,24 +59,17 @@ export function Dashboard() {
         const system = lists.find((l) => l.is_system)
         if (system) setSystemListId(system.id)
 
-        let totalRecords = 0
-        for (const list of lists.slice(0, 5)) {
-          try {
-            const recordsRes = await listsApi.getRecords(list.id, { limit: 0 })
-            totalRecords += recordsRes.data.length
-          } catch {}
-        }
-
-        let usersCount: number | undefined
-        if (canManageUsers) {
-          try {
-            const usersRes = await usersApi.list()
-            usersCount = usersRes.data.length
-          } catch {}
-        }
+        const counts = await Promise.all(
+          lists.slice(0, 5).map((list) =>
+            listsApi.getRecordsCount(list.id)
+              .then((res) => res.data.count || 0)
+              .catch(() => 0)
+          )
+        )
+        const totalRecords = counts.reduce((a, b) => a + b, 0)
 
         setStats({
-          users: usersCount,
+          users: canManageUsers ? usersRes.data.length : undefined,
           lists: lists.length,
           records: totalRecords,
           reports: reports.length,

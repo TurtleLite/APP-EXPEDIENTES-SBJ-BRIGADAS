@@ -12,6 +12,10 @@ def add_record(db: Session, list_id: int, data: dict, user_id: int = None) -> Li
     return record
 
 
+def count_records(db: Session, list_id: int) -> int:
+    return db.query(ListRecord).filter(ListRecord.list_definition_id == list_id).count()
+
+
 def get_records(db: Session, list_id: int, skip: int = 0, limit: int = 100,
                 search: Optional[str] = None, search_field: Optional[str] = None) -> list[ListRecord]:
     query = db.query(ListRecord).filter(ListRecord.list_definition_id == list_id)

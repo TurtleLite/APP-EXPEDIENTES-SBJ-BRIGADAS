@@ -3,7 +3,6 @@ import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { User, Lock } from 'lucide-react'
 import { PasswordInput } from '../components/PasswordInput'
-import { listsApi } from '../services/api'
 
 export function Login() {
   const [username, setUsername] = useState('')
@@ -17,13 +16,7 @@ export function Login() {
     setError('')
     try {
       await login(username, password)
-      try {
-        const res = await listsApi.list()
-        const system = res.data.find((l: any) => l.is_system)
-        navigate(system ? `/lists/${system.id}` : '/lists')
-      } catch {
-        navigate('/lists')
-      }
+      navigate('/dashboard')
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Error al iniciar sesión')
     }

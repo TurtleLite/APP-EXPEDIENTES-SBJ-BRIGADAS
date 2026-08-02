@@ -215,6 +215,16 @@ def export_list_excel(
     return FileResponse(filepath, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename=f"lista_{ld.name}.xlsx")
 
 
+@router.get("/{list_id}/records/count")
+def count_records_endpoint(
+    list_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    from app.services.record_service import count_records
+    return {"count": count_records(db, list_id)}
+
+
 @router.get("/{list_id}/records")
 def list_records(
     list_id: int,
