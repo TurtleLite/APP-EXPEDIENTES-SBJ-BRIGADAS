@@ -108,7 +108,7 @@ export function Layout({ children }: { children: ReactNode }) {
                 {(() => {
                   const raw = user?.full_name || ''
                   const titleMatch = raw.match(/^(Dr|Dra|Lic)\.?\s+/i)
-                  const title = titleMatch ? titleMatch[0].trim() : ''
+                  const title = titleMatch ? titleMatch[0].trim().replace(/\.?$/, '.') : ''
                   const rest = (titleMatch ? raw.slice(titleMatch[0].length) : raw).trim().split(/\s+/).filter(Boolean)
                   const first = rest[0] || ''
                   const last = rest.length >= 3 ? rest[2] : rest[1] || ''
