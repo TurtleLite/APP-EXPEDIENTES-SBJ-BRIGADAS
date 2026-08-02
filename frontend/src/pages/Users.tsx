@@ -44,7 +44,7 @@ export function Users() {
     try {
       const payload: any = { ...form }
       const fullName = [payload.nombres, payload.apellidos].map((p) => (p || '').trim()).filter(Boolean).join(' ')
-      payload.full_name = payload.titulo ? `${payload.titulo}. ${fullName}` : fullName
+      payload.full_name = payload.titulo ? `${payload.titulo} ${fullName}` : fullName
       if (editingUser && !payload.password) delete payload.password
       if (editingUser) {
         await usersApi.update(editingUser.id, payload)
@@ -83,7 +83,7 @@ export function Users() {
       apellidos: name.slice(half).join(' '),
       password: '',
       role: user.role,
-      titulo: match ? match[1].charAt(0).toUpperCase() + match[1].slice(1) : '',
+      titulo: match ? `${match[1].charAt(0).toUpperCase() + match[1].slice(1)}.` : '',
     })
     setShowModal(true)
   }
@@ -182,9 +182,9 @@ export function Users() {
                   className="w-28 shrink-0 px-3 py-2.5 border border-[#a9ded6] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
                 >
                   <option value="">Sin título</option>
-                  <option value="Dr">Dr</option>
-                  <option value="Dra">Dra</option>
-                  <option value="Lic">Lic</option>
+                  <option value="Dr.">Dr.</option>
+                  <option value="Dra.">Dra.</option>
+                  <option value="Lic.">Lic.</option>
                 </select>
                 <input
                   placeholder="Nombres"
