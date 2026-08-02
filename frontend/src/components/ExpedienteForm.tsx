@@ -142,11 +142,16 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
   const [expanded, setExpanded] = useState<string>(sections.length > 0 ? sections[0].title : '')
   const [saving, setSaving] = useState(false)
   const [especialidades, setEspecialidades] = useState<string[]>([])
+  const [customEspecialidad, setCustomEspecialidad] = useState(false)
   const { toast } = useNotification()
 
   useEffect(() => {
     listsApi.getEspecialidades(listId).then((res) => {
-      if (Array.isArray(res.data)) setEspecialidades(res.data)
+      if (Array.isArray(res.data)) {
+        setEspecialidades(res.data)
+        const v = editingRecord?.data?.especialidad
+        if (v && !res.data.includes(v)) setCustomEspecialidad(true)
+      }
     }).catch(() => {})
   }, [listId])
 
@@ -188,7 +193,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
 
   return (
     <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white/95 rounded-xl w-[95vw] max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
+      <div className="bg-white/95 rounded-xl w-[96vw] max-w-7xl max-h-[95vh] flex flex-col overflow-hidden">
         <div className="px-5 py-3 border-b border-[#f0e0c0] flex items-center justify-between shrink-0">
           <div>
             <h2 className="text-xl font-bold text-slate-900">{editingRecord ? 'Editar Expediente Médico' : 'Nuevo Expediente Médico'}</h2>
@@ -265,27 +270,50 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
                           {field.label}
                         </label>
                         {field.key === 'especialidad' ? (
-                          <div className="relative">
-                            <input
-                              type="text"
-                              list="especialidad-list"
+                          customEspecialidad ? (
+                            <div className="space-y-2">
+                              <input
+                                type="text"
+                                value={data[field.key] || ''}
+                                onChange={(e) => {
+                                  const cleaned = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '').toUpperCase()
+                                  setValue(field.key, cleaned)
+                                }}
+                                placeholder="Escriba la especialidad"
+                                className="w-full px-3 py-2 border border-[#f0e0c0] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const v = data.especialidad
+                                  if (v && !especialidades.includes(v)) setValue('especialidad', '')
+                                  setCustomEspecialidad(false)
+                                }}
+                                className="text-xs text-[#9c6a36] hover:text-[#7c5636] font-medium"
+                              >
+                                ← Volver a seleccionar de la lista
+                              </button>
+                            </div>
+                          ) : (
+                            <select
                               value={data[field.key] || ''}
                               onChange={(e) => {
-                                const cleaned = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '').toUpperCase()
-                                setValue(field.key, cleaned)
-                                if (cleaned && !especialidades.includes(cleaned)) {
-                                  setEspecialidades((prev) => [...prev, cleaned].sort())
+                                const v = e.target.value
+                                if (v === '__otro__') {
+                                  setCustomEspecialidad(true)
+                                } else {
+                                  setValue(field.key, v)
                                 }
                               }}
-                              placeholder="Escriba o seleccione una especialidad"
                               className="w-full px-3 py-2 border border-[#f0e0c0] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
-                            />
-                            <datalist id="especialidad-list">
+                            >
+                              <option value="">Seleccione una especialidad...</option>
                               {especialidades.map((esp) => (
-                                <option key={esp} value={esp} />
+                                <option key={esp} value={esp}>{esp}</option>
                               ))}
-                            </datalist>
-                          </div>
+                              <option value="__otro__">Otro (escribir manualmente)...</option>
+                            </select>
+                          )
                         ) : field.key === 'criticidad' ? (
                           <select
                             value={data[field.key] || ''}

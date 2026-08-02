@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { listsApi } from '../services/api'
 import { ListRecord, ListDefinition } from '../types'
 import { useNotification } from '../contexts/NotificationContext'
-import { FileSpreadsheet, Search, ChevronDown } from 'lucide-react'
+import { Search, ChevronDown } from 'lucide-react'
 
 const STATUS_OPTIONS = ['En espera', 'Reprogramar', 'Cancelado', 'Fuera de perfil San Benito', 'Operado', 'No se presentó']
 
@@ -73,34 +73,12 @@ export function EstadoCirugia() {
     }
   }
 
-  const handleReport = async () => {
-    if (!listId) return
-    try {
-      const res = await listsApi.exportExcel(listId)
-      const url = window.URL.createObjectURL(new Blob([res.data]))
-      const a = document.createElement('a')
-      a.href = url
-      a.download = 'reporte_estatus_cirugia.xlsx'
-      a.click()
-      window.URL.revokeObjectURL(url)
-    } catch {
-      toast('Error al generar reporte', 'error')
-    }
-  }
-
   return (
     <div className="h-full flex flex-col gap-4">
       <div className="flex items-center justify-between shrink-0">
         <div>
           <h1 className="font-serif text-2xl font-bold text-[#7c5636]">Estatus de Cirugía</h1>
         </div>
-        <button
-          onClick={handleReport}
-          className="flex items-center gap-1.5 bg-[#b07a40] text-white px-4 py-2 rounded-xl hover:bg-[#9c6a36] shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
-        >
-          <FileSpreadsheet size={16} />
-          Reporte
-        </button>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-[#f0e0c0] p-3 shrink-0 transition-shadow duration-200 hover:shadow-md">
