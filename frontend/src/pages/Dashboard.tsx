@@ -119,19 +119,21 @@ export function Dashboard() {
         <p className="text-slate-500 text-sm mt-1">{roleLabels[role]}</p>
       </header>
 
-      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr gap-3 mt-7 min-h-0">
-        {options.map((opt) => (
-          <button
-            key={opt.label}
-            onClick={() => (opt.allowed ? opt.onClick() : setDenied(opt.label))}
-            className="w-full flex items-center justify-center gap-3 px-4 py-4 rounded-2xl bg-white border border-slate-100 hover:border-[#a9ded6] hover:shadow-md transition-all duration-200 group"
-          >
-            <div className={`w-10 h-10 rounded-xl ${opt.color} text-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-200`}>
-              {opt.icon}
-            </div>
-            <span className="text-base font-semibold text-slate-700">{opt.label}</span>
-          </button>
-        ))}
+      <div className="flex-1 flex items-center min-h-0 mt-7">
+        <div className="w-full flex flex-wrap gap-3">
+          {options.map((opt) => (
+            <button
+              key={opt.label}
+              onClick={() => (opt.allowed ? opt.onClick() : setDenied(opt.label))}
+              className="flex-1 min-w-[160px] h-40 flex flex-col items-center justify-center gap-2.5 rounded-2xl bg-white border border-slate-100 hover:border-[#a9ded6] hover:shadow-md transition-all duration-200 group"
+            >
+              <div className={`w-11 h-11 rounded-xl ${opt.color} text-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-200`}>
+                {opt.icon}
+              </div>
+              <span className="text-base font-semibold text-slate-700">{opt.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   )
