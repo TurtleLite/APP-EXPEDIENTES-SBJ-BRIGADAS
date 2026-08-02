@@ -48,7 +48,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       {children}
 
       {toasts.length > 0 && (
-        <div className="fixed top-4 right-4 z-[100] flex flex-col gap-2">
+        <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] flex flex-col items-center gap-2">
           {toasts.map((t) => (
             <div
               key={t.id}
