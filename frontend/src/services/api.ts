@@ -89,9 +89,8 @@ export const reportsApi = {
   get: (id: string | number) => api.get(`/reports/${id}`),
   preview: (id: string | number) => api.get(`/reports/${id}/preview`),
   generateExcel: (id: string | number) => api.post(`/reports/${id}/generate-excel`),
-  generatePdf: (id: string | number) => api.post(`/reports/${id}/generate-pdf`),
-  download: (id: string | number, type: 'excel' | 'pdf') =>
-    api.get(`/reports/${id}/download/${type}`, { responseType: 'blob' }),
+  download: (id: string | number) =>
+    api.get(`/reports/${id}/download`, { responseType: 'blob' }),
   delete: (id: string | number) => api.delete(`/reports/${id}`),
 }
 

@@ -3,7 +3,7 @@ import { reportsApi, listsApi } from '../services/api'
 import { Report, ListDefinition } from '../types'
 import { useAuth } from '../contexts/AuthContext'
 import { useNotification } from '../contexts/NotificationContext'
-import { Plus, FileText, FileSpreadsheet, Download, Trash2, Eye, X } from 'lucide-react'
+import { Plus, FileSpreadsheet, Download, Trash2, Eye, X } from 'lucide-react'
 
 const STATUS_OPTIONS = ['En espera', 'Reprogramar', 'Cancelado', 'Fuera de perfil San Benito', 'Operado', 'No se presentó']
 
@@ -118,27 +118,23 @@ export function Reports() {
     }
   }
 
-  const handleGenerate = async (reportId: string | number, type: 'excel' | 'pdf') => {
+  const handleGenerate = async (reportId: string | number) => {
     try {
-      if (type === 'excel') {
-        await reportsApi.generateExcel(reportId)
-      } else {
-        await reportsApi.generatePdf(reportId)
-      }
+      await reportsApi.generateExcel(reportId)
       loadReports()
-      toast(`Reporte ${type.toUpperCase()} generado correctamente`, 'success')
+      toast('Reporte Excel generado correctamente', 'success')
     } catch (err: any) {
       toast(err.response?.data?.detail || 'Error al generar reporte', 'error')
     }
   }
 
-  const handleDownload = async (reportId: string | number, type: 'excel' | 'pdf') => {
+  const handleDownload = async (reportId: string | number) => {
     try {
-      const res = await reportsApi.download(reportId, type)
+      const res = await reportsApi.download(reportId)
       const url = window.URL.createObjectURL(new Blob([res.data]))
       const a = document.createElement('a')
       a.href = url
-      a.download = `reporte_${reportId}.${type === 'excel' ? 'xlsx' : 'pdf'}`
+      a.download = `reporte_${reportId}.xlsx`
       a.click()
       window.URL.revokeObjectURL(url)
     } catch (err: any) {
@@ -224,35 +220,19 @@ export function Reports() {
                 Vista previa
               </button>
               <button
-                onClick={() => handleGenerate(report.id, 'excel')}
+                onClick={() => handleGenerate(report.id)}
                 className="flex items-center gap-1 px-3 py-1.5 bg-slate-100 text-slate-600 rounded-xl text-xs font-medium hover:bg-slate-100 border border-[#E3E6EB] transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 <FileSpreadsheet size={14} />
                 Gen. Excel
               </button>
-              <button
-                onClick={() => handleGenerate(report.id, 'pdf')}
-                className="flex items-center gap-1 px-3 py-1.5 bg-slate-100 text-slate-600 rounded-xl text-xs font-medium hover:bg-slate-100 border border-[#E3E6EB] transition-all duration-200 hover:scale-105 active:scale-95"
-              >
-                <FileText size={14} />
-                Gen. PDF
-              </button>
               {report.file_path_excel && (
                 <button
-                  onClick={() => handleDownload(report.id, 'excel')}
+                  onClick={() => handleDownload(report.id)}
                   className="flex items-center gap-1 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-xl text-xs font-medium hover:bg-emerald-100 border border-emerald-200 transition-all duration-200 hover:scale-105 active:scale-95"
                 >
                   <Download size={14} />
                   Excel
-                </button>
-              )}
-              {report.file_path_pdf && (
-                <button
-                  onClick={() => handleDownload(report.id, 'pdf')}
-                  className="flex items-center gap-1 px-3 py-1.5 bg-rose-50 text-rose-700 rounded-xl text-xs font-medium hover:bg-rose-100 border border-rose-200 transition-all duration-200 hover:scale-105 active:scale-95"
-                >
-                  <Download size={14} />
-                  PDF
                 </button>
               )}
             </div>

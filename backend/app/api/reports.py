@@ -8,7 +8,6 @@ from app.models.list_definition import ListDefinition, ListRecord
 from app.services.auth_service import get_current_user, require_role
 from app.models.user import User
 from app.services.excel_service import export_to_excel
-from app.services.pdf_service import export_to_pdf
 import os
 
 router = APIRouter(prefix="/reports", tags=["Reportes"])
@@ -192,29 +191,6 @@ def generate_excel_report(
     return {"message": "Reporte Excel generado", "file_path": filepath, "count": len(data)}
 
 
-@router.post("/{report_id}/generate-pdf")
-def generate_pdf_report(
-    report_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
-):
-    report = db.query(Report).filter(Report.id == report_id).first()
-    if not report:
-        raise HTTPException(status_code=404, detail="Reporte no encontrado")
-    ld = _list_for_report(db, report)
-    if not ld:
-        raise HTTPException(status_code=404, detail="Lista no encontrada")
-    columns = _report_columns()
-    records = _records_for_report(db, report)
-    data = _report_rows(records)
-    os.makedirs(settings.REPORTS_DIR, exist_ok=True)
-    filepath = os.path.join(settings.REPORTS_DIR, f"reporte_{report.id}.pdf")
-    export_to_pdf(data, columns, report.name, filepath, filters=report.filters, count=len(data))
-    report.file_path_pdf = filepath
-    db.commit()
-    return {"message": "PDF generado correctamente", "file_path": filepath, "count": len(data)}
-
-
 @router.get("/{report_id}/preview")
 def preview_report(
     report_id: int,
@@ -240,20 +216,19 @@ def preview_report(
     }
 
 
-@router.get("/{report_id}/download/{file_type}")
+@router.get("/{report_id}/download")
 def download_report(
     report_id: int,
-    file_type: str,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     report = db.query(Report).filter(Report.id == report_id).first()
     if not report:
         raise HTTPException(status_code=404, detail="Reporte no encontrado")
-    file_path = report.file_path_excel if file_type == "excel" else report.file_path_pdf
+    file_path = report.file_path_excel
     if not file_path or not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="Archivo no encontrado. Genere el reporte primero.")
-    media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" if file_type == "excel" else "application/pdf"
+    media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     return FileResponse(file_path, media_type=media_type, filename=os.path.basename(file_path))
 
 
@@ -266,9 +241,8 @@ def delete_report(
     report = db.query(Report).filter(Report.id == report_id).first()
     if not report:
         raise HTTPException(status_code=404, detail="Reporte no encontrado")
-    for f in [report.file_path_excel, report.file_path_pdf]:
-        if f and os.path.exists(f):
-            os.remove(f)
+    if report.file_path_excel and os.path.exists(report.file_path_excel):
+        os.remove(report.file_path_excel)
     db.delete(report)
     db.commit()
     return {"message": "Reporte eliminado correctamente"}
