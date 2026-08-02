@@ -133,7 +133,7 @@ def export_to_excel(
             ws.add_image(logo, "A1")
 
         ws.merge_cells(f"B{row}:{last_col}{row}")
-        c = ws.cell(row=row, column=2, value=institution)
+        c = ws.cell(row=row, column=2, value=institution.upper())
         c.font = Font(bold=True, size=10, color=DARK)
         c.alignment = Alignment(horizontal="left", vertical="center")
         ws.row_dimensions[row].height = 15
@@ -141,20 +141,20 @@ def export_to_excel(
 
         ws.merge_cells(f"B{row}:{last_col}{row}")
         c = ws.cell(row=row, column=2, value=title)
-        c.font = Font(bold=True, size=13, color=PRIMARY)
+        c.font = Font(bold=True, size=15, color=PRIMARY)
         c.alignment = Alignment(horizontal="left", vertical="center")
-        ws.row_dimensions[row].height = 17
+        ws.row_dimensions[row].height = 18
         row += 1
 
         ws.merge_cells(f"B{row}:{last_col}{row}")
         c = ws.cell(
             row=row,
             column=2,
-            value=f"Generado el {now.strftime('%d/%m/%Y %H:%M')}  ·  Total de registros: {count if count is not None else len(records)}",
+            value=f"Generado el {now.strftime('%d/%m/%Y')} a las {now.strftime('%H:%M')}   |   Total de registros: {count if count is not None else len(records)}",
         )
-        c.font = Font(size=8, italic=True, color=MUTED)
+        c.font = Font(size=8.5, italic=True, color=MUTED)
         c.alignment = Alignment(horizontal="left", vertical="center")
-        ws.row_dimensions[row].height = 12
+        ws.row_dimensions[row].height = 13
         row += 1
 
         ws.row_dimensions[row].height = 4
@@ -171,13 +171,20 @@ def export_to_excel(
 
         filter_text = _format_filters(filters)
         if filter_text != "Sin filtros":
-            ws.merge_cells(f"A{row}:{last_col}{row}")
-            c = ws.cell(row=row, column=1, value=f"Filtros aplicados: {filter_text}")
-            c.font = Font(size=8, color=DARK)
+            bar = ws.cell(row=row, column=1)
+            bar.fill = PatternFill(start_color=DARK, end_color=DARK, fill_type="solid")
+            ws.merge_cells(f"B{row}:{last_col}{row}")
+            c = ws.cell(row=row, column=2)
+            from openpyxl.cell.rich_text import CellRichText, TextBlock
+            from openpyxl.cell.text import InlineFont
+            c.value = CellRichText(
+                TextBlock(InlineFont(b=True, sz=8, color=DARK), f"Filtros aplicados:  "),
+                TextBlock(InlineFont(sz=8, color=MUTED), filter_text),
+            )
             c.fill = PatternFill(start_color=ALT_ROW, end_color=ALT_ROW, fill_type="solid")
             c.alignment = Alignment(horizontal="left", vertical="center")
             c.border = _thin_border()
-            ws.row_dimensions[row].height = 12
+            ws.row_dimensions[row].height = 13
             row += 1
             ws.row_dimensions[row].height = 4
             row += 1  # spacer
@@ -199,8 +206,10 @@ def export_to_excel(
         cell.fill = PatternFill(start_color=PRIMARY, end_color=PRIMARY, fill_type="solid")
         cell.font = Font(color="FFFFFF", bold=True, size=10)
         cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
-        cell.border = _thin_border()
-    ws.row_dimensions[header_row].height = 15
+        side_bottom = Side(style="medium", color="3F4650")
+        side_thin = Side(style="thin", color=BORDER)
+        cell.border = Border(left=side_thin, right=side_thin, top=side_thin, bottom=side_bottom)
+    ws.row_dimensions[header_row].height = 17
 
     for data_idx, record in enumerate(records, header_row + 1):
         max_lines = 1
@@ -233,7 +242,7 @@ def export_to_excel(
 
     ws.print_title_rows = f"{header_row}:{header_row}"
 
-    ws.oddHeader.center.text = institution
+    ws.oddHeader.center.text = institution.upper()
     ws.oddHeader.center.size = 9
     ws.oddHeader.center.color = DARK
     ws.oddHeader.center.font = "Calibri"
