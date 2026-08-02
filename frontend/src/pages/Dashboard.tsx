@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { usersApi, listsApi, reportsApi } from '../services/api'
 import {
-  Users, FileText, Table2, BarChart3, ArrowRight, ChevronRight, FileSpreadsheet,
+  Users, FileText, Table2, BarChart3, ChevronRight, FileSpreadsheet,
   UserCircle2, Activity,
 } from 'lucide-react'
 import type { ListDefinition, Report } from '../types'
@@ -96,31 +96,31 @@ export function Dashboard() {
   const options: { label: string; icon: React.ReactNode; color: string; onClick: () => void }[] = [
     {
       label: 'Mi Perfil',
-      icon: <UserCircle2 size={16} />,
+      icon: <UserCircle2 size={18} />,
       color: 'bg-sky-500',
       onClick: () => navigate('/perfil'),
     },
     ...(role === 'admin' ? [{
       label: 'Usuarios',
-      icon: <Users size={16} />,
+      icon: <Users size={18} />,
       color: 'bg-slate-600',
       onClick: () => navigate('/users'),
     }] : []),
     {
       label: 'Expedientes',
-      icon: <Table2 size={16} />,
+      icon: <Table2 size={18} />,
       color: 'bg-violet-500',
       onClick: goExpedientes,
     },
     ...(canReports ? [{
       label: 'Reportes',
-      icon: <FileText size={16} />,
+      icon: <FileText size={18} />,
       color: 'bg-amber-500',
       onClick: () => navigate('/reports'),
     }] : []),
     ...(role === 'admin' || role === 'direccion' ? [{
       label: 'Estatus Cirugía',
-      icon: <Activity size={16} />,
+      icon: <Activity size={18} />,
       color: 'bg-rose-500',
       onClick: () => navigate('/estado-cirugia'),
     }] : []),
@@ -130,28 +130,28 @@ export function Dashboard() {
     ...(canManageUsers ? [{
       label: 'Usuarios',
       value: stats.users ?? 0,
-      icon: <Users size={14} />,
+      icon: <Users size={16} />,
       color: 'bg-sky-100 text-sky-600',
       onClick: () => navigate('/users'),
     }] : []),
     {
       label: 'Expedientes',
       value: stats.lists,
-      icon: <Table2 size={14} />,
+      icon: <Table2 size={16} />,
       color: 'bg-violet-100 text-violet-600',
       onClick: goExpedientes,
     },
     {
       label: 'Registros',
       value: stats.records,
-      icon: <BarChart3 size={14} />,
+      icon: <BarChart3 size={16} />,
       color: 'bg-emerald-100 text-emerald-600',
       onClick: goExpedientes,
     },
     ...(canReports ? [{
       label: 'Reportes',
       value: stats.reports,
-      icon: <FileText size={14} />,
+      icon: <FileText size={16} />,
       color: 'bg-amber-100 text-amber-600',
       onClick: () => navigate('/reports'),
     }] : []),
@@ -172,13 +172,13 @@ export function Dashboard() {
           <div className="flex items-center gap-3 min-w-0">
             <img src="/logo_sbj.png" alt="SBJ" className="w-11 h-11 shrink-0" />
             <div className="min-w-0">
-              <p className="text-[#0f766e] text-[10px] font-semibold uppercase tracking-[0.25em] truncate">
+              <p className="text-[#0f766e] text-xs font-semibold uppercase tracking-[0.2em] truncate">
                 Centro Médico San Benito José
               </p>
-              <p className="text-slate-400 text-[11px] capitalize truncate">{hoy}</p>
+              <p className="text-slate-400 text-sm capitalize truncate">{hoy}</p>
             </div>
           </div>
-          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] font-medium text-emerald-700 shrink-0">
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-medium text-emerald-700 shrink-0">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             Sesión activa
           </span>
@@ -188,84 +188,70 @@ export function Dashboard() {
         <p className="text-slate-500 text-sm mt-1">{roleLabels[role]}</p>
       </header>
 
-      <div className="flex gap-2 mt-6 flex-wrap">
+      <div className="flex gap-2.5 mt-6 flex-wrap">
         {options.map((opt) => (
           <button
             key={opt.label}
             onClick={opt.onClick}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-slate-100 hover:border-[#a9ded6] hover:shadow-sm transition-all duration-200 group"
+            className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-white border border-slate-100 hover:border-[#a9ded6] hover:shadow-sm transition-all duration-200 group"
           >
-            <div className={`w-7 h-7 rounded-lg ${opt.color} text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-200`}>
+            <div className={`w-8 h-8 rounded-lg ${opt.color} text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-200`}>
               {opt.icon}
             </div>
-            <span className="text-xs font-semibold text-slate-700">{opt.label}</span>
+            <span className="text-sm font-semibold text-slate-700">{opt.label}</span>
           </button>
         ))}
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-6">
+      <div className="flex flex-wrap items-center gap-x-8 gap-y-3 mt-7">
         {statItems.map((s) => (
           <button
             key={s.label}
             onClick={s.onClick}
-            className="group flex items-center gap-2 hover:opacity-80 transition-opacity duration-200"
+            className="group flex items-center gap-2.5 hover:opacity-80 transition-opacity duration-200"
           >
-            <span className={`w-7 h-7 rounded-lg ${s.color} flex items-center justify-center`}>{s.icon}</span>
-            <span className="text-xl font-bold text-[#0d9488] leading-none">{s.value}</span>
-            <span className="text-xs font-medium text-slate-500">{s.label}</span>
+            <span className={`w-9 h-9 rounded-lg ${s.color} flex items-center justify-center`}>{s.icon}</span>
+            <span className="text-2xl font-bold text-[#0d9488] leading-none">{s.value}</span>
+            <span className="text-sm font-medium text-slate-500">{s.label}</span>
           </button>
         ))}
       </div>
 
       <section className="mt-7">
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
-            Expedientes
-            <span className="text-[#0f766e] bg-teal-50 border border-[#a9ded6] rounded-full px-2 py-0.5 ml-2">{stats.lists}</span>
-          </p>
-          <button
-            onClick={goExpedientes}
-            className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-700 transition-colors duration-200"
-          >
-            Ver todos
-            <ArrowRight size={13} />
-          </button>
-        </div>
-
         {recentLists.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 bg-white rounded-2xl border border-slate-100">
             <Table2 size={30} className="text-slate-200" />
             <p className="text-slate-500 text-sm mt-3">No hay expedientes aún</p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {recentLists.map((list) => {
               const count = listCounts[list.id] ?? 0
               return (
                 <button
                   key={list.id}
                   onClick={() => navigate(`/lists/${list.id}`)}
-                  className="w-full flex items-center gap-3 bg-white rounded-2xl border border-slate-100 border-l-4 border-l-[#0d9488] px-4 py-3 hover:border-[#a9ded6] hover:shadow-sm transition-all duration-200 text-left group"
+                  className="w-full flex items-center gap-3 bg-white rounded-2xl border border-slate-100 border-l-4 border-l-[#0d9488] px-4 py-3.5 hover:border-[#a9ded6] hover:shadow-sm transition-all duration-200 text-left group"
                 >
-                  <div className="w-9 h-9 rounded-xl bg-violet-100 flex items-center justify-center text-violet-600 shrink-0">
-                    <Table2 size={15} />
+                  <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center text-violet-600 shrink-0">
+                    <Table2 size={18} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-semibold text-slate-800 truncate">{list.name}</p>
+                    <p className="text-sm font-semibold text-slate-800 truncate">{list.name}</p>
                     {list.description && (
-                      <p className="text-[10px] text-slate-400 truncate">{list.description}</p>
+                      <p className="text-xs text-slate-400 truncate">{list.description}</p>
                     )}
                   </div>
-                  <div className="flex items-center gap-2 w-40 shrink-0">
-                    <span className="text-xs font-bold text-slate-700 w-6 text-right">{count}</span>
-                    <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="flex items-center gap-2.5 w-44 shrink-0">
+                    <span className="text-sm font-bold text-slate-700 w-7 text-right">{count}</span>
+                    <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-[#0d9488] to-[#06b6d4] rounded-full transition-all duration-500"
                         style={{ width: `${(count / maxCount) * 100}%` }}
                       />
                     </div>
                   </div>
-                  <ChevronRight size={14} className="text-slate-300 group-hover:text-slate-500 group-hover:translate-x-0.5 transition-all duration-200 shrink-0" />
+                  <ChevronRight size={18} className="text-slate-300 group-hover:text-slate-500 group-hover:translate-x-0.5 transition-all duration-200 shrink-0" />
                 </button>
               )
             })}
@@ -274,44 +260,34 @@ export function Dashboard() {
       </section>
 
       {showReports ? (
-        <section className="mt-7 pb-4">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Reportes recientes</p>
-            <button
-              onClick={() => navigate('/reports')}
-              className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-700 transition-colors duration-200"
-            >
-              Ver todos
-              <ArrowRight size={13} />
-            </button>
-          </div>
-          <div className="space-y-2">
+        <section className="mt-6 pb-4">
+          <div className="space-y-2.5">
             {recentReports.map((report) => {
               const badges = filterBadges(report.filters)
               return (
                 <button
                   key={report.id}
                   onClick={() => navigate('/reports')}
-                  className="w-full flex items-center gap-3 bg-white rounded-2xl border border-slate-100 border-l-4 border-l-[#14b8a6] px-4 py-3 hover:border-[#a9ded6] hover:shadow-sm transition-all duration-200 text-left group"
+                  className="w-full flex items-center gap-3 bg-white rounded-2xl border border-slate-100 border-l-4 border-l-[#14b8a6] px-4 py-3.5 hover:border-[#a9ded6] hover:shadow-sm transition-all duration-200 text-left group"
                 >
-                  <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
-                    <FileSpreadsheet size={15} />
+                  <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
+                    <FileSpreadsheet size={18} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-semibold text-slate-800 truncate">{report.name}</p>
-                    <div className="flex flex-wrap gap-1 mt-0.5">
+                    <p className="text-sm font-semibold text-slate-800 truncate">{report.name}</p>
+                    <div className="flex flex-wrap gap-1.5 mt-1">
                       {badges.length === 0 ? (
-                        <span className="px-1.5 py-0.5 bg-teal-50 text-slate-500 rounded text-[9px] font-medium border border-[#a9ded6]">
+                        <span className="px-2 py-0.5 bg-teal-50 text-slate-600 rounded text-[11px] font-medium border border-[#a9ded6]">
                           General
                         </span>
                       ) : badges.map((b, i) => (
-                        <span key={i} className={`px-1.5 py-0.5 rounded text-[9px] font-medium border ${b.cls}`}>
+                        <span key={i} className={`px-2 py-0.5 rounded text-[11px] font-medium border ${b.cls}`}>
                           {b.value}
                         </span>
                       ))}
                     </div>
                   </div>
-                  <ChevronRight size={14} className="text-slate-300 group-hover:text-slate-500 group-hover:translate-x-0.5 transition-all duration-200 shrink-0" />
+                  <ChevronRight size={18} className="text-slate-300 group-hover:text-slate-500 group-hover:translate-x-0.5 transition-all duration-200 shrink-0" />
                 </button>
               )
             })}
