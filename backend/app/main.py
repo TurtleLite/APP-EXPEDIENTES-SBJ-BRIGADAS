@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 import fnmatch
 
 ALLOWED_ORIGINS = [
+    "https://sistema-web-expedientes-cmsbj.onrender.com",
     "https://app-expedientes-sbj-brigadas.onrender.com",
     "https://expedientes-api-2dje.onrender.com",
     "https://*.trycloudflare.com",
