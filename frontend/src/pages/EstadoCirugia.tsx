@@ -4,13 +4,16 @@ import { ListRecord, ListDefinition } from '../types'
 import { useNotification } from '../contexts/NotificationContext'
 import { FileSpreadsheet, Search, ChevronDown } from 'lucide-react'
 
-const STATUS_OPTIONS = ['En espera', 'Reprogramar', 'Cancelado', 'Fuera de perfil San Benito', 'Operado']
+const STATUS_OPTIONS = ['En espera', 'Reprogramar', 'Cancelado', 'Fuera de perfil San Benito', 'Operado', 'No se presentó']
 
 const statusStyles: Record<string, string> = {
   'Operado': 'bg-emerald-100 text-emerald-600 border-emerald-200',
-  'No se presentó': 'bg-red-100 text-red-600 border-red-200',
-  'Reprogramar': 'bg-amber-100 text-amber-600 border-amber-200',
-  'Fuera de perfil': 'bg-amber-50 text-slate-400 border-[#f0e0c0]',
+  'Fuera de perfil San Benito': 'bg-red-100 text-red-600 border-red-200',
+  'En espera': 'bg-yellow-100 text-yellow-600 border-yellow-200',
+  'Reprogramar': 'bg-orange-100 text-orange-600 border-orange-200',
+  'Cancelado': 'bg-slate-100 text-slate-500 border-slate-200',
+  'No se presentó': 'bg-violet-100 text-violet-600 border-violet-200',
+  'Fuera de perfil': 'bg-red-100 text-red-600 border-red-200',
 }
 
 export function EstadoCirugia() {
@@ -170,7 +173,7 @@ export function EstadoCirugia() {
                       <button
                         onClick={() => setEditingId(r.id)}
                         className={`px-3 py-1 rounded-full text-xs font-medium border transition-all duration-200 hover:scale-105 active:scale-95 ${
-                          statusStyles[r.data?.estatus_cirugia] || 'bg-amber-50 text-slate-400 border-[#f0e0c0] hover:border-[#f0e0c0]'
+                          statusStyles[r.data?.estatus_cirugia] || 'bg-white text-slate-400 border-[#f0e0c0] hover:border-[#f0e0c0]'
                         }`}
                       >
                         {r.data?.estatus_cirugia || 'Asignar'}
