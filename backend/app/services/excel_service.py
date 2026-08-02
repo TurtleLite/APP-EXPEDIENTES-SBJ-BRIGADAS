@@ -9,6 +9,7 @@ import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 from openpyxl.drawing.image import Image as XLImage
+from openpyxl.worksheet.properties import PageSetupProperties
 
 LOGO_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "logo_sbj.png")
 
@@ -184,6 +185,12 @@ def export_to_excel(
     header_row = row
 
     widths = _content_widths(records, columns)
+    total_cols = len(widths) + (1 if title else 0)
+    total_units = sum(widths) + (10 if title else 0)
+    printable_units = ((11.0 - 0.8) * 96 - 5 * total_cols) / 7.0
+    if total_units > printable_units:
+        factor = printable_units / total_units
+        widths = [round(w * factor, 2) for w in widths]
     for i, w in enumerate(widths, data_col0):
         ws.column_dimensions[get_column_letter(i)].width = w
 
@@ -215,6 +222,7 @@ def export_to_excel(
     ws.auto_filter.ref = f"{first_col}{header_row}:{last_col}{header_row + len(records)}"
     ws.freeze_panes = ws.cell(row=header_row + 1, column=1)
 
+    ws.sheet_properties.pageSetUpPr = PageSetupProperties(fitToPage=True)
     ws.page_setup.paperSize = 1  # Carta (Letter) 8.5" x 11"
     ws.page_setup.orientation = "landscape"
     ws.page_setup.fitToWidth = 1
