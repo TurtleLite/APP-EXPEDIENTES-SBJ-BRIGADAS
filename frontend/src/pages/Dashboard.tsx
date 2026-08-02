@@ -93,6 +93,7 @@ export function Dashboard() {
   const greeting = hour < 12 ? 'Buenos días' : hour < 19 ? 'Buenas tardes' : 'Buenas noches'
   const showReports = canReports && recentReports.length > 0
   const maxCount = Math.max(1, ...Object.values(listCounts))
+  const firstName = (user?.full_name?.split(' ')[0] || user?.username || '').replace(/^./, (c) => c.toUpperCase())
 
   const options: { label: string; icon: React.ReactNode; color: string; onClick: () => void }[] = [
     {
@@ -137,27 +138,43 @@ export function Dashboard() {
 
   return (
     <div className="h-full flex flex-col gap-4 min-h-0">
-      <div className="flex items-center justify-between gap-4 shrink-0">
-        <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400 capitalize">{greeting} · {hoy}</p>
-          <h1 className="font-serif text-xl font-bold text-[#134e4a] truncate">Hola, {user?.full_name}</h1>
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#0f766e] via-[#0d9488] to-[#06b6d4] shadow-lg px-8 py-6 shrink-0">
+        <div className="absolute -top-20 -right-16 w-72 h-72 rounded-full bg-white/10" />
+        <div className="absolute -bottom-24 right-44 w-48 h-48 rounded-full bg-white/5" />
+        <div className="absolute top-10 left-1/3 w-24 h-24 rounded-full bg-white/5" />
+        <div className="relative flex items-center justify-between gap-6">
+          <div className="flex items-center gap-5 min-w-0">
+            <div className="w-16 h-16 rounded-2xl bg-white shadow-md flex items-center justify-center shrink-0">
+              <img src="/logo_sbj.png" alt="SBJ" className="w-12 h-12" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[#ccfbf1] text-[10px] font-semibold uppercase tracking-[0.25em]">
+                Centro Médico San Benito José
+              </p>
+              <h1 className="font-serif text-2xl font-bold text-white mt-1 truncate">
+                {greeting}, {firstName}
+              </h1>
+              <p className="text-white/80 text-xs mt-0.5 capitalize truncate">
+                {hoy} · {roleLabels[role]}
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-col items-end gap-3 shrink-0">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-medium text-white">
+              <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
+              Sesión activa
+            </span>
+            <button
+              onClick={goExpedientes}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-[#0d9488] rounded-xl text-sm font-bold shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-95 transition-all duration-200"
+            >
+              <Table2 size={16} />
+              Abrir Expedientes
+              <ArrowRight size={15} />
+            </button>
+          </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-50 border border-[#a9ded6] text-xs font-medium text-[#0f766e]">
-            <Table2 size={13} />
-            {stats.lists} expedientes
-          </span>
-          <span className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-50 border border-[#a9ded6] text-xs font-medium text-[#0f766e]">
-            <BarChart3 size={13} />
-            {stats.records} registros
-          </span>
-          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-medium text-emerald-700">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            Sesión activa
-          </span>
-          <RoleAvatar role={role} size="sm" />
-        </div>
-      </div>
+      </section>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 shrink-0">
         {canManageUsers && (
