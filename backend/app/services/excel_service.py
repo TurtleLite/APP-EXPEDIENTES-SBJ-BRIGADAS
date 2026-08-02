@@ -7,11 +7,11 @@ import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
-PRIMARY = "B07A40"
-DARK = "7C5636"
-BORDER = "E5C9A8"
-ALT_ROW = "FFFBEB"
-MUTED = "9C9C9C"
+PRIMARY = "6E7B91"
+DARK = "3F4650"
+BORDER = "D7DBE1"
+ALT_ROW = "F4F6F8"
+MUTED = "8A919C"
 
 FILTER_LABELS = {
     "especialidad": "Especialidad",
@@ -154,7 +154,7 @@ def export_to_excel(
     ws.auto_filter.ref = f"{get_column_letter(1)}{header_row}:{last_col}{header_row + len(records)}"
     ws.freeze_panes = ws.cell(row=header_row + 1, column=1)
 
-    ws.page_setup.paperSize = 9  # A4
+    ws.page_setup.paperSize = 1  # Carta (Letter) 8.5" x 11"
     ws.page_setup.orientation = "landscape"
     ws.page_setup.fitToWidth = 1
     ws.page_setup.fitToHeight = 0

@@ -68,7 +68,7 @@ export function Lists() {
     <div className="h-full flex flex-col gap-4">
       <div className="flex items-center justify-between shrink-0">
         <div>
-          <h1 className="font-serif text-2xl font-bold text-[#5A5377]">Listas Personalizables</h1>
+          <h1 className="font-serif text-2xl font-bold text-[#3F4650]">Listas Personalizables</h1>
         </div>
         <div className="flex gap-2">
           <button
@@ -76,7 +76,7 @@ export function Lists() {
               const firstList = lists[0]
               if (firstList) navigate(`/lists/${firstList.id}`)
             }}
-            className="flex items-center gap-1.5 bg-white border border-[#E6E2F2] text-slate-700 px-4 py-2 rounded-xl hover:bg-indigo-50 shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
+            className="flex items-center gap-1.5 bg-white border border-[#E3E6EB] text-slate-700 px-4 py-2 rounded-xl hover:bg-slate-100 shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
           >
             <Eye size={16} />
             Ver registros
@@ -84,7 +84,7 @@ export function Lists() {
           {user?.role === 'admin' && (
             <button
               onClick={() => setShowModal(true)}
-              className="flex items-center gap-1.5 bg-[#9B94C9] text-white px-4 py-2 rounded-xl hover:bg-[#8A82BC] shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
+              className="flex items-center gap-1.5 bg-[#6E7B91] text-white px-4 py-2 rounded-xl hover:bg-[#5F6B80] shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
             >
               <Plus size={16} />
               Nueva Lista
@@ -96,7 +96,7 @@ export function Lists() {
       <div className="flex-1 overflow-y-auto min-h-0 pr-1">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {lists.map((list) => (
-          <div key={list.id} className="bg-white rounded-xl shadow-sm border border-[#E6E2F2] p-6 hover:shadow-md hover:border-[#E6E2F2] transition-all duration-200">
+          <div key={list.id} className="bg-white rounded-xl shadow-sm border border-[#E3E6EB] p-6 hover:shadow-md hover:border-[#E3E6EB] transition-all duration-200">
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-2">
                 <h3 className="font-semibold text-slate-900">{list.name}</h3>
@@ -110,7 +110,7 @@ export function Lists() {
               <div className="flex gap-1">
                 <button
                   onClick={() => navigate(`/lists/${list.id}`)}
-                  className="p-1.5 hover:bg-indigo-50 rounded-lg text-slate-500 transition-all duration-200 hover:scale-110 active:scale-95"
+                  className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 transition-all duration-200 hover:scale-110 active:scale-95"
                   title="Ver registros"
                 >
                   <Eye size={16} />
@@ -139,21 +139,21 @@ export function Lists() {
       {showModal && (
         <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-xl px-5 py-3 w-[95vw] max-w-5xl max-h-[90vh] overflow-y-auto shadow-2xl">
-            <h2 className="font-serif text-lg font-bold mb-4 text-[#5A5377]">Nueva Lista Personalizable</h2>
+            <h2 className="font-serif text-lg font-bold mb-4 text-[#3F4650]">Nueva Lista Personalizable</h2>
             <div className="space-y-3">
               <input
                 placeholder="Nombre de la lista"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full px-3 py-2.5 border border-[#E6E2F2] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                className="w-full px-3 py-2.5 border border-[#E3E6EB] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               />
               <input
                 placeholder="Descripción (opcional)"
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
-                className="w-full px-3 py-2.5 border border-[#E6E2F2] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                className="w-full px-3 py-2.5 border border-[#E3E6EB] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               />
-              <div className="border border-[#E6E2F2] rounded-xl p-4">
+              <div className="border border-[#E3E6EB] rounded-xl p-4">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-slate-700">Columnas</span>
                   <button onClick={addColumn} className="text-xs text-slate-500 hover:text-slate-700 transition-colors duration-200">
@@ -166,12 +166,12 @@ export function Lists() {
                       placeholder="Etiqueta"
                       value={col.label}
                       onChange={(e) => updateColumn(idx, 'label', e.target.value)}
-                      className="flex-1 px-2 py-1.5 border border-[#E6E2F2] rounded-lg text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                      className="flex-1 px-2 py-1.5 border border-[#E3E6EB] rounded-lg text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
                     />
                     <select
                       value={col.type}
                       onChange={(e) => updateColumn(idx, 'type', e.target.value)}
-                      className="px-2 py-1.5 border border-[#E6E2F2] rounded-lg text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                      className="px-2 py-1.5 border border-[#E3E6EB] rounded-lg text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
                     >
                       <option value="text">Texto</option>
                       <option value="number">Número</option>
@@ -185,10 +185,10 @@ export function Lists() {
               </div>
             </div>
             <div className="flex justify-end gap-2 mt-4">
-              <button onClick={() => setShowModal(false)} className="px-4 py-2 text-sm text-slate-600 hover:bg-indigo-50 rounded-xl transition-all duration-200">
+              <button onClick={() => setShowModal(false)} className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-xl transition-all duration-200">
                 Cancelar
               </button>
-              <button onClick={handleCreate} className="px-4 py-2 text-sm bg-[#9B94C9] text-white rounded-xl hover:bg-[#8A82BC] shadow-sm hover:shadow-md transition-all duration-200 font-medium">
+              <button onClick={handleCreate} className="px-4 py-2 text-sm bg-[#6E7B91] text-white rounded-xl hover:bg-[#5F6B80] shadow-sm hover:shadow-md transition-all duration-200 font-medium">
                 Crear Lista
               </button>
             </div>

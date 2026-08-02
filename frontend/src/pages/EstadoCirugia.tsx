@@ -85,11 +85,11 @@ export function EstadoCirugia() {
     <div className="h-full flex flex-col gap-4">
       <div className="flex items-center justify-between shrink-0">
         <div>
-          <h1 className="font-serif text-2xl font-bold text-[#5A5377]">Estatus de Cirugía</h1>
+          <h1 className="font-serif text-2xl font-bold text-[#3F4650]">Estatus de Cirugía</h1>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-[#E6E2F2] p-3 shrink-0 transition-shadow duration-200 hover:shadow-md">
+      <div className="bg-white rounded-xl shadow-sm border border-[#E3E6EB] p-3 shrink-0 transition-shadow duration-200 hover:shadow-md">
         <div className="flex items-center gap-2.5">
           <div className="relative flex-1 max-w-sm">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
@@ -98,14 +98,14 @@ export function EstadoCirugia() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar por paciente, especialidad o perfil..."
-              className="w-full pl-9 pr-3 py-2 border border-[#E6E2F2] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+              className="w-full pl-9 pr-3 py-2 border border-[#E3E6EB] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
             />
           </div>
           <div className="relative">
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              className="px-3 py-2 pr-8 border border-[#E6E2F2] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200 appearance-none"
+              className="px-3 py-2 pr-8 border border-[#E3E6EB] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200 appearance-none"
             >
               <option value="">Todos los estatus</option>
               {STATUS_OPTIONS.map((s) => (
@@ -120,11 +120,11 @@ export function EstadoCirugia() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-[#E6E2F2] flex flex-col min-h-0 flex-1 transition-shadow duration-200 hover:shadow-md">
+      <div className="bg-white rounded-xl shadow-sm border border-[#E3E6EB] flex flex-col min-h-0 flex-1 transition-shadow duration-200 hover:shadow-md">
         <div className="flex-1 min-h-0 overflow-y-auto">
           <table className="w-full text-sm">
             <thead className="sticky top-0 z-10">
-              <tr className="bg-indigo-50 border-b border-[#E6E2F2]">
+              <tr className="bg-slate-100 border-b border-[#E3E6EB]">
                 <th className="text-left px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Paciente</th>
                 <th className="text-left px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Especialidad</th>
                 <th className="text-left px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Perfil</th>
@@ -144,7 +144,7 @@ export function EstadoCirugia() {
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={4} className="px-4 py-12 text-center text-slate-400 text-sm">Sin registros</td></tr>
               ) : filtered.map((r, idx) => (
-                <tr key={r.id} className={`border-b border-slate-100 transition-all duration-150 hover:bg-indigo-50/50 ${idx % 2 === 0 ? 'bg-white' : 'bg-indigo-50/20'}`}>
+                <tr key={r.id} className={`border-b border-slate-100 transition-all duration-150 hover:bg-slate-100/50 ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-100/20'}`}>
                   <td className="px-6 py-4 font-medium text-slate-900">
                     {`${r.data?.nombre || ''} ${r.data?.apellido || ''}`}
                   </td>
@@ -157,7 +157,7 @@ export function EstadoCirugia() {
                         value={r.data?.estatus_cirugia || ''}
                         onChange={(e) => updateStatus(r.id, e.target.value)}
                         onBlur={() => setEditingId(null)}
-                        className="px-2 py-1.5 border border-[#E6E2F2] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                        className="px-2 py-1.5 border border-[#E3E6EB] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
                       >
                         <option value="">Sin estatus</option>
                         {STATUS_OPTIONS.map((s) => (
@@ -168,7 +168,7 @@ export function EstadoCirugia() {
                       <button
                         onClick={() => setEditingId(r.id)}
                         className={`px-3 py-1 rounded-full text-xs font-medium border transition-all duration-200 hover:scale-105 active:scale-95 ${
-                          statusStyles[r.data?.estatus_cirugia] || 'bg-white text-slate-400 border-[#E6E2F2] hover:border-[#E6E2F2]'
+                          statusStyles[r.data?.estatus_cirugia] || 'bg-white text-slate-400 border-[#E3E6EB] hover:border-[#E3E6EB]'
                         }`}
                       >
                         {r.data?.estatus_cirugia || 'Asignar'}

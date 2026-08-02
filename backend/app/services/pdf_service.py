@@ -14,12 +14,12 @@ from reportlab.pdfgen import canvas as pdfcanvas
 
 LOGO_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "logo_sbj.png")
 
-PRIMARY = colors.HexColor("#B07A40")
-DARK = colors.HexColor("#7C5636")
-HOVER = colors.HexColor("#9C6A36")
-BORDER = colors.HexColor("#E5C9A8")
-ALT_ROW = colors.HexColor("#FFFBEB")
-MUTED = colors.HexColor("#8A8378")
+PRIMARY = colors.HexColor("#6E7B91")
+DARK = colors.HexColor("#3F4650")
+HOVER = colors.HexColor("#5F6B80")
+BORDER = colors.HexColor("#D7DBE1")
+ALT_ROW = colors.HexColor("#F4F6F8")
+MUTED = colors.HexColor("#8A919C")
 
 FILTER_LABELS = {
     "especialidad": "Especialidad",
@@ -103,11 +103,11 @@ def export_to_pdf(
         canvas.setFillColor(DARK)
         canvas.rect(0, page[1] - 7 * mm, page[0], 7 * mm, stroke=0, fill=1)
 
-        canvas.setFillColor(colors.HexColor("#F6E8D5"))
+        canvas.setFillColor(colors.HexColor("#EDF0F4"))
         canvas.setFont("Helvetica-Bold", 7.5)
         canvas.drawString(16 * mm, page[1] - 4.6 * mm, institution)
         canvas.setFont("Helvetica", 7.5)
-        canvas.setFillColor(colors.HexColor("#F1D9BA"))
+        canvas.setFillColor(colors.HexColor("#C6CCD4"))
         canvas.drawCentredString(page[0] / 2, page[1] - 4.6 * mm, "SISTEMA DE GESTIÓN DE EXPEDIENTES")
         canvas.drawRightString(page[0] - 16 * mm, page[1] - 4.6 * mm, datetime.date.today().strftime("%d/%m/%Y"))
 
@@ -123,7 +123,7 @@ def export_to_pdf(
         fontName="Helvetica",
         fontSize=8,
         leading=10,
-        textColor=colors.HexColor("#4B443B"),
+        textColor=colors.HexColor("#444B54"),
         alignment=TA_LEFT,
     )
     head_style = ParagraphStyle(
