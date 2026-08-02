@@ -7,7 +7,6 @@ import {
   UserCircle2, Activity,
 } from 'lucide-react'
 import type { ListDefinition, Report } from '../types'
-import { RoleAvatar } from '../components/RoleAvatar'
 
 interface Stats {
   users?: number
@@ -128,6 +127,33 @@ export function Dashboard() {
     }] : []),
   ]
 
+  const statItems: { label: string; value: number; icon: React.ReactNode; onClick: () => void }[] = [
+    ...(canManageUsers ? [{
+      label: 'Usuarios',
+      value: stats.users ?? 0,
+      icon: <Users size={13} />,
+      onClick: () => navigate('/users'),
+    }] : []),
+    {
+      label: 'Expedientes',
+      value: stats.lists,
+      icon: <Table2 size={13} />,
+      onClick: goExpedientes,
+    },
+    {
+      label: 'Registros',
+      value: stats.records,
+      icon: <BarChart3 size={13} />,
+      onClick: goExpedientes,
+    },
+    ...(canReports ? [{
+      label: 'Reportes',
+      value: stats.reports,
+      icon: <FileText size={13} />,
+      onClick: () => navigate('/reports'),
+    }] : []),
+  ]
+
   const filterBadges = (filters?: Record<string, any>) => {
     const items: { value: string; cls: string }[] = []
     if (filters?.especialidad) items.push({ value: filters.especialidad, cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' })
@@ -137,262 +163,185 @@ export function Dashboard() {
   }
 
   return (
-    <div className="h-full flex flex-col gap-4 min-h-0">
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#0f766e] via-[#0d9488] to-[#06b6d4] shadow-lg px-8 py-6 shrink-0">
+    <div className="h-full flex flex-col gap-3 min-h-0">
+      <div className="shrink-0 flex items-center justify-between gap-4 px-1">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <span className="text-[#0f766e] text-xs font-semibold">{greeting}, {firstName}</span>
+          <span className="w-1 h-1 rounded-full bg-slate-300 shrink-0" />
+          <span className="text-slate-400 text-xs capitalize truncate">{hoy}</span>
+          <span className="w-1 h-1 rounded-full bg-slate-300 shrink-0 hidden sm:block" />
+          <span className="text-slate-400 text-xs hidden sm:block">{roleLabels[role]}</span>
+        </div>
+        <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] font-medium text-emerald-700 shrink-0">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          Sesión activa
+        </span>
+      </div>
+
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#0f766e] via-[#0d9488] to-[#06b6d4] shadow-lg shrink-0">
         <div className="absolute -top-20 -right-16 w-72 h-72 rounded-full bg-white/10" />
         <div className="absolute -bottom-24 right-44 w-48 h-48 rounded-full bg-white/5" />
         <div className="absolute top-10 left-1/3 w-24 h-24 rounded-full bg-white/5" />
-        <div className="relative flex items-center justify-between gap-6">
-          <div className="flex items-center gap-5 min-w-0">
-            <div className="w-16 h-16 rounded-2xl bg-white shadow-md flex items-center justify-center shrink-0">
-              <img src="/logo_sbj.png" alt="SBJ" className="w-12 h-12" />
+        <div className="relative px-8 pt-6 pb-1">
+          <div className="flex items-center justify-between gap-6">
+            <div className="flex items-center gap-5 min-w-0">
+              <div className="w-16 h-16 rounded-2xl bg-white shadow-md flex items-center justify-center shrink-0">
+                <img src="/logo_sbj.png" alt="SBJ" className="w-12 h-12" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[#ccfbf1] text-[10px] font-semibold uppercase tracking-[0.25em]">
+                  Centro Médico San Benito José
+                </p>
+                <h1 className="font-serif text-2xl font-bold text-white mt-1 truncate">
+                  {greeting}, {firstName}
+                </h1>
+              </div>
             </div>
-            <div className="min-w-0">
-              <p className="text-[#ccfbf1] text-[10px] font-semibold uppercase tracking-[0.25em]">
-                Centro Médico San Benito José
-              </p>
-              <h1 className="font-serif text-2xl font-bold text-white mt-1 truncate">
-                {greeting}, {firstName}
-              </h1>
-              <p className="text-white/80 text-xs mt-0.5 capitalize truncate">
-                {hoy} · {roleLabels[role]}
-              </p>
-            </div>
-          </div>
-          <div className="flex flex-col items-end gap-3 shrink-0">
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-medium text-white">
-              <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
-              Sesión activa
-            </span>
             <button
               onClick={goExpedientes}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-[#0d9488] rounded-xl text-sm font-bold shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-95 transition-all duration-200"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-[#0d9488] rounded-xl text-sm font-bold shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-95 transition-all duration-200 shrink-0"
             >
               <Table2 size={16} />
               Abrir Expedientes
               <ArrowRight size={15} />
             </button>
           </div>
+          <div className="flex items-center divide-x divide-white/20 mt-4 overflow-x-auto">
+            {statItems.map((s) => (
+              <button
+                key={s.label}
+                onClick={s.onClick}
+                className="flex items-center gap-2 px-4 py-2.5 first:pl-0 hover:bg-white/10 transition-colors duration-200 shrink-0"
+              >
+                <span className="w-6 h-6 rounded-md bg-white/15 text-white flex items-center justify-center">{s.icon}</span>
+                <span className="text-xl font-bold text-white leading-none">{s.value}</span>
+                <span className="text-[10px] font-medium uppercase tracking-wider text-[#ccfbf1]">{s.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 shrink-0">
-        {canManageUsers && (
-          <StatCard
-            icon={<Users size={16} />}
-            label="Usuarios"
-            value={stats.users ?? 0}
-            accent="border-l-sky-400"
-            iconBg="bg-sky-100 text-sky-600"
-            onClick={() => navigate('/users')}
-          />
-        )}
-        <StatCard
-          icon={<Table2 size={16} />}
-          label="Expedientes"
-          value={stats.lists}
-          accent="border-l-violet-400"
-          iconBg="bg-violet-100 text-violet-600"
-          onClick={goExpedientes}
-        />
-        <StatCard
-          icon={<BarChart3 size={16} />}
-          label="Registros"
-          value={stats.records}
-          accent="border-l-emerald-400"
-          iconBg="bg-emerald-100 text-emerald-600"
-          onClick={goExpedientes}
-        />
-        {canReports && (
-          <StatCard
-            icon={<FileText size={16} />}
-            label="Reportes"
-            value={stats.reports}
-            accent="border-l-amber-400"
-            iconBg="bg-amber-100 text-amber-600"
-            onClick={() => navigate('/reports')}
-          />
-        )}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1 min-h-0">
-        <section className={`bg-white rounded-2xl shadow-sm border border-[#a9ded6] flex flex-col min-h-0 ${showReports ? 'lg:col-span-7' : 'lg:col-span-8'}`}>
-          <div className="flex items-center justify-between px-4 pt-3 pb-2.5 border-b border-[#a9ded6] shrink-0">
-            <div className="flex items-center gap-2">
-              <span className="w-1 h-4 bg-[#0d9488] rounded-full" />
-              <h2 className="font-serif text-sm font-semibold text-[#134e4a]">Expedientes</h2>
-              <span className="text-[10px] font-semibold text-[#0f766e] bg-teal-50 border border-[#a9ded6] rounded-full px-2 py-0.5">
-                {stats.lists} total
-              </span>
-            </div>
+      <section className="bg-white rounded-3xl border border-[#a9ded6] shadow-sm flex-1 min-h-0 flex flex-col">
+        <div className="flex gap-2 p-4 pb-3 overflow-x-auto shrink-0">
+          {options.map((opt) => (
             <button
-              onClick={goExpedientes}
-              className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-700 transition-colors duration-200"
+              key={opt.label}
+              onClick={opt.onClick}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-100 hover:border-[#a9ded6] hover:bg-teal-50/50 transition-all duration-200 group shrink-0"
             >
-              Ver todos
-              <ArrowRight size={13} />
+              <div className={`w-7 h-7 rounded-lg ${opt.color} text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-200`}>
+                {opt.icon}
+              </div>
+              <span className="text-xs font-semibold text-slate-700">{opt.label}</span>
             </button>
+          ))}
+        </div>
+
+        <div className="h-px bg-slate-100 mx-4 shrink-0" />
+
+        {recentLists.length === 0 ? (
+          <div className="flex-1 flex flex-col items-center justify-center py-10">
+            <Table2 size={30} className="text-slate-200" />
+            <p className="text-slate-500 text-sm mt-3">No hay expedientes aún</p>
           </div>
-          <div className="flex-1 min-h-0 overflow-y-auto">
-            {recentLists.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-center py-10">
-                <Table2 size={30} className="text-slate-200" />
-                <p className="text-slate-500 text-sm mt-3">No hay expedientes aún</p>
-              </div>
-            ) : (
-              <table className="w-full text-sm">
-                <thead className="sticky top-0 z-10 bg-white">
-                  <tr className="text-left text-[10px] font-semibold uppercase tracking-widest text-slate-400 border-b border-slate-100">
-                    <th className="px-4 py-2.5">Expediente</th>
-                    <th className="px-3 py-2.5 w-44">Registros</th>
-                    <th className="px-3 py-2.5 w-12 text-right">Abrir</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentLists.map((list, idx) => {
-                    const count = listCounts[list.id] ?? 0
-                    return (
-                      <tr
-                        key={list.id}
-                        onClick={() => navigate(`/lists/${list.id}`)}
-                        className={`cursor-pointer transition-colors duration-150 hover:bg-teal-50/60 ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f0fdfa]/50'}`}
-                      >
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            <div className="w-7 h-7 rounded-lg bg-violet-100 flex items-center justify-center text-violet-600 shrink-0">
-                              <Table2 size={13} />
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-[13px] font-semibold text-slate-800 truncate">{list.name}</p>
-                              {list.description && (
-                                <p className="text-[10px] text-slate-400 truncate">{list.description}</p>
-                              )}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-3 py-3">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-slate-700 w-8 shrink-0">{count}</span>
-                            <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-gradient-to-r from-[#0d9488] to-[#06b6d4] rounded-full transition-all duration-500"
-                                style={{ width: `${(count / maxCount) * 100}%` }}
-                              />
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-3 py-3 text-right">
-                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-lg text-slate-300 hover:text-slate-500 hover:bg-slate-100 transition-all duration-200">
-                            <ChevronRight size={14} />
+        ) : (
+          <>
+            <div className="flex items-center justify-between px-5 pt-4 pb-2 shrink-0">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                Expedientes
+                <span className="text-[#0f766e] bg-teal-50 border border-[#a9ded6] rounded-full px-2 py-0.5 ml-2">{stats.lists}</span>
+              </p>
+              <button
+                onClick={goExpedientes}
+                className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-700 transition-colors duration-200"
+              >
+                Ver todos
+                <ArrowRight size={13} />
+              </button>
+            </div>
+            <div className="flex-1 min-h-0 overflow-y-auto">
+              {recentLists.map((list) => {
+                const count = listCounts[list.id] ?? 0
+                return (
+                  <button
+                    key={list.id}
+                    onClick={() => navigate(`/lists/${list.id}`)}
+                    className="w-full flex items-center gap-3 px-5 py-3 border-b border-slate-50 last:border-b-0 hover:bg-teal-50/50 transition-colors duration-150 text-left group"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-violet-100 flex items-center justify-center text-violet-600 shrink-0">
+                      <Table2 size={14} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-semibold text-slate-800 truncate">{list.name}</p>
+                      {list.description && (
+                        <p className="text-[10px] text-slate-400 truncate">{list.description}</p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 w-40 shrink-0">
+                      <span className="text-xs font-bold text-slate-700 w-6 text-right">{count}</span>
+                      <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-[#0d9488] to-[#06b6d4] rounded-full transition-all duration-500"
+                          style={{ width: `${(count / maxCount) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                    <ChevronRight size={14} className="text-slate-300 group-hover:text-slate-500 group-hover:translate-x-0.5 transition-all duration-200 shrink-0" />
+                  </button>
+                )
+              })}
+            </div>
+          </>
+        )}
+
+        {showReports ? (
+          <>
+            <div className="h-px bg-slate-100 mx-4 shrink-0" />
+            <div className="flex items-center justify-between px-5 pt-4 pb-2 shrink-0">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Reportes recientes</p>
+              <button
+                onClick={() => navigate('/reports')}
+                className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-700 transition-colors duration-200"
+              >
+                Ver todos
+                <ArrowRight size={13} />
+              </button>
+            </div>
+            <div className="shrink-0 pb-4">
+              {recentReports.map((report) => {
+                const badges = filterBadges(report.filters)
+                return (
+                  <button
+                    key={report.id}
+                    onClick={() => navigate('/reports')}
+                    className="w-full flex items-center gap-3 px-5 py-2.5 hover:bg-amber-50/40 transition-colors duration-150 text-left group"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
+                      <FileSpreadsheet size={14} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-semibold text-slate-800 truncate">{report.name}</p>
+                      <div className="flex flex-wrap gap-1 mt-0.5">
+                        {badges.length === 0 ? (
+                          <span className="px-1.5 py-0.5 bg-teal-50 text-slate-500 rounded text-[9px] font-medium border border-[#a9ded6]">
+                            General
                           </span>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            )}
-          </div>
-        </section>
-
-        <div className={`${showReports ? 'lg:col-span-5' : 'lg:col-span-4'} flex flex-col gap-4 min-h-0`}>
-          <section className="bg-white rounded-2xl shadow-sm border border-[#a9ded6] p-4 shrink-0">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="w-1 h-4 bg-amber-400 rounded-full" />
-              <h2 className="font-serif text-sm font-semibold text-[#134e4a]">Acceso rápido</h2>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              {options.map((opt) => (
-                <button
-                  key={opt.label}
-                  onClick={opt.onClick}
-                  className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-slate-100 hover:border-[#a9ded6] hover:bg-slate-50/70 transition-all duration-200 group text-left"
-                >
-                  <div className={`w-8 h-8 rounded-lg ${opt.color} text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-200 shrink-0`}>
-                    {opt.icon}
-                  </div>
-                  <p className="text-xs font-semibold text-slate-800 truncate">{opt.label}</p>
-                </button>
-              ))}
-            </div>
-          </section>
-
-          {showReports ? (
-            <section className="bg-white rounded-2xl shadow-sm border border-[#a9ded6] flex flex-col min-h-0 flex-1">
-              <div className="flex items-center justify-between px-4 pt-3 pb-2.5 border-b border-[#a9ded6] shrink-0">
-                <div className="flex items-center gap-2">
-                  <span className="w-1 h-4 bg-amber-400 rounded-full" />
-                  <h2 className="font-serif text-sm font-semibold text-[#134e4a]">Reportes recientes</h2>
-                </div>
-                <button
-                  onClick={() => navigate('/reports')}
-                  className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-700 transition-colors duration-200"
-                >
-                  Ver todos
-                  <ArrowRight size={13} />
-                </button>
-              </div>
-              <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-2">
-                {recentReports.map((report) => {
-                  const badges = filterBadges(report.filters)
-                  return (
-                    <button
-                      key={report.id}
-                      onClick={() => navigate('/reports')}
-                      className="w-full flex items-center gap-3 px-3 py-2 rounded-xl border border-slate-100 hover:border-amber-200 hover:bg-amber-50/40 text-left transition-all duration-200 group"
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
-                        <FileSpreadsheet size={14} />
+                        ) : badges.map((b, i) => (
+                          <span key={i} className={`px-1.5 py-0.5 rounded text-[9px] font-medium border ${b.cls}`}>
+                            {b.value}
+                          </span>
+                        ))}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[13px] font-semibold text-slate-800 truncate">{report.name}</p>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {badges.length === 0 ? (
-                            <span className="px-1.5 py-0.5 bg-teal-50 text-slate-500 rounded text-[9px] font-medium border border-[#a9ded6]">
-                              General
-                            </span>
-                          ) : badges.map((b, i) => (
-                            <span key={i} className={`px-1.5 py-0.5 rounded text-[9px] font-medium border ${b.cls}`}>
-                              {b.value}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                      <ChevronRight size={14} className="text-slate-300 group-hover:text-slate-500 group-hover:translate-x-0.5 transition-all duration-200 shrink-0" />
-                    </button>
-                  )
-                })}
-              </div>
-            </section>
-          ) : null}
-        </div>
-      </div>
+                    </div>
+                    <ChevronRight size={14} className="text-slate-300 group-hover:text-slate-500 group-hover:translate-x-0.5 transition-all duration-200 shrink-0" />
+                  </button>
+                )
+              })}
+            </div>
+          </>
+        ) : null}
+      </section>
     </div>
-  )
-}
-
-function StatCard({ icon, label, value, accent, iconBg, onClick }: {
-  icon: React.ReactNode
-  label: string
-  value: number
-  accent: string
-  iconBg: string
-  onClick: () => void
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`group bg-white rounded-2xl border border-[#a9ded6] border-l-4 ${accent} px-4 py-3 text-left shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200`}
-    >
-      <div className="flex items-center justify-between">
-        <div className="min-w-0">
-          <p className="text-xl font-bold text-slate-900">{value}</p>
-          <p className="text-[11px] font-semibold text-slate-500 mt-0.5 truncate">{label}</p>
-        </div>
-        <div className={`w-8 h-8 rounded-lg ${iconBg} flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shrink-0`}>
-          {icon}
-        </div>
-      </div>
-    </button>
   )
 }
