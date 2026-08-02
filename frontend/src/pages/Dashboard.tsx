@@ -1,19 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
-import { usersApi, listsApi, reportsApi } from '../services/api'
+import { listsApi, reportsApi } from '../services/api'
 import {
-  Users, FileText, Table2, BarChart3, ChevronRight, FileSpreadsheet,
+  Users, FileText, Table2, ChevronRight, FileSpreadsheet,
   UserCircle2, Activity,
 } from 'lucide-react'
 import type { ListDefinition, Report } from '../types'
-
-interface Stats {
-  users?: number
-  lists: number
-  records: number
-  reports: number
-}
 
 const roleLabels: Record<string, string> = {
   admin: 'Administrador',
@@ -25,7 +18,6 @@ const roleLabels: Record<string, string> = {
 export function Dashboard() {
   const { user } = useAuth()
   const navigate = useNavigate()
-  const [stats, setStats] = useState<Stats>({ lists: 0, records: 0, reports: 0 })
   const [recentLists, setRecentLists] = useState<ListDefinition[]>([])
   const [recentReports, setRecentReports] = useState<Report[]>([])
   const [listCounts, setListCounts] = useState<Record<string, number>>({})
@@ -51,10 +43,9 @@ export function Dashboard() {
   useEffect(() => {
     async function load() {
       try {
-        const [listsRes, reportsRes, usersRes] = await Promise.all([
+        const [listsRes, reportsRes] = await Promise.all([
           listsApi.list(),
           canReports ? reportsApi.list() : Promise.resolve({ data: [] }),
-          canManageUsers ? usersApi.list() : Promise.resolve({ data: [] }),
         ])
         const lists: ListDefinition[] = listsRes.data
         const reports: Report[] = reportsRes.data
@@ -73,12 +64,6 @@ export function Dashboard() {
         for (const c of countsRes) countsMap[c.id] = c.count
         setListCounts(countsMap)
 
-        setStats({
-          users: canManageUsers ? usersRes.data.length : undefined,
-          lists: lists.length,
-          records: Object.values(countsMap).reduce((a, b) => a + b, 0),
-          reports: reports.length,
-        })
         setRecentLists(lists.slice(0, 5))
         setRecentReports(reports.slice(0, 3))
       } catch {}
@@ -126,37 +111,6 @@ export function Dashboard() {
     }] : []),
   ]
 
-  const statItems: { label: string; value: number; icon: React.ReactNode; color: string; onClick: () => void }[] = [
-    ...(canManageUsers ? [{
-      label: 'Usuarios',
-      value: stats.users ?? 0,
-      icon: <Users size={16} />,
-      color: 'bg-sky-100 text-sky-600',
-      onClick: () => navigate('/users'),
-    }] : []),
-    {
-      label: 'Expedientes',
-      value: stats.lists,
-      icon: <Table2 size={16} />,
-      color: 'bg-violet-100 text-violet-600',
-      onClick: goExpedientes,
-    },
-    {
-      label: 'Registros',
-      value: stats.records,
-      icon: <BarChart3 size={16} />,
-      color: 'bg-emerald-100 text-emerald-600',
-      onClick: goExpedientes,
-    },
-    ...(canReports ? [{
-      label: 'Reportes',
-      value: stats.reports,
-      icon: <FileText size={16} />,
-      color: 'bg-amber-100 text-amber-600',
-      onClick: () => navigate('/reports'),
-    }] : []),
-  ]
-
   const filterBadges = (filters?: Record<string, any>) => {
     const items: { value: string; cls: string }[] = []
     if (filters?.especialidad) items.push({ value: filters.especialidad, cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' })
@@ -169,14 +123,11 @@ export function Dashboard() {
     <div className="h-full overflow-y-auto pr-1">
       <header className="shrink-0">
         <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 min-w-0">
-            <img src="/logo_sbj.png" alt="SBJ" className="w-11 h-11 shrink-0" />
-            <div className="min-w-0">
-              <p className="text-[#0f766e] text-xs font-semibold uppercase tracking-[0.2em] truncate">
-                Centro Médico San Benito José
-              </p>
-              <p className="text-slate-400 text-sm capitalize truncate">{hoy}</p>
-            </div>
+          <div className="min-w-0">
+            <p className="text-[#0f766e] text-xs font-semibold uppercase tracking-[0.2em] truncate">
+              Centro Médico San Benito José
+            </p>
+            <p className="text-slate-400 text-sm capitalize truncate">{hoy}</p>
           </div>
           <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-medium text-emerald-700 shrink-0">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -188,7 +139,7 @@ export function Dashboard() {
         <p className="text-slate-500 text-sm mt-1">{roleLabels[role]}</p>
       </header>
 
-      <div className="flex gap-2.5 mt-6 flex-wrap">
+      <div className="flex gap-2.5 mt-7 flex-wrap">
         {options.map((opt) => (
           <button
             key={opt.label}
@@ -199,20 +150,6 @@ export function Dashboard() {
               {opt.icon}
             </div>
             <span className="text-sm font-semibold text-slate-700">{opt.label}</span>
-          </button>
-        ))}
-      </div>
-
-      <div className="flex flex-wrap items-center gap-x-8 gap-y-3 mt-7">
-        {statItems.map((s) => (
-          <button
-            key={s.label}
-            onClick={s.onClick}
-            className="group flex items-center gap-2.5 hover:opacity-80 transition-opacity duration-200"
-          >
-            <span className={`w-9 h-9 rounded-lg ${s.color} flex items-center justify-center`}>{s.icon}</span>
-            <span className="text-2xl font-bold text-[#0d9488] leading-none">{s.value}</span>
-            <span className="text-sm font-medium text-slate-500">{s.label}</span>
           </button>
         ))}
       </div>
