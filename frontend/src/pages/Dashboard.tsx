@@ -162,7 +162,7 @@ export function Dashboard() {
           <button
             key={opt.label}
             onClick={() => (opt.allowed ? opt.onClick() : setDenied(opt.label))}
-            className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-white border border-slate-100 hover:border-[#a9ded6] hover:shadow-sm transition-all duration-200 group"
+            className="flex-1 min-w-[150px] inline-flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl bg-white border border-slate-100 hover:border-[#a9ded6] hover:shadow-sm transition-all duration-200 group"
           >
             <div className={`w-8 h-8 rounded-lg ${opt.color} text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-200`}>
               {opt.icon}

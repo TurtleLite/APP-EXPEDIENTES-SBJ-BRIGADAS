@@ -143,7 +143,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <main className="flex-1 p-6 flex flex-col overflow-y-auto min-h-0 relative">
           <div className="flex-1">{children}</div>
         </main>
-        <footer className="pt-[7px] text-center text-xs text-[#6e9290] border-t border-[#a9ded6]">
+        <footer className="pt-[7px] text-center text-xs text-[#6e9290]">
           © {new Date().getFullYear()} TurtleLite · Centro Médico San Benito José
         </footer>
       </div>
