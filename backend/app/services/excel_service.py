@@ -48,8 +48,8 @@ def _content_widths(records: List[dict], columns: List[str]) -> List[int]:
         header = len(str(col))
         longest = max(lens)
         avg = sum(lens) / len(lens)
-        w = max(header, min(longest, round(avg * 1.4 + 4)))
-        widths.append(max(8, min(26, round(w * 1.15))))
+        eff = max(header, min(longest, round(avg * 1.4 + 4)))
+        widths.append(min(26, max(4, eff + 1, round(eff * 1.15))))
     return widths
 
 
