@@ -79,8 +79,8 @@ export function Dashboard() {
           records: Object.values(countsMap).reduce((a, b) => a + b, 0),
           reports: reports.length,
         })
-        setRecentLists(lists.slice(0, 5))
-        setRecentReports(reports.slice(0, 3))
+        setRecentLists(lists.slice(0, 6))
+        setRecentReports(reports.slice(0, 4))
       } catch {}
     }
     load()
@@ -102,71 +102,81 @@ export function Dashboard() {
   }
 
   return (
-    <div className="flex flex-col gap-4 h-full min-h-0">
-      <header className="bg-gradient-to-r from-[#0f766e] via-[#0d9488] to-[#06b6d4] rounded-2xl shadow-lg px-6 py-5 flex items-center justify-between gap-4 shrink-0">
-        <div className="flex items-center gap-4 min-w-0">
-          <RoleAvatar role={role} size="lg" />
-          <div className="min-w-0">
-            <p className="text-[#ccfbf1] text-[11px] font-semibold uppercase tracking-widest">{greeting}</p>
-            <h1 className="font-serif text-xl font-bold text-white truncate">{user?.full_name}</h1>
-            <p className="text-white/75 text-xs capitalize truncate">{hoy}</p>
-          </div>
+    <div className="flex flex-col gap-5 h-full min-h-0">
+      <div className="flex items-center justify-between gap-4 shrink-0">
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400 capitalize">{greeting} · {hoy}</p>
+          <h1 className="font-serif text-2xl font-bold text-[#134e4a] truncate">Panel de {roleLabels[role]}</h1>
         </div>
-        <span className="shrink-0 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/15 border border-white/25 text-[11px] font-medium text-white">
-          <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
-          {roleLabels[role]} · Sesión activa
-        </span>
-      </header>
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-50 border border-[#a9ded6] text-xs font-medium text-[#0f766e]">
+            <Table2 size={13} />
+            {stats.lists} expedientes
+          </span>
+          <span className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-50 border border-[#a9ded6] text-xs font-medium text-[#0f766e]">
+            <BarChart3 size={13} />
+            {stats.records} registros
+          </span>
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-medium text-emerald-700">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            Sesión activa
+          </span>
+          <RoleAvatar role={role} size="sm" />
+        </div>
+      </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 shrink-0">
         {canManageUsers && (
           <StatCard
-            icon={<Users size={20} />}
+            icon={<Users size={18} />}
             label="Usuarios"
             value={stats.users ?? 0}
             caption="Cuentas registradas"
-            iconBg="bg-sky-500"
-            cardBg="bg-sky-50"
+            accent="border-l-sky-400"
+            iconBg="bg-sky-100 text-sky-600"
             onClick={() => navigate('/users')}
           />
         )}
         <StatCard
-          icon={<Table2 size={20} />}
+          icon={<Table2 size={18} />}
           label="Expedientes"
           value={stats.lists}
           caption="Listas del sistema"
-          iconBg="bg-violet-500"
-          cardBg="bg-violet-50"
+          accent="border-l-violet-400"
+          iconBg="bg-violet-100 text-violet-600"
           onClick={goExpedientes}
         />
         <StatCard
-          icon={<BarChart3 size={20} />}
+          icon={<BarChart3 size={18} />}
           label="Registros"
           value={stats.records}
           caption="Pacientes en el banco"
-          iconBg="bg-emerald-500"
-          cardBg="bg-emerald-50"
+          accent="border-l-emerald-400"
+          iconBg="bg-emerald-100 text-emerald-600"
           onClick={goExpedientes}
         />
         {canReports && (
           <StatCard
-            icon={<FileText size={20} />}
+            icon={<FileText size={18} />}
             label="Reportes"
             value={stats.reports}
             caption="Generados"
-            iconBg="bg-amber-500"
-            cardBg="bg-amber-50"
+            accent="border-l-amber-400"
+            iconBg="bg-amber-100 text-amber-600"
             onClick={() => navigate('/reports')}
           />
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1 min-h-0">
-        <section className="lg:col-span-8 bg-white rounded-2xl shadow-sm border border-[#a9ded6] p-5 flex flex-col min-h-0">
-          <div className="flex items-center justify-between mb-4 shrink-0">
-            <div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 flex-1 min-h-0">
+        <section className={`bg-white rounded-2xl shadow-sm border border-[#a9ded6] flex flex-col min-h-0 ${showReports ? 'lg:col-span-7' : 'lg:col-span-9'}`}>
+          <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-[#a9ded6] shrink-0">
+            <div className="flex items-center gap-2">
+              <span className="w-1 h-4 bg-[#0d9488] rounded-full" />
               <h2 className="font-serif text-sm font-semibold text-[#134e4a]">Expedientes</h2>
-              <p className="text-[11px] text-slate-400 mt-0.5">Registros por expediente del sistema</p>
+              <span className="text-[10px] font-semibold text-[#0f766e] bg-teal-50 border border-[#a9ded6] rounded-full px-2 py-0.5">
+                {stats.lists} total
+              </span>
             </div>
             <button
               onClick={goExpedientes}
@@ -176,56 +186,76 @@ export function Dashboard() {
               <ArrowRight size={13} />
             </button>
           </div>
-          {recentLists.length === 0 ? (
-            <div className="flex flex-col items-center justify-center flex-1 text-center">
-              <Table2 size={32} className="text-slate-200" />
-              <p className="text-slate-500 text-sm mt-3">No hay expedientes aún</p>
-            </div>
-          ) : (
-            <div className="space-y-2 overflow-y-auto min-h-0 pr-1">
-              {recentLists.map((list) => {
-                const count = listCounts[list.id] ?? 0
-                return (
-                  <button
-                    key={list.id}
-                    onClick={() => navigate(`/lists/${list.id}`)}
-                    className="w-full flex items-center gap-4 px-4 py-3 rounded-xl border border-slate-100 hover:border-[#a9ded6] hover:bg-slate-50/70 text-left transition-all duration-200 group"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center text-violet-600 group-hover:scale-105 transition-transform duration-200 shrink-0">
-                      <Table2 size={18} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="text-sm font-semibold text-slate-800 truncate">{list.name}</p>
-                        <span className="text-[11px] font-semibold text-[#0f766e] bg-teal-50 border border-[#a9ded6] rounded-lg px-2 py-0.5 shrink-0">
-                          {count} registros
-                        </span>
-                      </div>
-                      {list.description && (
-                        <p className="text-xs text-slate-400 truncate mt-0.5">{list.description}</p>
-                      )}
-                      <div className="mt-2 h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-[#0d9488] to-[#06b6d4] rounded-full transition-all duration-500"
-                          style={{ width: `${(count / maxCount) * 100}%` }}
-                        />
-                      </div>
-                    </div>
-                    <ChevronRight size={16} className="text-slate-300 group-hover:text-slate-500 group-hover:translate-x-0.5 transition-all duration-200 shrink-0" />
-                  </button>
-                )
-              })}
-            </div>
-          )}
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            {recentLists.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-center py-12">
+                <Table2 size={32} className="text-slate-200" />
+                <p className="text-slate-500 text-sm mt-3">No hay expedientes aún</p>
+              </div>
+            ) : (
+              <table className="w-full text-sm">
+                <thead className="sticky top-0 z-10 bg-white">
+                  <tr className="text-left text-[10px] font-semibold uppercase tracking-widest text-slate-400 border-b border-slate-100">
+                    <th className="px-5 py-3">Expediente</th>
+                    <th className="px-4 py-3 w-56">Registros</th>
+                    <th className="px-4 py-3 w-14 text-right">Abrir</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentLists.map((list, idx) => {
+                    const count = listCounts[list.id] ?? 0
+                    return (
+                      <tr
+                        key={list.id}
+                        onClick={() => navigate(`/lists/${list.id}`)}
+                        className={`cursor-pointer transition-colors duration-150 hover:bg-teal-50/60 ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f0fdfa]/50'}`}
+                      >
+                        <td className="px-5 py-3.5">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center text-violet-600 shrink-0">
+                              <Table2 size={15} />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-semibold text-slate-800 truncate">{list.name}</p>
+                              {list.description && (
+                                <p className="text-[11px] text-slate-400 truncate">{list.description}</p>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <div className="flex items-center gap-2.5">
+                            <span className="text-xs font-bold text-slate-700 w-9 shrink-0">{count}</span>
+                            <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-gradient-to-r from-[#0d9488] to-[#06b6d4] rounded-full transition-all duration-500"
+                                style={{ width: `${(count / maxCount) * 100}%` }}
+                              />
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3.5 text-right">
+                          <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg text-slate-300 hover:text-slate-500 hover:bg-slate-100 transition-all duration-200">
+                            <ChevronRight size={15} />
+                          </span>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            )}
+          </div>
         </section>
 
-        <div className="lg:col-span-4 flex flex-col gap-4 min-h-0">
+        <div className="lg:col-span-5 flex flex-col gap-5 min-h-0">
           <section className="bg-white rounded-2xl shadow-sm border border-[#a9ded6] p-5 shrink-0">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="w-1 h-4 bg-amber-400 rounded-full" />
               <h2 className="font-serif text-sm font-semibold text-[#134e4a]">Acceso rápido</h2>
-              <Zap size={15} className="text-slate-300" />
+              <Zap size={14} className="text-slate-300 ml-auto" />
             </div>
-            <div className="space-y-2.5">
+            <div className="space-y-2">
               <QuickAction
                 icon={<Table2 size={16} />}
                 label="Expedientes"
@@ -254,10 +284,13 @@ export function Dashboard() {
             </div>
           </section>
 
-          {showReports && (
-            <section className="bg-white rounded-2xl shadow-sm border border-[#a9ded6] p-5 flex flex-col min-h-0 flex-1">
-              <div className="flex items-center justify-between mb-4 shrink-0">
-                <h2 className="font-serif text-sm font-semibold text-[#134e4a]">Reportes recientes</h2>
+          {showReports ? (
+            <section className="bg-white rounded-2xl shadow-sm border border-[#a9ded6] flex flex-col min-h-0 flex-1">
+              <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-[#a9ded6] shrink-0">
+                <div className="flex items-center gap-2">
+                  <span className="w-1 h-4 bg-amber-400 rounded-full" />
+                  <h2 className="font-serif text-sm font-semibold text-[#134e4a]">Reportes recientes</h2>
+                </div>
                 <button
                   onClick={() => navigate('/reports')}
                   className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-700 transition-colors duration-200"
@@ -266,7 +299,7 @@ export function Dashboard() {
                   <ArrowRight size={13} />
                 </button>
               </div>
-              <div className="space-y-2 overflow-y-auto min-h-0">
+              <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-2">
                 {recentReports.map((report) => {
                   const badges = filterBadges(report.filters)
                   return (
@@ -298,6 +331,35 @@ export function Dashboard() {
                 })}
               </div>
             </section>
+          ) : (
+            <section className="bg-white rounded-2xl shadow-sm border border-[#a9ded6] p-5 flex-1 flex flex-col">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="w-1 h-4 bg-[#0d9488] rounded-full" />
+                <h2 className="font-serif text-sm font-semibold text-[#134e4a]">Resumen del sistema</h2>
+              </div>
+              <div className="space-y-3 text-sm">
+                <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-[#f0fdfa] border border-[#a9ded6]">
+                  <span className="text-slate-500">Expedientes registrados</span>
+                  <span className="font-bold text-slate-800">{stats.lists}</span>
+                </div>
+                <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-[#f0fdfa] border border-[#a9ded6]">
+                  <span className="text-slate-500">Registros en el banco</span>
+                  <span className="font-bold text-slate-800">{stats.records}</span>
+                </div>
+                {canManageUsers && (
+                  <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-[#f0fdfa] border border-[#a9ded6]">
+                    <span className="text-slate-500">Usuarios activos</span>
+                    <span className="font-bold text-slate-800">{stats.users ?? 0}</span>
+                  </div>
+                )}
+                {canReports && (
+                  <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-[#f0fdfa] border border-[#a9ded6]">
+                    <span className="text-slate-500">Reportes creados</span>
+                    <span className="font-bold text-slate-800">{stats.reports}</span>
+                  </div>
+                )}
+              </div>
+            </section>
           )}
         </div>
       </div>
@@ -305,29 +367,28 @@ export function Dashboard() {
   )
 }
 
-function StatCard({ icon, label, value, caption, iconBg, cardBg, onClick }: {
+function StatCard({ icon, label, value, caption, accent, iconBg, onClick }: {
   icon: React.ReactNode
   label: string
   value: number
   caption?: string
+  accent: string
   iconBg: string
-  cardBg: string
   onClick: () => void
 }) {
   return (
     <button
       onClick={onClick}
-      className={`group relative overflow-hidden rounded-2xl border border-[#a9ded6] ${cardBg} p-5 text-left shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200`}
+      className={`group relative overflow-hidden bg-white rounded-2xl border border-[#a9ded6] border-l-4 ${accent} p-4 text-left shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200`}
     >
       <div className="flex items-start justify-between">
-        <div className={`w-11 h-11 rounded-xl ${iconBg} text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform duration-200`}>
+        <p className="text-2xl font-bold text-slate-900">{value}</p>
+        <div className={`w-9 h-9 rounded-lg ${iconBg} flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shrink-0`}>
           {icon}
         </div>
-        <ArrowRight size={16} className="text-slate-300 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:text-slate-400 transition-all duration-200" />
       </div>
-      <p className="mt-3 text-3xl font-bold text-slate-900">{value}</p>
-      <p className="mt-0.5 text-sm font-semibold text-slate-600">{label}</p>
-      {caption && <p className="text-[11px] text-slate-400 mt-0.5">{caption}</p>}
+      <p className="mt-1 text-xs font-semibold text-slate-600">{label}</p>
+      {caption && <p className="text-[10px] text-slate-400 mt-0.5">{caption}</p>}
     </button>
   )
 }
