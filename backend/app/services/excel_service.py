@@ -125,25 +125,25 @@ def export_to_excel(
 
     row = 1
     if title:
-        ws.column_dimensions["A"].width = 12
+        ws.column_dimensions["A"].width = 13
         if os.path.exists(LOGO_PATH):
             logo = XLImage(LOGO_PATH)
-            logo.width = 84
-            logo.height = 62
+            logo.width = 96
+            logo.height = 71
             ws.add_image(logo, "A1")
 
         ws.merge_cells(f"B{row}:{last_col}{row}")
         c = ws.cell(row=row, column=2, value=institution.upper())
         c.font = Font(bold=True, size=10, color=DARK)
         c.alignment = Alignment(horizontal="center", vertical="center")
-        ws.row_dimensions[row].height = 20
+        ws.row_dimensions[row].height = 24
         row += 1
 
         ws.merge_cells(f"B{row}:{last_col}{row}")
         c = ws.cell(row=row, column=2, value=title)
         c.font = Font(bold=True, size=15, color=PRIMARY)
         c.alignment = Alignment(horizontal="center", vertical="center")
-        ws.row_dimensions[row].height = 22
+        ws.row_dimensions[row].height = 26
         row += 1
 
         ws.merge_cells(f"B{row}:{last_col}{row}")
@@ -154,7 +154,7 @@ def export_to_excel(
         )
         c.font = Font(size=8.5, italic=True, color=MUTED)
         c.alignment = Alignment(horizontal="center", vertical="center")
-        ws.row_dimensions[row].height = 14
+        ws.row_dimensions[row].height = 16
         row += 1
 
         ws.row_dimensions[row].height = 4
