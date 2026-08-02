@@ -106,10 +106,13 @@ export function Layout({ children }: { children: ReactNode }) {
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-[#134e4a] truncate">
                 {(() => {
-                  const parts = user?.full_name?.split(' ') || []
-                  const first = parts[0] || ''
-                  const last = parts[2] || ''
-                  return [first, last]
+                  const raw = user?.full_name || ''
+                  const titleMatch = raw.match(/^(Dr|Dra|Lic)\.?\s+/i)
+                  const title = titleMatch ? titleMatch[0].trim() : ''
+                  const rest = (titleMatch ? raw.slice(titleMatch[0].length) : raw).trim().split(/\s+/).filter(Boolean)
+                  const first = rest[0] || ''
+                  const last = rest.length >= 3 ? rest[2] : rest[1] || ''
+                  return [title, first, last]
                     .filter(Boolean)
                     .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
                     .join(' ')
