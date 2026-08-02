@@ -242,11 +242,6 @@ def export_to_excel(
 
     ws.print_title_rows = f"{header_row}:{header_row}"
 
-    ws.oddHeader.center.text = institution.upper()
-    ws.oddHeader.center.size = 9
-    ws.oddHeader.center.color = DARK
-    ws.oddHeader.center.font = "Calibri"
-
     ws.oddFooter.left.text = f"Generado el {now.strftime('%d/%m/%Y')}"
     ws.oddFooter.left.size = 8
     ws.oddFooter.left.color = MUTED
