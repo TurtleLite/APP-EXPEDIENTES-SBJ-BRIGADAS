@@ -196,12 +196,12 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
   return (
     <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-white/95 rounded-xl w-[96vw] max-w-7xl max-h-[95vh] flex flex-col overflow-hidden">
-        <div className="px-5 py-3 border-b border-[#f0e0c0] flex items-center justify-between shrink-0">
+        <div className="px-5 py-3 border-b border-[#E6E2F2] flex items-center justify-between shrink-0">
           <div>
             <h2 className="text-xl font-bold text-slate-900">{editingRecord ? 'Editar Expediente Médico' : 'Nuevo Expediente Médico'}</h2>
             <p className="text-sm text-slate-500 mt-1">{editingRecord ? 'Modifique los campos necesarios' : 'Complete todas las secciones para crear el registro'}</p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-amber-50 rounded-lg text-slate-400">
+          <button onClick={onClose} className="p-2 hover:bg-indigo-50 rounded-lg text-slate-400">
             ✕
           </button>
         </div>
@@ -210,7 +210,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
           <div className="flex items-center gap-3 mb-1">
             <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-[#b07a40] rounded-full transition-all duration-500"
+                className="h-full bg-[#9B94C9] rounded-full transition-all duration-500"
                 style={{ width: `${pct}%` }}
               />
             </div>
@@ -225,7 +225,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
                 <span
                   key={s.title}
                   className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium transition-colors ${
-                    done ? 'bg-slate-100 text-slate-600' : 'bg-amber-50 text-slate-400'
+                    done ? 'bg-slate-100 text-slate-600' : 'bg-indigo-50 text-slate-400'
                   }`}
                 >
                   {done ? <CheckCircle2 size={12} /> : <Circle size={12} />}
@@ -241,7 +241,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
             const done = isSectionComplete(section, data)
             const isOpen = expanded === section.title
             return (
-              <div key={section.title} className="border border-[#f0e0c0] rounded-xl overflow-hidden">
+              <div key={section.title} className="border border-[#E6E2F2] rounded-xl overflow-hidden">
                 <button
                   type="button"
                   onClick={() => toggleSection(section.title)}
@@ -282,7 +282,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
                                   setValue(field.key, cleaned)
                                 }}
                                 placeholder="Escriba la especialidad"
-                                className="w-full px-3 py-2 border border-[#f0e0c0] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
+                                className="w-full px-3 py-2 border border-[#E6E2F2] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                               />
                               <button
                                 type="button"
@@ -291,7 +291,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
                                   if (v && !especialidades.includes(v)) setValue('especialidad', '')
                                   setCustomEspecialidad(false)
                                 }}
-                                className="text-xs text-[#9c6a36] hover:text-[#7c5636] font-medium"
+                                className="text-xs text-[#8A82BC] hover:text-[#5A5377] font-medium"
                               >
                                 ← Volver a seleccionar de la lista
                               </button>
@@ -307,7 +307,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
                                   setValue(field.key, v)
                                 }
                               }}
-                              className="w-full px-3 py-2 border border-[#f0e0c0] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
+                              className="w-full px-3 py-2 border border-[#E6E2F2] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                             >
                               <option value="">Seleccione una especialidad...</option>
                               {especialidades.map((esp) => (
@@ -320,7 +320,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
                           <select
                             value={data[field.key] || ''}
                             onChange={(e) => setValue(field.key, e.target.value)}
-                            className="w-full px-3 py-2 border border-[#f0e0c0] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
+                            className="w-full px-3 py-2 border border-[#E6E2F2] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                           >
                             <option value="">Seleccione...</option>
                             <option value="baja">Baja</option>
@@ -336,13 +336,13 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
                               setValue(field.key, e.target.value.replace(/\D/g, ''))
                             }}
                             placeholder="Solo números"
-                            className="w-full px-3 py-2 border border-[#f0e0c0] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
+                            className="w-full px-3 py-2 border border-[#E6E2F2] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                           />
                         ) : field.key === 'sexo' ? (
                           <select
                             value={data[field.key] || ''}
                             onChange={(e) => setValue(field.key, e.target.value)}
-                            className="w-full px-3 py-2 border border-[#f0e0c0] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
+                            className="w-full px-3 py-2 border border-[#E6E2F2] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                           >
                             <option value="">Seleccione...</option>
                             <option value="M">M</option>
@@ -362,7 +362,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
                                   const n = e.target.value
                                   setValue('edad', n === '' ? '' : `${n} ${edadUnit}`)
                                 }}
-                                className="flex-1 px-3 py-2 border border-[#f0e0c0] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
+                                className="flex-1 px-3 py-2 border border-[#E6E2F2] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                               />
                               <select
                                 value={edadUnit}
@@ -370,7 +370,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
                                   const u = e.target.value
                                   setValue('edad', edadNum === '' ? '' : `${edadNum} ${u}`)
                                 }}
-                                className="w-28 px-3 py-2 border border-[#f0e0c0] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
+                                className="w-28 px-3 py-2 border border-[#E6E2F2] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                               >
                                 <option value="a">Años</option>
                                 <option value="m">Meses</option>
@@ -381,7 +381,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
                           <select
                             value={data[field.key] || ''}
                             onChange={(e) => setValue(field.key, e.target.value)}
-                            className="w-full px-3 py-2 border border-[#f0e0c0] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
+                            className="w-full px-3 py-2 border border-[#E6E2F2] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                           >
                             <option value="">Seleccione...</option>
                             <option value="1">1</option>
@@ -393,7 +393,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
                           <select
                             value={data[field.key] || ''}
                             onChange={(e) => setValue(field.key, e.target.value)}
-                            className="w-full px-3 py-2 border border-[#f0e0c0] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
+                            className="w-full px-3 py-2 border border-[#E6E2F2] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                           >
                             <option value="">Seleccione...</option>
                             <option value="Si">Si</option>
@@ -403,7 +403,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
                           <select
                             value={data[field.key] || ''}
                             onChange={(e) => setValue(field.key, e.target.value)}
-                            className="w-full px-3 py-2 border border-[#f0e0c0] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
+                            className="w-full px-3 py-2 border border-[#E6E2F2] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                           >
                             <option value="">Seleccione...</option>
                             <option value="En espera">En espera</option>
@@ -425,7 +425,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
                               setValue(field.key, formatted)
                             }}
                             placeholder="0000-0000-00000"
-                            className="w-full px-3 py-2 border border-[#f0e0c0] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
+                            className="w-full px-3 py-2 border border-[#E6E2F2] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                           />
                         ) : field.key.startsWith('telefono') ? (
                           <input
@@ -439,7 +439,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
                               setValue(field.key, formatted)
                             }}
                             placeholder="0000-0000"
-                            className="w-full px-3 py-2 border border-[#f0e0c0] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
+                            className="w-full px-3 py-2 border border-[#E6E2F2] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                           />
                         ) : field.key === 'presion_arterial' ? (
                           <input
@@ -455,7 +455,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
                               setValue(field.key, formatted)
                             }}
                             placeholder="000/000"
-                            className="w-full px-3 py-2 border border-[#f0e0c0] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
+                            className="w-full px-3 py-2 border border-[#E6E2F2] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                           />
                         ) : field.key === 'peso' ? (
                           <div className="relative">
@@ -464,7 +464,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
                               value={(data[field.key] || '').replace(/\s*kg$/, '')}
                               onChange={(e) => setValue(field.key, e.target.value ? `${e.target.value} kg` : '')}
                               placeholder="0 kg"
-                              className="w-full px-3 py-2 pr-10 border border-[#f0e0c0] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
+                              className="w-full px-3 py-2 pr-10 border border-[#E6E2F2] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                             />
                             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">kg</span>
                           </div>
@@ -475,7 +475,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
                               value={(data[field.key] || '').replace(/\s*mts$/, '')}
                               onChange={(e) => setValue(field.key, e.target.value ? `${e.target.value} mts` : '')}
                               placeholder="0.00 mts"
-                              className="w-full px-3 py-2 pr-10 border border-[#f0e0c0] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
+                              className="w-full px-3 py-2 pr-10 border border-[#E6E2F2] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                             />
                             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">mts</span>
                           </div>
@@ -488,7 +488,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
                               const titleCased = val.replace(/\w\S*/g, (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
                               setValue(field.key, titleCased)
                             }}
-                            className="w-full px-3 py-2 border border-[#f0e0c0] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400 resize-none"
+                            className="w-full px-3 py-2 border border-[#E6E2F2] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400 resize-none"
                           />
                         ) : field.key === 'domicilio' ? (
                           <textarea
@@ -502,28 +502,28 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
                               )
                               setValue(field.key, titleCased)
                             }}
-                            className="w-full px-3 py-2 border border-[#f0e0c0] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400 resize-none"
+                            className="w-full px-3 py-2 border border-[#E6E2F2] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400 resize-none"
                           />
                         ) : field.type === 'date' ? (
                           <input
                             type="date"
                             value={data[field.key] || ''}
                             onChange={(e) => setValue(field.key, e.target.value)}
-                            className="w-full px-3 py-2 border border-[#f0e0c0] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
+                            className="w-full px-3 py-2 border border-[#E6E2F2] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                           />
                         ) : field.type === 'number' ? (
                           <input
                             type="number"
                             value={data[field.key] ?? ''}
                             onChange={(e) => setValue(field.key, e.target.value === '' ? '' : Number(e.target.value))}
-                            className="w-full px-3 py-2 border border-[#f0e0c0] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
+                            className="w-full px-3 py-2 border border-[#E6E2F2] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                           />
                         ) : (
                           <textarea
                             rows={field.key === 'domicilio' || field.key === 'historia_enfermedad' || field.key === 'examen_fisico' || field.key === 'diagnostico' ? 3 : 1}
                             value={data[field.key] || ''}
                             onChange={(e) => setValue(field.key, e.target.value)}
-                            className="w-full px-3 py-2 border border-[#f0e0c0] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400 resize-none"
+                            className="w-full px-3 py-2 border border-[#E6E2F2] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400 resize-none"
                           />
                         )}
                       </div>
@@ -535,10 +535,10 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
           })}
         </div>
 
-        <div className="px-5 py-3 border-t border-[#f0e0c0] flex items-center justify-between shrink-0">
+        <div className="px-5 py-3 border-t border-[#E6E2F2] flex items-center justify-between shrink-0">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm text-slate-600 hover:bg-amber-50 rounded-lg"
+            className="px-4 py-2 text-sm text-slate-600 hover:bg-indigo-50 rounded-lg"
           >
             Cancelar
           </button>

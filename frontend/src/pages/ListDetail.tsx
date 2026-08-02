@@ -183,14 +183,14 @@ export function ListDetail() {
     <div className="h-full flex flex-col gap-4">
       <div className="flex items-center justify-between shrink-0">
         <div>
-          <h1 className="font-serif text-2xl font-bold text-[#7c5636]">{list?.name || 'Cargando...'}</h1>
+          <h1 className="font-serif text-2xl font-bold text-[#5A5377]">{list?.name || 'Cargando...'}</h1>
           {list?.description && <p className="text-sm text-slate-600 mt-1">{list.description}</p>}
         </div>
         <div className="flex gap-2">
           {user?.role !== 'direccion' && (list?.is_system ? (
             <button
               onClick={() => { setEditingRecord(null); setShowExpedienteForm(true) }}
-              className="flex items-center gap-1.5 bg-[#b07a40] text-white px-5 py-2.5 rounded-xl hover:bg-[#9c6a36] shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
+              className="flex items-center gap-1.5 bg-[#9B94C9] text-white px-5 py-2.5 rounded-xl hover:bg-[#8A82BC] shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
             >
               <Stethoscope size={16} />
               Nuevo
@@ -204,7 +204,7 @@ export function ListDetail() {
                 setFormData(empty)
                 setShowModal(true)
               }}
-              className="flex items-center gap-1.5 bg-[#b07a40] text-white px-5 py-2.5 rounded-xl hover:bg-[#9c6a36] shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
+              className="flex items-center gap-1.5 bg-[#9B94C9] text-white px-5 py-2.5 rounded-xl hover:bg-[#8A82BC] shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
             >
               <Plus size={16} />
               Nuevo
@@ -213,13 +213,13 @@ export function ListDetail() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-[#f0e0c0] flex flex-col min-h-0 flex-1 transition-shadow duration-200 hover:shadow-md">
-        <div className="p-3 border-b border-[#f0e0c0] space-y-2.5 shrink-0 bg-amber-50/30">
+      <div className="bg-white rounded-xl shadow-sm border border-[#E6E2F2] flex flex-col min-h-0 flex-1 transition-shadow duration-200 hover:shadow-md">
+        <div className="p-3 border-b border-[#E6E2F2] space-y-2.5 shrink-0 bg-indigo-50/30">
         <div className="flex gap-2.5 flex-wrap">
               <select
                 value={searchField}
                 onChange={(e) => setSearchField(e.target.value)}
-                className="px-3 py-2 border border-[#f0e0c0] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                className="px-3 py-2 border border-[#E6E2F2] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               >
                 <option value="">Todos los campos</option>
                 {list?.columns_config.map((col) => (
@@ -233,7 +233,7 @@ export function ListDetail() {
                   placeholder="Buscar..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 border border-[#f0e0c0] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                  className="w-full pl-9 pr-3 py-2 border border-[#E6E2F2] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
                 />
               </div>
             </div>
@@ -242,7 +242,7 @@ export function ListDetail() {
                 <select
                   value={especialidadFilter}
                   onChange={(e) => { setEspecialidadFilter(e.target.value); setSelectedIds(new Set()) }}
-                  className="px-3 py-2 border border-[#f0e0c0] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                  className="px-3 py-2 border border-[#E6E2F2] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
                 >
                 <option value="">Todas las especialidades</option>
                 {especialidades.map((esp) => (
@@ -253,7 +253,7 @@ export function ListDetail() {
                 <div className="flex items-center gap-2 flex-wrap">
                   <button
                     onClick={handleExportSelected}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-[#b07a40] text-white rounded-xl hover:bg-[#9c6a36] shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
+                    className="flex items-center gap-1.5 px-4 py-2 bg-[#9B94C9] text-white rounded-xl hover:bg-[#8A82BC] shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
                   >
                     <Download size={16} />
                     Exportar {selectedIds.size} seleccionados
@@ -261,7 +261,7 @@ export function ListDetail() {
                   {selectedIds.size === 1 && user?.role !== 'direccion' && (
                     <button
                       onClick={handleEditSelected}
-                      className="flex items-center gap-1.5 px-4 py-2 bg-[#b07a40] text-white rounded-xl hover:bg-[#9c6a36] shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
+                      className="flex items-center gap-1.5 px-4 py-2 bg-[#9B94C9] text-white rounded-xl hover:bg-[#8A82BC] shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
                     >
                       <Pencil size={16} />
                       Editar
@@ -285,7 +285,7 @@ export function ListDetail() {
         <div className="flex-1 min-h-0 overflow-y-auto">
           <table className="w-full">
             <thead className="sticky top-0 z-10">
-              <tr className="bg-amber-50 border-b border-[#f0e0c0]">
+              <tr className="bg-indigo-50 border-b border-[#E6E2F2]">
                 {list?.is_system && (
                   <th className="w-10 px-3 py-4">
                     <button onClick={toggleSelectAll} className="text-slate-400 hover:text-slate-600 transition-colors duration-200">
@@ -304,7 +304,7 @@ export function ListDetail() {
             </thead>
             <tbody>
               {records.map((record, idx) => (
-                <tr key={record.id} className={`border-b border-slate-100 transition-all duration-150 hover:bg-slate-100/50 ${selectedIds.has(record.id) ? 'bg-amber-50/30' : idx % 2 === 0 ? 'bg-white' : 'bg-amber-50/20'}`}>
+                <tr key={record.id} className={`border-b border-slate-100 transition-all duration-150 hover:bg-slate-100/50 ${selectedIds.has(record.id) ? 'bg-indigo-50/30' : idx % 2 === 0 ? 'bg-white' : 'bg-indigo-50/20'}`}>
                   {list?.is_system && (
                     <td className="w-10 px-3 py-4">
                       <button onClick={() => toggleSelect(record.id)} className="text-slate-300 hover:text-slate-500 transition-colors duration-200">
@@ -348,7 +348,7 @@ export function ListDetail() {
       {showModal && (
         <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-xl px-5 py-3 w-[95vw] max-w-5xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
-            <h2 className="font-serif text-lg font-bold mb-4 shrink-0 text-[#7c5636]">
+            <h2 className="font-serif text-lg font-bold mb-4 shrink-0 text-[#5A5377]">
               {editingRecord ? 'Editar Registro' : 'Nuevo Registro'}
             </h2>
             <div className="flex-1 overflow-y-auto min-h-0 space-y-3">
@@ -360,21 +360,21 @@ export function ListDetail() {
                       type="date"
                       value={formData[col.key] || ''}
                       onChange={(e) => setFormData({ ...formData, [col.key]: e.target.value })}
-                      className="w-full px-3 py-2.5 border border-[#f0e0c0] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                      className="w-full px-3 py-2.5 border border-[#E6E2F2] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
                     />
                   ) : col.type === 'number' ? (
                     <input
                       type="number"
                       value={formData[col.key] || ''}
                       onChange={(e) => setFormData({ ...formData, [col.key]: e.target.value })}
-                      className="w-full px-3 py-2.5 border border-[#f0e0c0] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                      className="w-full px-3 py-2.5 border border-[#E6E2F2] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
                     />
                   ) : (
                     <input
                       type="text"
                       value={formData[col.key] || ''}
                       onChange={(e) => setFormData({ ...formData, [col.key]: e.target.value })}
-                      className="w-full px-3 py-2.5 border border-[#f0e0c0] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                      className="w-full px-3 py-2.5 border border-[#E6E2F2] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
                     />
                   )}
                 </div>
@@ -384,7 +384,7 @@ export function ListDetail() {
               <button onClick={() => { setShowModal(false); setEditingRecord(null) }} className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-xl transition-all duration-200">
                 Cancelar
               </button>
-              <button onClick={handleSaveRecord} className="px-4 py-2 text-sm bg-[#b07a40] text-white rounded-xl hover:bg-[#9c6a36] shadow-sm hover:shadow-md transition-all duration-200 font-medium">
+              <button onClick={handleSaveRecord} className="px-4 py-2 text-sm bg-[#9B94C9] text-white rounded-xl hover:bg-[#8A82BC] shadow-sm hover:shadow-md transition-all duration-200 font-medium">
                 {editingRecord ? 'Actualizar' : 'Crear'}
               </button>
             </div>
