@@ -181,7 +181,7 @@ def generate_excel_report(
     os.makedirs(settings.REPORTS_DIR, exist_ok=True)
     filepath = os.path.join(settings.REPORTS_DIR, f"reporte_{report.id}.xlsx")
     from app.services.excel_service import export_to_excel
-    export_to_excel(data, columns, filepath)
+    export_to_excel(data, columns, filepath, title=report.name, filters=report.filters, count=len(data))
     report.file_path_excel = filepath
     db.commit()
     return {"message": "Reporte Excel generado", "file_path": filepath, "count": len(data)}

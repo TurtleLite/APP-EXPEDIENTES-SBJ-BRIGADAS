@@ -211,7 +211,7 @@ def export_list_excel(
     data = [r.data for r in records]
     os.makedirs(settings.EXPORTS_DIR, exist_ok=True)
     filepath = os.path.join(settings.EXPORTS_DIR, f"export_lista_{list_id}.xlsx")
-    export_to_excel(data, columns, filepath)
+    export_to_excel(data, columns, filepath, title=ld.name, count=len(data))
     return FileResponse(filepath, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename=f"lista_{ld.name}.xlsx")
 
 
