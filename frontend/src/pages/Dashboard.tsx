@@ -104,7 +104,7 @@ export function Dashboard() {
       <header className="shrink-0">
         <div className="flex items-center justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-[#0f766e] text-xs font-semibold uppercase tracking-[0.2em] truncate">
+            <p className="text-[#b45309] text-xs font-semibold uppercase tracking-[0.2em] truncate">
               Centro Médico San Benito José
             </p>
             <p className="text-slate-400 text-sm capitalize truncate">{hoy}</p>
@@ -128,7 +128,7 @@ export function Dashboard() {
             <button
               key={opt.label}
               onClick={() => (opt.allowed ? opt.onClick() : setDenied(opt.label))}
-              className="flex-1 min-w-[160px] h-40 flex flex-col items-center justify-center gap-2.5 rounded-2xl bg-white border border-slate-100 hover:border-[#a9ded6] hover:shadow-md transition-all duration-200 group"
+              className="flex-1 min-w-[160px] h-40 flex flex-col items-center justify-center gap-2.5 rounded-2xl bg-white border border-slate-100 hover:border-[#fde68a] hover:shadow-md transition-all duration-200 group"
             >
               <div className={`w-11 h-11 rounded-xl ${opt.color} text-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-200`}>
                 {opt.icon}
