@@ -94,66 +94,75 @@ export function Dashboard() {
   const maxCount = Math.max(1, ...Object.values(listCounts))
   const firstName = (user?.full_name?.split(' ')[0] || user?.username || '').replace(/^./, (c) => c.toUpperCase())
 
-  const options: { label: string; icon: React.ReactNode; onClick: () => void }[] = [
+  const options: { label: string; icon: React.ReactNode; color: string; onClick: () => void }[] = [
     {
       label: 'Mi Perfil',
       icon: <UserCircle2 size={16} />,
+      color: 'bg-sky-500',
       onClick: () => navigate('/perfil'),
     },
     ...(role === 'admin' ? [{
       label: 'Usuarios',
       icon: <Users size={16} />,
+      color: 'bg-slate-600',
       onClick: () => navigate('/users'),
     }] : []),
     {
       label: 'Expedientes',
       icon: <Table2 size={16} />,
+      color: 'bg-violet-500',
       onClick: goExpedientes,
     },
     ...(canReports ? [{
       label: 'Reportes',
       icon: <FileText size={16} />,
+      color: 'bg-amber-500',
       onClick: () => navigate('/reports'),
     }] : []),
     ...(role === 'admin' || role === 'direccion' ? [{
       label: 'Estatus Cirugía',
       icon: <Activity size={16} />,
+      color: 'bg-rose-500',
       onClick: () => navigate('/estado-cirugia'),
     }] : []),
   ]
 
-  const statItems: { label: string; value: number; icon: React.ReactNode; onClick: () => void }[] = [
+  const statItems: { label: string; value: number; icon: React.ReactNode; color: string; onClick: () => void }[] = [
     ...(canManageUsers ? [{
       label: 'Usuarios',
       value: stats.users ?? 0,
       icon: <Users size={14} />,
+      color: 'bg-sky-100 text-sky-600',
       onClick: () => navigate('/users'),
     }] : []),
     {
       label: 'Expedientes',
       value: stats.lists,
       icon: <Table2 size={14} />,
+      color: 'bg-violet-100 text-violet-600',
       onClick: goExpedientes,
     },
     {
       label: 'Registros',
       value: stats.records,
       icon: <BarChart3 size={14} />,
+      color: 'bg-emerald-100 text-emerald-600',
       onClick: goExpedientes,
     },
     ...(canReports ? [{
       label: 'Reportes',
       value: stats.reports,
       icon: <FileText size={14} />,
+      color: 'bg-amber-100 text-amber-600',
       onClick: () => navigate('/reports'),
     }] : []),
   ]
 
   const filterBadges = (filters?: Record<string, any>) => {
     const items: { value: string; cls: string }[] = []
-    if (filters?.especialidad) items.push({ value: filters.especialidad, cls: 'bg-teal-50 text-teal-700 border-teal-200' })
-    if (filters?.perfil) items.push({ value: filters.perfil, cls: 'bg-teal-50 text-teal-700 border-teal-200' })
-    if (filters?.estatus_cirugia) items.push({ value: filters.estatus_cirugia, cls: 'bg-teal-50 text-teal-700 border-teal-200' })
+    if (filters?.especialidad) items.push({ value: filters.especialidad, cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' })
+    if (filters?.perfil) items.push({ value: filters.perfil, cls: 'bg-sky-50 text-sky-700 border-sky-200' })
+    if (filters?.estatus_cirugia) items.push({ value: filters.estatus_cirugia, cls: 'bg-violet-50 text-violet-700 border-violet-200' })
     return items
   }
 
@@ -172,8 +181,8 @@ export function Dashboard() {
               <p className="text-slate-400 text-[11px] capitalize truncate">{hoy}</p>
             </div>
           </div>
-          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 border border-teal-200 text-[11px] font-medium text-teal-700 shrink-0">
-            <span className="w-2 h-2 rounded-full bg-[#0d9488] animate-pulse" />
+          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] font-medium text-emerald-700 shrink-0">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             Sesión activa
           </span>
         </div>
@@ -209,7 +218,7 @@ export function Dashboard() {
             onClick={opt.onClick}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-slate-100 hover:border-[#a9ded6] hover:shadow-sm transition-all duration-200 group"
           >
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#0d9488] to-[#0f766e] text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-200">
+            <div className={`w-7 h-7 rounded-lg ${opt.color} text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-200`}>
               {opt.icon}
             </div>
             <span className="text-xs font-semibold text-slate-700">{opt.label}</span>
@@ -224,7 +233,7 @@ export function Dashboard() {
             onClick={s.onClick}
             className="group flex items-center gap-2 hover:opacity-80 transition-opacity duration-200"
           >
-            <span className="w-7 h-7 rounded-lg bg-teal-50 text-[#0f766e] flex items-center justify-center">{s.icon}</span>
+            <span className={`w-7 h-7 rounded-lg ${s.color} flex items-center justify-center`}>{s.icon}</span>
             <span className="text-xl font-bold text-[#0d9488] leading-none">{s.value}</span>
             <span className="text-xs font-medium text-slate-500">{s.label}</span>
           </button>
@@ -261,7 +270,7 @@ export function Dashboard() {
                   onClick={() => navigate(`/lists/${list.id}`)}
                   className="w-full flex items-center gap-3 bg-white rounded-2xl border border-slate-100 border-l-4 border-l-[#0d9488] px-4 py-3 hover:border-[#a9ded6] hover:shadow-sm transition-all duration-200 text-left group"
                 >
-                  <div className="w-9 h-9 rounded-xl bg-teal-50 flex items-center justify-center text-[#0f766e] shrink-0">
+                  <div className="w-9 h-9 rounded-xl bg-violet-100 flex items-center justify-center text-violet-600 shrink-0">
                     <Table2 size={15} />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -308,7 +317,7 @@ export function Dashboard() {
                   onClick={() => navigate('/reports')}
                   className="w-full flex items-center gap-3 bg-white rounded-2xl border border-slate-100 border-l-4 border-l-[#14b8a6] px-4 py-3 hover:border-[#a9ded6] hover:shadow-sm transition-all duration-200 text-left group"
                 >
-                  <div className="w-9 h-9 rounded-xl bg-teal-50 flex items-center justify-center text-[#0f766e] shrink-0">
+                  <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
                     <FileSpreadsheet size={15} />
                   </div>
                   <div className="flex-1 min-w-0">
