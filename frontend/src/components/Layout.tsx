@@ -22,13 +22,28 @@ interface NavItem {
   roles: string[]
 }
 
-const navItems: NavItem[] = [
-  { label: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={18} />, roles: ['admin', 'direccion', 'direccion_medica', 'medico'] },
-  { label: 'Mi Perfil', path: '/perfil', icon: <UserCircle2 size={18} />, roles: ['admin', 'direccion', 'direccion_medica', 'medico'] },
-  { label: 'Usuarios', path: '/users', icon: <Users size={18} />, roles: ['admin'] },
-  { label: 'Expedientes', path: '/lists', icon: <Table2 size={18} />, roles: ['admin', 'direccion', 'direccion_medica', 'medico'] },
-  { label: 'Reportes', path: '/reports', icon: <FileText size={18} />, roles: ['admin', 'direccion', 'direccion_medica'] },
-  { label: 'Estatus Cirugía', path: '/estado-cirugia', icon: <Activity size={18} />, roles: ['admin', 'direccion'] },
+interface NavSection {
+  title: string
+  items: NavItem[]
+}
+
+const navSections: NavSection[] = [
+  {
+    title: 'Principal',
+    items: [
+      { label: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={18} />, roles: ['admin', 'direccion', 'direccion_medica', 'medico'] },
+      { label: 'Mi Perfil', path: '/perfil', icon: <UserCircle2 size={18} />, roles: ['admin', 'direccion', 'direccion_medica', 'medico'] },
+      { label: 'Usuarios', path: '/users', icon: <Users size={18} />, roles: ['admin'] },
+      { label: 'Expedientes', path: '/lists', icon: <Table2 size={18} />, roles: ['admin', 'direccion', 'direccion_medica', 'medico'] },
+    ],
+  },
+  {
+    title: 'Reportes',
+    items: [
+      { label: 'Reportes', path: '/reports', icon: <FileText size={18} />, roles: ['admin', 'direccion', 'direccion_medica'] },
+      { label: 'Estatus Cirugía', path: '/estado-cirugia', icon: <Activity size={18} />, roles: ['admin', 'direccion'] },
+    ],
+  },
 ]
 
 export function Layout({ children }: { children: ReactNode }) {
@@ -88,27 +103,34 @@ export function Layout({ children }: { children: ReactNode }) {
           <img src="/logo_sbj.png" alt="Logo SBJ Cirugias" className="w-28 h-auto mx-auto" />
         </div>
         <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
-          {navItems.map((item) => {
-            const target = item.path === '/lists' && systemListId ? `/lists/${systemListId}` : item.path
-            const isActive = location.pathname === target || (item.path === '/lists' && location.pathname.startsWith('/lists'))
-            return (
-              <button
-                key={item.path}
-                onClick={() => handleNavClick(item)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 relative ${
-                  isActive
-                    ? 'bg-[#fef3c7] text-[#7c5636]'
-                    : 'text-[#8f6a48] hover:text-[#7c5636] hover:bg-[#fffbeb]'
-                }`}
-              >
-                {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-[#d99a50] rounded-full" />}
-                <span className={`transition-transform duration-200 ${isActive ? 'scale-110' : ''}`}>
-                  {item.icon}
-                </span>
-                {item.label}
-              </button>
-            )
-          })}
+          {navSections.map((section) => (
+            <div key={section.title} className="mb-2">
+              <p className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-[#c8a27a]">
+                {section.title}
+              </p>
+              {section.items.map((item) => {
+                const target = item.path === '/lists' && systemListId ? `/lists/${systemListId}` : item.path
+                const isActive = location.pathname === target || (item.path === '/lists' && location.pathname.startsWith('/lists'))
+                return (
+                  <button
+                    key={item.path}
+                    onClick={() => handleNavClick(item)}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 relative ${
+                      isActive
+                        ? 'bg-[#fef3c7] text-[#7c5636]'
+                        : 'text-[#8f6a48] hover:text-[#7c5636] hover:bg-[#fffbeb]'
+                    }`}
+                  >
+                    {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-[#d99a50] rounded-full" />}
+                    <span className={`transition-transform duration-200 ${isActive ? 'scale-110' : ''}`}>
+                      {item.icon}
+                    </span>
+                    {item.label}
+                  </button>
+                )
+              })}
+            </div>
+          ))}
         </nav>
         <div className="p-4 border-t border-[#f0e0c0]">
           <button

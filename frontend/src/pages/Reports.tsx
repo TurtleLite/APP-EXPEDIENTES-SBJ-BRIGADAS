@@ -16,7 +16,7 @@ interface PreviewData {
 
 export function Reports() {
   const [reports, setReports] = useState<Report[]>([])
-  const [lists, setLists] = useState<ListDefinition[]>([])
+  const [systemListId, setSystemListId] = useState<string>('')
   const [especialidades, setEspecialidades] = useState<string[]>([])
   const [perfiles, setPerfiles] = useState<string[]>([])
   const [showModal, setShowModal] = useState(false)
@@ -54,13 +54,12 @@ export function Reports() {
   const loadLists = async () => {
     try {
       const res = await listsApi.list()
-      setLists(res.data)
       const systemList = res.data.find((l: ListDefinition) => l.is_system)
-      const defaultList = systemList || res.data[0]
-      if (defaultList) {
-        setForm((f) => ({ ...f, list_definition_id: defaultList.id }))
-        loadEspecialidades(defaultList.id)
-        loadPerfiles(defaultList.id)
+      if (systemList) {
+        setSystemListId(systemList.id)
+        setForm((f) => ({ ...f, list_definition_id: systemList.id }))
+        loadEspecialidades(systemList.id)
+        loadPerfiles(systemList.id)
       }
     } catch (err) { console.error(err) }
   }
@@ -72,10 +71,14 @@ export function Reports() {
       toast('El nombre del reporte es obligatorio', 'error')
       return
     }
+    if (!systemListId) {
+      toast('No se encontró la lista de expedientes', 'error')
+      return
+    }
     try {
       await reportsApi.create({
         ...form,
-        list_definition_id: form.list_definition_id || undefined,
+        list_definition_id: systemListId,
         filters: {
           especialidad: form.especialidad || undefined,
           perfil: form.perfil || undefined,
@@ -83,7 +86,7 @@ export function Reports() {
         },
       })
       setShowModal(false)
-      setForm({ name: '', description: '', list_definition_id: '', especialidad: '', perfil: '', estatus_cirugia: '', columns_selected: [] })
+      setForm({ name: '', description: '', list_definition_id: systemListId, especialidad: '', perfil: '', estatus_cirugia: '', columns_selected: [] })
       setEspecialidades([])
       setPerfiles([])
       loadReports()
@@ -300,20 +303,6 @@ export function Reports() {
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
                 className="w-full px-3 py-2.5 border border-[#f0e0c0] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               />
-              <select
-                value={form.list_definition_id}
-                onChange={(e) => {
-                  const v = e.target.value
-                  setForm({ ...form, list_definition_id: v, especialidad: '', perfil: '' })
-                  if (v) { loadEspecialidades(v); loadPerfiles(v) }
-                }}
-                className="w-full px-3 py-2.5 border border-[#f0e0c0] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
-              >
-                <option value="">Seleccionar lista</option>
-                {lists.map((l) => (
-                  <option key={l.id} value={l.id}>{l.name}</option>
-                ))}
-              </select>
 
               <div className="border border-[#f0e0c0] rounded-xl p-3 space-y-3 bg-[#fffbeb]/50">
                 <p className="text-xs font-semibold text-[#9c6a36] uppercase tracking-wider">Filtros</p>
