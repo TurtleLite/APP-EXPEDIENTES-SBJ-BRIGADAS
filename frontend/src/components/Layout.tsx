@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { listsApi } from '../services/api'
 import {
-  LayoutDashboard, Users, FileText, Table2, LogOut, Activity, UserCircle2,
+  LayoutDashboard, Users, FileText, Table2, LogOut, Activity, UserCircle2, Lock,
 } from 'lucide-react'
 import { ROLE_META } from '../constants'
 import { RoleAvatar } from './RoleAvatar'
@@ -35,8 +35,13 @@ export function Layout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
+  const [denied, setDenied] = useState<string | null>(null)
 
-  const filteredNav = navItems.filter(item => item.roles.includes(user?.role || ''))
+  useEffect(() => {
+    if (!denied) return
+    const t = setTimeout(() => setDenied(null), 3500)
+    return () => clearTimeout(t)
+  }, [denied])
 
   const [systemListId, setSystemListId] = useState<string | null>(null)
   useEffect(() => {
@@ -49,6 +54,10 @@ export function Layout({ children }: { children: ReactNode }) {
   }, [])
 
   const handleNavClick = (item: NavItem) => {
+    if (!item.roles.includes(user?.role || '')) {
+      setDenied(item.label)
+      return
+    }
     if (item.path !== '/lists') {
       navigate(item.path)
       return
@@ -67,13 +76,19 @@ export function Layout({ children }: { children: ReactNode }) {
 
   return (
     <div className="h-screen bg-[#f0fdfa] flex overflow-hidden">
+      {denied && (
+        <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 flex items-center gap-2.5 bg-rose-50 border-2 border-rose-200 text-rose-700 px-5 py-4 rounded-xl shadow-xl animate-pulse">
+          <Lock size={16} className="shrink-0" />
+          <p className="text-sm font-semibold">No tienes acceso a {denied}</p>
+        </div>
+      )}
       <aside className="w-48 bg-white flex flex-col shrink-0 h-screen sticky top-0 shadow-lg">
         <div className="p-5 border-b border-[#a9ded6] text-center">
           <h1 className="text-sm font-bold text-[#134e4a] mb-3 tracking-wide">EXPEDIENTES SBJ</h1>
           <img src="/logo_sbj.png" alt="Logo SBJ Cirugias" className="w-28 h-auto mx-auto" />
         </div>
         <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
-          {filteredNav.map((item) => {
+          {navItems.map((item) => {
             const target = item.path === '/lists' && systemListId ? `/lists/${systemListId}` : item.path
             const isActive = location.pathname === target || (item.path === '/lists' && location.pathname.startsWith('/lists'))
             return (
