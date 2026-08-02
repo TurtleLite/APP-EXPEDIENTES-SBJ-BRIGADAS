@@ -19,7 +19,7 @@ const capitalizeName = (value: string) =>
 
 const TITLE_RE = /^(Dr|Dra|Lic)\.?\s+(.*)$/i
 
-const emptyForm = () => ({ username: '', telefono: '', full_name: '', password: '', role: 'medico', titulo: '' })
+const emptyForm = () => ({ username: '', telefono: '', nombres: '', apellidos: '', password: '', role: 'medico', titulo: '' })
 
 export function Users() {
   const [users, setUsers] = useState<User[]>([])
@@ -43,8 +43,8 @@ export function Users() {
   const handleSave = async () => {
     try {
       const payload: any = { ...form }
-      const name = (payload.full_name || '').trim()
-      payload.full_name = payload.titulo ? `${payload.titulo}. ${name}` : name
+      const fullName = [payload.nombres, payload.apellidos].map((p) => (p || '').trim()).filter(Boolean).join(' ')
+      payload.full_name = payload.titulo ? `${payload.titulo}. ${fullName}` : fullName
       if (editingUser && !payload.password) delete payload.password
       if (editingUser) {
         await usersApi.update(editingUser.id, payload)
@@ -73,11 +73,14 @@ export function Users() {
 
   const openEdit = (user: User) => {
     const match = user.full_name.match(TITLE_RE)
+    const name = (match ? match[2] : user.full_name).trim().split(/\s+/).filter(Boolean)
+    const half = Math.ceil(name.length / 2)
     setEditingUser(user)
     setForm({
       username: user.username,
       telefono: user.telefono,
-      full_name: match ? match[2] : user.full_name,
+      nombres: name.slice(0, half).join(' '),
+      apellidos: name.slice(half).join(' '),
       password: '',
       role: user.role,
       titulo: match ? match[1].charAt(0).toUpperCase() + match[1].slice(1) : '',
@@ -184,12 +187,18 @@ export function Users() {
                   <option value="Lic">Lic</option>
                 </select>
                 <input
-                  placeholder="Nombre completo"
-                  value={form.full_name}
-                  onChange={(e) => setForm({ ...form, full_name: capitalizeName(e.target.value) })}
+                  placeholder="Nombres"
+                  value={form.nombres}
+                  onChange={(e) => setForm({ ...form, nombres: capitalizeName(e.target.value) })}
                   className="flex-1 min-w-0 px-3 py-2.5 border border-[#a9ded6] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
                 />
               </div>
+              <input
+                placeholder="Apellidos"
+                value={form.apellidos}
+                onChange={(e) => setForm({ ...form, apellidos: capitalizeName(e.target.value) })}
+                className="w-full px-3 py-2.5 border border-[#a9ded6] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+              />
               <input
                 placeholder="Usuario"
                 value={form.username}
