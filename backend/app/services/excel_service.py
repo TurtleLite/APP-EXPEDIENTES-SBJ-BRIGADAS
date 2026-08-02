@@ -1,4 +1,5 @@
 import datetime
+import math
 import os
 from typing import Dict, List, Optional
 from sqlalchemy.orm import Session
@@ -42,16 +43,16 @@ def _thin_border(color: str = BORDER):
 
 
 KNOWN_WIDTHS = {
-    "No": 4,
-    "Nombre/Name": 33,
-    "Age": 5,
-    "Diagnostic/Procedure": 22,
-    "Pf": 4,
-    "Origin": 18,
-    "Phone NO.": 12,
-    "Housing": 7,
-    "Chart": 9,
-    "Referred by": 16,
+    "No": 4.0,
+    "Nombre/Name": 32.81,
+    "Age": 5.3,
+    "Diagnostic/Procedure": 22.0,
+    "Pf": 4.43,
+    "Origin": 17.86,
+    "Phone NO.": 11.57,
+    "Housing": 6.7,
+    "Chart": 8.72,
+    "Referred by": 15.86,
 }
 
 
@@ -115,32 +116,33 @@ def export_to_excel(
     ws.title = "Reporte"
 
     ncols = len(columns)
-    last_col = get_column_letter(ncols)
+    data_col0 = 2 if title else 1
+    last_col = get_column_letter(ncols + (1 if title else 0))
     now = datetime.datetime.now()
 
     ws.sheet_view.showGridLines = False
 
     row = 1
     if title:
-        ws.column_dimensions["A"].width = 13
+        ws.column_dimensions["A"].width = 10
         if os.path.exists(LOGO_PATH):
             logo = XLImage(LOGO_PATH)
-            logo.width = 83
-            logo.height = 62
+            logo.width = 66
+            logo.height = 50
             ws.add_image(logo, "A1")
 
         ws.merge_cells(f"B{row}:{last_col}{row}")
         c = ws.cell(row=row, column=2, value=institution)
-        c.font = Font(bold=True, size=12, color=DARK)
+        c.font = Font(bold=True, size=10, color=DARK)
         c.alignment = Alignment(horizontal="left", vertical="center")
-        ws.row_dimensions[row].height = 24
+        ws.row_dimensions[row].height = 18
         row += 1
 
         ws.merge_cells(f"B{row}:{last_col}{row}")
         c = ws.cell(row=row, column=2, value=title)
-        c.font = Font(bold=True, size=16, color=PRIMARY)
+        c.font = Font(bold=True, size=13, color=PRIMARY)
         c.alignment = Alignment(horizontal="left", vertical="center")
-        ws.row_dimensions[row].height = 24
+        ws.row_dimensions[row].height = 20
         row += 1
 
         ws.merge_cells(f"B{row}:{last_col}{row}")
@@ -149,9 +151,9 @@ def export_to_excel(
             column=2,
             value=f"Generado el {now.strftime('%d/%m/%Y %H:%M')}  ·  Total de registros: {count if count is not None else len(records)}",
         )
-        c.font = Font(size=9, italic=True, color=MUTED)
+        c.font = Font(size=8, italic=True, color=MUTED)
         c.alignment = Alignment(horizontal="left", vertical="center")
-        ws.row_dimensions[row].height = 16
+        ws.row_dimensions[row].height = 14
         row += 1
 
         row += 1  # spacer
@@ -159,7 +161,7 @@ def export_to_excel(
         ws.merge_cells(f"A{row}:{last_col}{row}")
         c = ws.cell(row=row, column=1)
         c.fill = PatternFill(start_color=PRIMARY, end_color=PRIMARY, fill_type="solid")
-        ws.row_dimensions[row].height = 3
+        ws.row_dimensions[row].height = 2
         row += 1
 
         row += 1  # spacer
@@ -168,40 +170,46 @@ def export_to_excel(
         if filter_text != "Sin filtros":
             ws.merge_cells(f"A{row}:{last_col}{row}")
             c = ws.cell(row=row, column=1, value=f"Filtros aplicados: {filter_text}")
-            c.font = Font(size=9, color=DARK)
+            c.font = Font(size=8, color=DARK)
             c.fill = PatternFill(start_color=ALT_ROW, end_color=ALT_ROW, fill_type="solid")
             c.alignment = Alignment(horizontal="left", vertical="center")
             c.border = _thin_border()
-            ws.row_dimensions[row].height = 16
+            ws.row_dimensions[row].height = 14
             row += 1
             row += 1  # spacer
 
     header_row = row
 
+    widths = _content_widths(records, columns)
+    for i, w in enumerate(widths, data_col0):
+        ws.column_dimensions[get_column_letter(i)].width = w
+
     for col_idx, col_name in enumerate(columns, 1):
-        cell = ws.cell(row=header_row, column=col_idx, value=col_name)
+        col = col_idx + (1 if title else 0)
+        cell = ws.cell(row=header_row, column=col, value=col_name)
         cell.fill = PatternFill(start_color=PRIMARY, end_color=PRIMARY, fill_type="solid")
         cell.font = Font(color="FFFFFF", bold=True, size=10)
         cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
         cell.border = _thin_border()
-    ws.row_dimensions[header_row].height = 22
+    ws.row_dimensions[header_row].height = 18
 
     for data_idx, record in enumerate(records, header_row + 1):
+        max_lines = 1
         for col_idx, col_name in enumerate(columns, 1):
+            col = col_idx + (1 if title else 0)
             val = record.get(col_name, "")
-            cell = ws.cell(row=data_idx, column=col_idx, value=val)
+            cell = ws.cell(row=data_idx, column=col, value=val)
             cell.border = _thin_border()
             cell.font = Font(size=10, color="444B54")
             cell.alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
             if (data_idx - header_row) % 2 == 0:
                 cell.fill = PatternFill(start_color=ALT_ROW, end_color=ALT_ROW, fill_type="solid")
+            lines = math.ceil((len(str(val)) + 1) / max(1.0, widths[col_idx - 1] - 1))
+            max_lines = max(max_lines, lines)
+        ws.row_dimensions[data_idx].height = 15 if max_lines == 1 else 15 + (max_lines - 1) * 13.5
 
-    widths = _content_widths(records, columns)
-    start_col = 2 if title else 1
-    for i, w in enumerate(widths, start_col):
-        ws.column_dimensions[get_column_letter(i)].width = w
-
-    ws.auto_filter.ref = f"{get_column_letter(1)}{header_row}:{last_col}{header_row + len(records)}"
+    first_col = get_column_letter(data_col0)
+    ws.auto_filter.ref = f"{first_col}{header_row}:{last_col}{header_row + len(records)}"
     ws.freeze_panes = ws.cell(row=header_row + 1, column=1)
 
     ws.page_setup.paperSize = 1  # Carta (Letter) 8.5" x 11"
@@ -212,6 +220,8 @@ def export_to_excel(
     ws.page_margins.right = 0.4
     ws.page_margins.top = 0.7
     ws.page_margins.bottom = 0.7
+
+    ws.print_title_rows = f"{header_row}:{header_row}"
 
     ws.oddHeader.center.text = institution
     ws.oddHeader.center.size = 9
