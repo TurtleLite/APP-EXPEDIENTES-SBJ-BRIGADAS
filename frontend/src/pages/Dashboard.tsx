@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { listsApi, reportsApi } from '../services/api'
 import {
-  Users, FileText, Table2, ChevronRight, FileSpreadsheet,
+  Users, FileText, Table2, ChevronRight, FileSpreadsheet, Lock,
   UserCircle2, Activity,
 } from 'lucide-react'
 import type { ListDefinition, Report } from '../types'
@@ -22,6 +22,13 @@ export function Dashboard() {
   const [recentReports, setRecentReports] = useState<Report[]>([])
   const [listCounts, setListCounts] = useState<Record<string, number>>({})
   const [systemListId, setSystemListId] = useState<string | null>(null)
+  const [denied, setDenied] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!denied) return
+    const t = setTimeout(() => setDenied(null), 3500)
+    return () => clearTimeout(t)
+  }, [denied])
 
   const role = user?.role || 'medico'
   const canManageUsers = role === 'admin'
@@ -78,37 +85,42 @@ export function Dashboard() {
   const showReports = canReports && recentReports.length > 0
   const maxCount = Math.max(1, ...Object.values(listCounts))
 
-  const options: { label: string; icon: React.ReactNode; color: string; onClick: () => void }[] = [
+  const options: { label: string; icon: React.ReactNode; color: string; allowed: boolean; onClick: () => void }[] = [
     {
       label: 'Mi Perfil',
       icon: <UserCircle2 size={18} />,
       color: 'bg-sky-500',
+      allowed: true,
       onClick: () => navigate('/perfil'),
     },
-    ...(role === 'admin' ? [{
+    {
       label: 'Usuarios',
       icon: <Users size={18} />,
       color: 'bg-slate-600',
+      allowed: role === 'admin',
       onClick: () => navigate('/users'),
-    }] : []),
+    },
     {
       label: 'Expedientes',
       icon: <Table2 size={18} />,
       color: 'bg-violet-500',
+      allowed: true,
       onClick: goExpedientes,
     },
-    ...(canReports ? [{
+    {
       label: 'Reportes',
       icon: <FileText size={18} />,
       color: 'bg-amber-500',
+      allowed: canReports,
       onClick: () => navigate('/reports'),
-    }] : []),
-    ...(role === 'admin' || role === 'direccion' ? [{
+    },
+    {
       label: 'Estatus Cirugía',
       icon: <Activity size={18} />,
       color: 'bg-rose-500',
+      allowed: role === 'admin' || role === 'direccion',
       onClick: () => navigate('/estado-cirugia'),
-    }] : []),
+    },
   ]
 
   const filterBadges = (filters?: Record<string, any>) => {
@@ -121,6 +133,12 @@ export function Dashboard() {
 
   return (
     <div className="h-full overflow-y-auto pr-1">
+      {denied && (
+        <div className="fixed top-4 right-4 z-50 flex items-center gap-2.5 bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-xl shadow-lg animate-pulse">
+          <Lock size={16} className="shrink-0" />
+          <p className="text-sm font-semibold">No tienes acceso a {denied}</p>
+        </div>
+      )}
       <header className="shrink-0">
         <div className="flex items-center justify-between gap-4">
           <div className="min-w-0">
@@ -143,7 +161,7 @@ export function Dashboard() {
         {options.map((opt) => (
           <button
             key={opt.label}
-            onClick={opt.onClick}
+            onClick={() => (opt.allowed ? opt.onClick() : setDenied(opt.label))}
             className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-white border border-slate-100 hover:border-[#a9ded6] hover:shadow-sm transition-all duration-200 group"
           >
             <div className={`w-8 h-8 rounded-lg ${opt.color} text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-200`}>
