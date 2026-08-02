@@ -19,13 +19,14 @@ export function Reports() {
   const [systemListId, setSystemListId] = useState<string>('')
   const [especialidades, setEspecialidades] = useState<string[]>([])
   const [perfiles, setPerfiles] = useState<string[]>([])
+  const [criticidades, setCriticidades] = useState<string[]>([])
   const [showModal, setShowModal] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [preview, setPreview] = useState<PreviewData | null>(null)
   const [loadingPreview, setLoadingPreview] = useState(false)
   const [form, setForm] = useState({
     name: '', description: '', list_definition_id: '', especialidad: '', perfil: '',
-    estatus_cirugia: '', columns_selected: [] as string[],
+    criticidad: '', estatus_cirugia: '', columns_selected: [] as string[],
   })
   const { user } = useAuth()
   const { toast } = useNotification()
@@ -44,6 +45,13 @@ export function Reports() {
     } catch { setPerfiles([]) }
   }
 
+  const loadCriticidades = async (listId: string) => {
+    try {
+      const res = await listsApi.getFieldValues(listId, 'criticidad')
+      setCriticidades(res.data || [])
+    } catch { setCriticidades([]) }
+  }
+
   const loadReports = async () => {
     try {
       const res = await reportsApi.list()
@@ -60,6 +68,7 @@ export function Reports() {
         setForm((f) => ({ ...f, list_definition_id: systemList.id }))
         loadEspecialidades(systemList.id)
         loadPerfiles(systemList.id)
+        loadCriticidades(systemList.id)
       }
     } catch (err) { console.error(err) }
   }
@@ -82,13 +91,15 @@ export function Reports() {
         filters: {
           especialidad: form.especialidad || undefined,
           perfil: form.perfil || undefined,
+          criticidad: form.criticidad || undefined,
           estatus_cirugia: form.estatus_cirugia || undefined,
         },
       })
       setShowModal(false)
-      setForm({ name: '', description: '', list_definition_id: systemListId, especialidad: '', perfil: '', estatus_cirugia: '', columns_selected: [] })
+      setForm({ name: '', description: '', list_definition_id: systemListId, especialidad: '', perfil: '', criticidad: '', estatus_cirugia: '', columns_selected: [] })
       setEspecialidades([])
       setPerfiles([])
+      setCriticidades([])
       loadReports()
     } catch (err: any) {
       toast(err.response?.data?.detail || 'Error al crear reporte', 'error')
@@ -150,6 +161,7 @@ export function Reports() {
     const items: { label: string; value: string; cls: string }[] = []
     if (filters?.especialidad) items.push({ label: 'Especialidad', value: filters.especialidad, cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' })
     if (filters?.perfil) items.push({ label: 'Perfil', value: filters.perfil, cls: 'bg-sky-50 text-sky-700 border-sky-200' })
+    if (filters?.criticidad) items.push({ label: 'Criticidad', value: filters.criticidad, cls: 'bg-rose-50 text-rose-700 border-rose-200' })
     if (filters?.estatus_cirugia) items.push({ label: 'Estatus', value: filters.estatus_cirugia, cls: 'bg-violet-50 text-violet-700 border-violet-200' })
     return items
   }
@@ -327,6 +339,17 @@ export function Reports() {
                     <option value="">Perfil (todos)</option>
                     {perfiles.map((p) => (
                       <option key={p} value={p}>{p}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={form.criticidad}
+                    onChange={(e) => setForm({ ...form, criticidad: e.target.value })}
+                    disabled={!form.list_definition_id}
+                    className="w-full px-3 py-2.5 border border-[#f0e0c0] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200 disabled:opacity-50"
+                  >
+                    <option value="">Criticidad clínica (todas)</option>
+                    {criticidades.map((c) => (
+                      <option key={c} value={c}>{c}</option>
                     ))}
                   </select>
                   <select

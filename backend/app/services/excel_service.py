@@ -16,6 +16,7 @@ MUTED = "9C9C9C"
 FILTER_LABELS = {
     "especialidad": "Especialidad",
     "perfil": "Perfil",
+    "criticidad": "Criticidad Clínica",
     "estatus_cirugia": "Estatus de cirugía",
 }
 

@@ -24,6 +24,7 @@ MUTED = colors.HexColor("#8A8378")
 FILTER_LABELS = {
     "especialidad": "Especialidad",
     "perfil": "Perfil",
+    "criticidad": "Criticidad Clínica",
     "estatus_cirugia": "Estatus de cirugía",
 }
 
