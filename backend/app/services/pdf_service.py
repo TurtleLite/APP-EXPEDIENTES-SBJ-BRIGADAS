@@ -7,8 +7,10 @@ from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import mm
 from reportlab.lib.enums import TA_LEFT, TA_CENTER
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
 from reportlab.pdfgen import canvas as pdfcanvas
+
+LOGO_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "logo_sbj.png")
 
 PRIMARY = colors.HexColor("#6E7B91")
 DARK = colors.HexColor("#3F4650")
@@ -119,7 +121,8 @@ def export_to_pdf(
         leading=19, spaceBefore=2,
     )
     meta_style = ParagraphStyle(
-        "Meta", parent=styles["Normal"], fontSize=9, textColor=MUTED, leading=11, spaceBefore=5,
+        "Meta", parent=styles["Normal"], fontName="Helvetica-Oblique", fontSize=9, textColor=MUTED,
+        leading=11, spaceBefore=5,
     )
     cell_style = ParagraphStyle(
         "Cell", parent=styles["Normal"], fontName="Helvetica", fontSize=10, leading=12,
@@ -130,20 +133,36 @@ def export_to_pdf(
         textColor=colors.white, alignment=TA_CENTER,
     )
     filt_style = ParagraphStyle(
-        "Filt", parent=cell_style, fontSize=9, leading=11,
+        "Filt", parent=cell_style, fontSize=9, leading=11, textColor=DARK,
     )
 
     elements = []
 
+    if os.path.exists(LOGO_PATH):
+        img = Image(LOGO_PATH, width=22 * mm, height=16.5 * mm)
+        img.hAlign = "LEFT"
+    else:
+        img = Paragraph("", styles["Normal"])
+
     now = datetime.datetime.now()
-    elements.append(Paragraph(institution, inst_style))
-    elements.append(Paragraph(title, title_style))
-    elements.append(
+    right_cell = [
+        Paragraph(institution, inst_style),
+        Paragraph(title, title_style),
         Paragraph(
             f"Generado el {now.strftime('%d/%m/%Y %H:%M')}  ·  Total de registros: {count if count is not None else len(records)}",
             meta_style,
-        )
-    )
+        ),
+    ]
+
+    header_table = Table([[img, right_cell]], colWidths=[24 * mm, None])
+    header_table.setStyle(TableStyle([
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 0),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+        ("TOPPADDING", (0, 0), (-1, -1), 0),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+    ]))
+    elements.append(header_table)
     elements.append(Spacer(1, 4 * mm))
 
     sep = Table([[""]], colWidths=[page[0] - 32 * mm], rowHeights=[1.6])
@@ -154,7 +173,7 @@ def export_to_pdf(
     filter_text = _format_filters(filters)
     if filter_text != "Sin filtros":
         filt_row = Table(
-            [[Paragraph(f"<b>Filtros aplicados:</b> {filter_text}", filt_style)]],
+            [[Paragraph(f"Filtros aplicados: {filter_text}", filt_style)]],
             colWidths=[page[0] - 32 * mm],
         )
         filt_row.setStyle(TableStyle([

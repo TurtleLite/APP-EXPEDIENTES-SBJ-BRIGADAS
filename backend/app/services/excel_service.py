@@ -1,4 +1,5 @@
 import datetime
+import os
 from typing import Dict, List, Optional
 from sqlalchemy.orm import Session
 from app.models.list_definition import ListDefinition, ListRecord
@@ -6,6 +7,9 @@ from app.models.list_definition import ListDefinition, ListRecord
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
+from openpyxl.drawing.image import Image as XLImage
+
+LOGO_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "logo_sbj.png")
 
 PRIMARY = "6E7B91"
 DARK = "3F4650"
@@ -102,24 +106,31 @@ def export_to_excel(
 
     row = 1
     if title:
-        ws.merge_cells(f"A{row}:{last_col}{row}")
-        c = ws.cell(row=row, column=1, value=institution)
+        ws.column_dimensions["A"].width = 13
+        if os.path.exists(LOGO_PATH):
+            logo = XLImage(LOGO_PATH)
+            logo.width = 83
+            logo.height = 62
+            ws.add_image(logo, "A1")
+
+        ws.merge_cells(f"B{row}:{last_col}{row}")
+        c = ws.cell(row=row, column=2, value=institution)
         c.font = Font(bold=True, size=12, color=DARK)
         c.alignment = Alignment(horizontal="left", vertical="center")
         ws.row_dimensions[row].height = 24
         row += 1
 
-        ws.merge_cells(f"A{row}:{last_col}{row}")
-        c = ws.cell(row=row, column=1, value=title)
+        ws.merge_cells(f"B{row}:{last_col}{row}")
+        c = ws.cell(row=row, column=2, value=title)
         c.font = Font(bold=True, size=16, color=PRIMARY)
         c.alignment = Alignment(horizontal="left", vertical="center")
         ws.row_dimensions[row].height = 24
         row += 1
 
-        ws.merge_cells(f"A{row}:{last_col}{row}")
+        ws.merge_cells(f"B{row}:{last_col}{row}")
         c = ws.cell(
             row=row,
-            column=1,
+            column=2,
             value=f"Generado el {now.strftime('%d/%m/%Y %H:%M')}  ·  Total de registros: {count if count is not None else len(records)}",
         )
         c.font = Font(size=9, italic=True, color=MUTED)
@@ -164,14 +175,15 @@ def export_to_excel(
             val = record.get(col_name, "")
             cell = ws.cell(row=data_idx, column=col_idx, value=val)
             cell.border = _thin_border()
-            cell.font = Font(size=10)
+            cell.font = Font(size=10, color="444B54")
             cell.alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
             if (data_idx - header_row) % 2 == 0:
                 cell.fill = PatternFill(start_color=ALT_ROW, end_color=ALT_ROW, fill_type="solid")
 
     widths = _content_widths(records, columns)
-    for col_idx, w in enumerate(widths, 1):
-        ws.column_dimensions[get_column_letter(col_idx)].width = w
+    start_col = 2 if title else 1
+    for i, w in enumerate(widths, start_col):
+        ws.column_dimensions[get_column_letter(i)].width = w
 
     ws.auto_filter.ref = f"{get_column_letter(1)}{header_row}:{last_col}{header_row + len(records)}"
     ws.freeze_panes = ws.cell(row=header_row + 1, column=1)
