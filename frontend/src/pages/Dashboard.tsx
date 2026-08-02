@@ -92,7 +92,6 @@ export function Dashboard() {
   const greeting = hour < 12 ? 'Buenos días' : hour < 19 ? 'Buenas tardes' : 'Buenas noches'
   const showReports = canReports && recentReports.length > 0
   const maxCount = Math.max(1, ...Object.values(listCounts))
-  const firstName = (user?.full_name?.split(' ')[0] || user?.username || '').replace(/^./, (c) => c.toUpperCase())
 
   const options: { label: string; icon: React.ReactNode; color: string; onClick: () => void }[] = [
     {
@@ -171,9 +170,7 @@ export function Dashboard() {
       <header className="shrink-0">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#0d9488] to-[#0f766e] text-white flex items-center justify-center shadow-md shrink-0">
-              <img src="/logo_sbj.png" alt="SBJ" className="w-8 h-8" />
-            </div>
+            <img src="/logo_sbj.png" alt="SBJ" className="w-11 h-11 shrink-0" />
             <div className="min-w-0">
               <p className="text-[#0f766e] text-[10px] font-semibold uppercase tracking-[0.25em] truncate">
                 Centro Médico San Benito José
@@ -187,28 +184,8 @@ export function Dashboard() {
           </span>
         </div>
 
-        <h1 className="font-serif text-3xl font-bold text-slate-900 mt-6">{greeting}, {firstName}</h1>
+        <h1 className="font-serif text-3xl font-bold text-slate-900 mt-6">{greeting}, {user?.full_name || user?.username || ''}</h1>
         <p className="text-slate-500 text-sm mt-1">{roleLabels[role]}</p>
-
-        <div className="flex items-center gap-2 mt-5 flex-wrap">
-          <button
-            onClick={goExpedientes}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#0d9488] to-[#0f766e] text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-95 transition-all duration-200"
-          >
-            <Table2 size={16} />
-            Abrir Expedientes
-            <ArrowRight size={15} />
-          </button>
-          {canReports ? (
-            <button
-              onClick={() => navigate('/reports')}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-[#0f766e] rounded-xl text-sm font-bold border border-[#a9ded6] hover:bg-teal-50 transition-all duration-200"
-            >
-              <FileText size={16} />
-              Ver reportes
-            </button>
-          ) : null}
-        </div>
       </header>
 
       <div className="flex gap-2 mt-6 flex-wrap">
