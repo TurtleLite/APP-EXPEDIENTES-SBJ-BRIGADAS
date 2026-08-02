@@ -41,15 +41,31 @@ def _thin_border(color: str = BORDER):
     return Border(left=side, right=side, top=side, bottom=side)
 
 
+KNOWN_WIDTHS = {
+    "No": 4,
+    "Nombre/Name": 33,
+    "Age": 5,
+    "Diagnostic/Procedure": 22,
+    "Pf": 4,
+    "Origin": 18,
+    "Phone NO.": 12,
+    "Housing": 7,
+    "Chart": 9,
+    "Referred by": 16,
+}
+
+
 def _content_widths(records: List[dict], columns: List[str]) -> List[int]:
     widths = []
     for col in columns:
+        if col in KNOWN_WIDTHS:
+            widths.append(KNOWN_WIDTHS[col])
+            continue
         lens = [len(str(rec.get(col, ""))) for rec in records] or [0]
-        header = len(str(col))
+        header = min(len(str(col)), 8)
         longest = max(lens)
-        avg = sum(lens) / len(lens)
-        eff = max(header, min(longest, round(avg * 1.4 + 4)))
-        widths.append(min(26, max(4, eff + 1, round(eff * 1.15))))
+        eff = max(header, longest)
+        widths.append(min(26, max(4, eff + 2)))
     return widths
 
 
