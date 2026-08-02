@@ -1,11 +1,11 @@
-import { ShieldCheck, Building2, Stethoscope, UserCircle2 } from 'lucide-react'
+import { ShieldCheck, Building2, Stethoscope, HeartPulse, UserCircle2 } from 'lucide-react'
 import { ROLE_META } from '../constants'
 
 const ROLE_ICONS: Record<string, React.ReactNode> = {
   admin: <ShieldCheck />,
   direccion: <Building2 />,
   direccion_medica: <Stethoscope />,
-  medico: <UserCircle2 />,
+  medico: <HeartPulse />,
 }
 
 const SIZES = {
