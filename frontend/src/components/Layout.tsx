@@ -26,7 +26,7 @@ const navItems: NavItem[] = [
   { label: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={18} />, roles: ['admin', 'direccion', 'direccion_medica', 'medico'] },
   { label: 'Mi Perfil', path: '/perfil', icon: <UserCircle2 size={18} />, roles: ['admin', 'direccion', 'direccion_medica', 'medico'] },
   { label: 'Usuarios', path: '/users', icon: <Users size={18} />, roles: ['admin'] },
-  { label: 'Banco Px', path: '/lists', icon: <Table2 size={18} />, roles: ['admin', 'direccion', 'direccion_medica', 'medico'] },
+  { label: 'Expedientes', path: '/lists', icon: <Table2 size={18} />, roles: ['admin', 'direccion', 'direccion_medica', 'medico'] },
   { label: 'Reportes', path: '/reports', icon: <FileText size={18} />, roles: ['admin', 'direccion', 'direccion_medica'] },
   { label: 'Estatus Cirugía', path: '/estado-cirugia', icon: <Activity size={18} />, roles: ['admin', 'direccion'] },
 ]
@@ -48,6 +48,23 @@ export function Layout({ children }: { children: ReactNode }) {
       .catch(() => {})
   }, [])
 
+  const handleNavClick = (item: NavItem) => {
+    if (item.path !== '/lists') {
+      navigate(item.path)
+      return
+    }
+    if (systemListId) {
+      navigate(`/lists/${systemListId}`)
+      return
+    }
+    listsApi.list()
+      .then(res => {
+        const system = res.data.find((l: any) => l.is_system)
+        navigate(system ? `/lists/${system.id}` : '/lists')
+      })
+      .catch(() => navigate('/lists'))
+  }
+
   return (
     <div className="h-screen bg-[#f0fdfa] flex overflow-hidden">
       <aside className="w-48 bg-white flex flex-col shrink-0 h-screen sticky top-0 shadow-lg">
@@ -62,7 +79,7 @@ export function Layout({ children }: { children: ReactNode }) {
             return (
               <button
                 key={item.path}
-                onClick={() => navigate(target)}
+                onClick={() => handleNavClick(item)}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 relative ${
                   isActive
                     ? 'bg-[#ccfbf1] text-[#134e4a]'

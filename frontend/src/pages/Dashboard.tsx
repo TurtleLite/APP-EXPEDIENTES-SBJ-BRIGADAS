@@ -33,7 +33,16 @@ export function Dashboard() {
   const canReports = role === 'admin' || role === 'direccion' || role === 'direccion_medica'
 
   const goExpedientes = () => {
-    navigate(systemListId ? `/lists/${systemListId}` : '/lists')
+    if (systemListId) {
+      navigate(`/lists/${systemListId}`)
+      return
+    }
+    listsApi.list()
+      .then(res => {
+        const system = res.data.find((l: any) => l.is_system)
+        navigate(system ? `/lists/${system.id}` : '/lists')
+      })
+      .catch(() => navigate('/lists'))
   }
 
   useEffect(() => {
