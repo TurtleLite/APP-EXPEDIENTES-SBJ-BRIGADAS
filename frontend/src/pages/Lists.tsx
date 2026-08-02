@@ -81,7 +81,7 @@ export function Lists() {
             <Eye size={16} />
             Ver registros
           </button>
-          {(user?.role === 'admin' || user?.role === 'direccion') && (
+          {user?.role === 'admin' && (
             <button
               onClick={() => setShowModal(true)}
               className="flex items-center gap-1.5 bg-[#0d9488] text-white px-4 py-2 rounded-xl hover:bg-[#0f766e] shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
@@ -115,7 +115,7 @@ export function Lists() {
                 >
                   <Eye size={16} />
                 </button>
-                {(user?.role === 'admin' || user?.role === 'direccion') && (!list.is_system || user?.role === 'admin') && (
+                {user?.role === 'admin' && (
                   <button onClick={() => handleDelete(list.id)} className="p-1.5 hover:bg-red-50 rounded-lg text-red-500 transition-all duration-200 hover:scale-110 active:scale-95">
                     <Trash2 size={15} />
                   </button>

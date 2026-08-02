@@ -105,15 +105,17 @@ gestion-app/
 
 ## Permisos por Rol
 
-| Funcionalidad | Admin | Dirección | Médico |
-|---------------|-------|-----------|--------|
-| Gestionar usuarios | ✅ CRUD | ✅ Solo ver | ❌ |
-| Crear/editar listas | ✅ | ✅ | ❌ |
-| Importar Excel | ✅ | ✅ | ❌ |
-| Ver listas y registros | ✅ | ✅ | ✅ |
-| Crear reportes | ✅ | ✅ | ❌ |
-| Generar Excel/PDF | ✅ | ✅ | ❌ |
-| Descargar reportes | ✅ | ✅ | ✅ |
+| Funcionalidad | Admin | Dirección | Dir. Médica | Médico |
+|---------------|-------|-----------|-------------|--------|
+| Gestionar usuarios | ✅ CRUD | ✅ Solo ver | ❌ | ❌ |
+| Crear/editar/borrar listas | ✅ | ❌ | ❌ | ❌ |
+| Importar Excel | ✅ | ❌ | ❌ | ❌ |
+| Ver listas y registros | ✅ | ✅ | ✅ | ✅ |
+| Crear expedientes | ✅ | ❌ | ✅ | ✅ |
+| Editar expedientes | ✅ | ❌ (solo estatus de cirugía) | ✅ | ✅ (solo propios) |
+| Crear reportes | ✅ | ✅ | ✅ | ❌ |
+| Generar Excel/PDF | ✅ | ✅ | ✅ | ❌ |
+| Descargar reportes | ✅ | ✅ | ✅ | ✅ |
 
 ## Despliegue
 

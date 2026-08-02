@@ -23,7 +23,7 @@ router = APIRouter(prefix="/lists", tags=["Listas"])
 def create_list(
     data: dict,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "direccion")),
+    current_user: User = Depends(require_role("admin")),
 ):
     from app.schemas.list_definition import ListDefinitionCreate
     from app.services.list_service import create_list_definition
@@ -78,7 +78,7 @@ def update_list(
     list_id: int,
     data: dict,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "direccion")),
+    current_user: User = Depends(require_role("admin")),
 ):
     from app.schemas.list_definition import ListDefinitionUpdate
     from app.services.list_service import update_list_definition
@@ -91,7 +91,7 @@ def update_list(
 def delete_list(
     list_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "direccion")),
+    current_user: User = Depends(require_role("admin")),
 ):
     from app.services.list_service import delete_list_definition
     delete_list_definition(db, list_id, current_user.role)
@@ -181,7 +181,7 @@ def import_excel(
     list_id: int,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "direccion")),
+    current_user: User = Depends(require_role("admin")),
 ):
     os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
     safe_filename = os.path.basename(file.filename or "import.xlsx")
@@ -246,7 +246,10 @@ def create_record(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    from fastapi import HTTPException
     from app.services.record_service import add_record
+    if current_user.role not in ("admin", "direccion_medica", "medico"):
+        raise HTTPException(status_code=403, detail="No tienes permisos para crear expedientes")
     record = add_record(db, list_id, data.get("data", data), user_id=current_user.id)
     return {"id": str(record.id), "message": "Registro creado correctamente"}
 

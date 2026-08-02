@@ -157,7 +157,7 @@ export function Reports() {
         <div>
           <h1 className="font-serif text-2xl font-bold text-[#134e4a]">Reportes</h1>
         </div>
-        {(user?.role === 'admin' || user?.role === 'direccion') && (
+        {(user?.role === 'admin' || user?.role === 'direccion' || user?.role === 'direccion_medica') && (
           <button
             onClick={() => setShowModal(true)}
             className="flex items-center gap-1.5 bg-[#0d9488] text-white px-4 py-2 rounded-xl hover:bg-[#0f766e] shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
@@ -245,7 +245,7 @@ export function Reports() {
               <span className="text-[11px] text-slate-400">
                 Creado el {new Date(report.created_at).toLocaleDateString('es-ES')}
               </span>
-              {(user?.role === 'admin' || user?.role === 'direccion') && (
+        {(user?.role === 'admin' || user?.role === 'direccion' || user?.role === 'direccion_medica') && (
                 deleteConfirm === report.id ? (
                   <div className="flex items-center gap-2 text-xs">
                     <span className="text-slate-500">¿Eliminar?</span>

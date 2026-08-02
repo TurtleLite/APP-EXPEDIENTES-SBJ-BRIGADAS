@@ -22,6 +22,7 @@ export const ROLE_META: Record<string, RoleMeta> = {
     badge: 'bg-sky-100 text-sky-700 border-sky-200',
     gradient: 'from-sky-500 to-sky-700',
     permissions: [
+      'Ver expedientes y listas (solo lectura)',
       'Asignar y editar el estatus de cirugía',
       'Reporte por estatus de cirugía',
       'Reporte general y reporte por especialidad',
@@ -33,7 +34,8 @@ export const ROLE_META: Record<string, RoleMeta> = {
     gradient: 'from-violet-500 to-violet-700',
     permissions: [
       'Crear, editar y eliminar expedientes',
-      'Reporte general y reporte por especialidad',
+      'Crear reportes generales y por especialidad',
+      'Generar reportes en Excel y PDF',
     ],
   },
   medico: {

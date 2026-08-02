@@ -258,7 +258,7 @@ export function ListDetail() {
                     <Download size={16} />
                     Exportar {selectedIds.size} seleccionados
                   </button>
-                  {selectedIds.size === 1 && (
+                  {selectedIds.size === 1 && user?.role !== 'direccion' && (
                     <button
                       onClick={handleEditSelected}
                       className="flex items-center gap-1.5 px-4 py-2 bg-[#0d9488] text-white rounded-xl hover:bg-[#0f766e] shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
@@ -267,13 +267,15 @@ export function ListDetail() {
                       Editar
                     </button>
                   )}
-                  <button
-                    onClick={handleDeleteSelected}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
-                  >
-                    <Trash2 size={16} />
-                    Eliminar
-                  </button>
+                  {user?.role !== 'direccion' && (
+                    <button
+                      onClick={handleDeleteSelected}
+                      className="flex items-center gap-1.5 px-4 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
+                    >
+                      <Trash2 size={16} />
+                      Eliminar
+                    </button>
+                  )}
                 </div>
               )}
             </div>

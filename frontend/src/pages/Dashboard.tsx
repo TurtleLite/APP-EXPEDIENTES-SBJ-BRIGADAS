@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { usersApi, listsApi, reportsApi } from '../services/api'
-import { Users, FileText, Table2, BarChart3, Plus, Download, ArrowRight, ChevronRight, FileSpreadsheet } from 'lucide-react'
+import { Users, FileText, Table2, BarChart3, ArrowRight, ChevronRight, FileSpreadsheet } from 'lucide-react'
 import type { ListDefinition, Report } from '../types'
 import { RoleAvatar } from '../components/RoleAvatar'
 
@@ -26,11 +26,15 @@ export function Dashboard() {
   const [stats, setStats] = useState<Stats>({ lists: 0, records: 0, reports: 0 })
   const [recentLists, setRecentLists] = useState<ListDefinition[]>([])
   const [recentReports, setRecentReports] = useState<Report[]>([])
+  const [systemListId, setSystemListId] = useState<string | null>(null)
 
   const role = user?.role || 'medico'
   const canManageUsers = role === 'admin'
-  const canManageLists = role === 'admin' || role === 'direccion'
   const canReports = role === 'admin' || role === 'direccion' || role === 'direccion_medica'
+
+  const goExpedientes = () => {
+    navigate(systemListId ? `/lists/${systemListId}` : '/lists')
+  }
 
   useEffect(() => {
     async function load() {
@@ -41,6 +45,9 @@ export function Dashboard() {
         ])
         const lists: ListDefinition[] = listsRes.data
         const reports: Report[] = reportsRes.data
+
+        const system = lists.find((l) => l.is_system)
+        if (system) setSystemListId(system.id)
 
         let totalRecords = 0
         for (const list of lists.slice(0, 5)) {
@@ -104,11 +111,11 @@ export function Dashboard() {
         )}
         <StatCard
           icon={<Table2 size={20} />}
-          label="Listas"
+          label="Expedientes"
           value={stats.lists}
           iconBg="bg-violet-500"
           cardBg="bg-violet-50"
-          onClick={() => navigate('/lists')}
+          onClick={goExpedientes}
         />
         <StatCard
           icon={<BarChart3 size={20} />}
@@ -116,7 +123,7 @@ export function Dashboard() {
           value={stats.records}
           iconBg="bg-emerald-500"
           cardBg="bg-emerald-50"
-          onClick={() => navigate('/lists')}
+          onClick={goExpedientes}
         />
         {canReports && (
           <StatCard
@@ -139,29 +146,11 @@ export function Dashboard() {
           <div className="space-y-2.5 overflow-y-auto min-h-0">
             <QuickAction
               icon={<Table2 size={16} />}
-              label="Ver listas"
-              hint="Explora las listas del sistema"
+              label="Expedientes"
+              hint="Explora los expedientes del sistema"
               color="bg-violet-500"
-              onClick={() => navigate('/lists')}
+              onClick={goExpedientes}
             />
-            {canManageLists && (
-              <QuickAction
-                icon={<Plus size={16} />}
-                label="Nueva lista"
-                hint="Crea una lista personalizada"
-                color="bg-slate-600"
-                onClick={() => navigate('/lists')}
-              />
-            )}
-            {role === 'medico' && (
-              <QuickAction
-                icon={<Download size={16} />}
-                label="Exportar lista a Excel"
-                hint="Descarga los registros en Excel"
-                color="bg-emerald-500"
-                onClick={() => navigate('/lists')}
-              />
-            )}
             {canReports && (
               <QuickAction
                 icon={<FileText size={16} />}
@@ -185,9 +174,9 @@ export function Dashboard() {
 
         <section className={`${showReports ? 'lg:col-span-5' : 'lg:col-span-9'} bg-white rounded-2xl shadow-sm border border-[#a9ded6] p-5 flex flex-col min-h-0`}>
           <div className="flex items-center justify-between mb-4 shrink-0">
-            <h2 className="font-serif text-sm font-semibold text-[#134e4a]">Listas recientes</h2>
+            <h2 className="font-serif text-sm font-semibold text-[#134e4a]">Expedientes recientes</h2>
             <button
-              onClick={() => navigate('/lists')}
+              onClick={goExpedientes}
               className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-700 transition-colors duration-200"
             >
               Ver todas
@@ -197,7 +186,7 @@ export function Dashboard() {
           {recentLists.length === 0 ? (
             <div className="flex flex-col items-center justify-center flex-1 text-center">
               <Table2 size={28} className="text-slate-200" />
-              <p className="text-slate-500 text-sm mt-3">No hay listas aún</p>
+              <p className="text-slate-500 text-sm mt-3">No hay expedientes aún</p>
             </div>
           ) : (
             <div className="space-y-2 overflow-y-auto min-h-0">
