@@ -61,16 +61,19 @@ def _format_filters(filt: Optional[dict]) -> str:
     return " · ".join(parts) if parts else "Sin filtros"
 
 
-def _compute_widths(records: list[dict], columns: list[str]) -> list[float]:
-    widths = []
+def _compute_widths(records: list[dict], columns: list[str], usable_mm: float) -> list[float]:
+    raw = []
     for col in columns:
-        longest = len(str(col))
-        for record in records:
-            val = record.get(col)
-            if val is not None:
-                longest = max(longest, len(str(val)))
-        widths.append(max(12, min(45, longest * 2.0)))
-    return widths
+        lens = [len(str(rec.get(col, ""))) for rec in records] or [0]
+        header = len(str(col))
+        longest = max(lens)
+        avg = sum(lens) / len(lens)
+        w = max(header, min(longest, round(avg * 1.4 + 4)))
+        raw.append(max(12, min(45, w * 2.0)))
+    total = sum(raw)
+    if total > usable_mm:
+        raw = [max(12, w * usable_mm / total) for w in raw]
+    return raw
 
 
 def export_to_pdf(
@@ -197,12 +200,8 @@ def export_to_pdf(
             row.append(Paragraph(str(val), cell_style))
         table_data.append(row)
 
-    widths = _compute_widths(records, columns)
+    widths = _compute_widths(records, columns, page[0] - 32 * mm)
     total_width = sum(widths)
-    max_width = page[0] - 32 * mm
-    if total_width > max_width:
-        scale = max_width / total_width
-        widths = [max(12, w * scale) for w in widths]
 
     table = Table(table_data, colWidths=widths, repeatRows=1)
     table.setStyle(TableStyle([

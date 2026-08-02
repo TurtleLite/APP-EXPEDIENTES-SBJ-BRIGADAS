@@ -44,12 +44,12 @@ def _thin_border(color: str = BORDER):
 def _content_widths(records: List[dict], columns: List[str]) -> List[int]:
     widths = []
     for col in columns:
-        longest = len(str(col))
-        for record in records:
-            val = record.get(col)
-            if val is not None:
-                longest = max(longest, len(str(val)))
-        widths.append(max(8, min(26, round(longest * 1.15))))
+        lens = [len(str(rec.get(col, ""))) for rec in records] or [0]
+        header = len(str(col))
+        longest = max(lens)
+        avg = sum(lens) / len(lens)
+        w = max(header, min(longest, round(avg * 1.4 + 4)))
+        widths.append(max(8, min(26, round(w * 1.15))))
     return widths
 
 
