@@ -115,7 +115,10 @@ export function Dashboard() {
           </span>
         </div>
 
-        <h1 className="font-serif text-3xl font-bold text-slate-900 mt-6">{greeting}, {user?.full_name || user?.username || ''}</h1>
+        <h1 className="font-serif text-3xl font-bold text-slate-900 mt-6">{greeting}, {(() => {
+          const raw = user?.full_name || user?.username || ''
+          return raw.replace(/^(Dr|Dra|Lic)\s+/i, '$1. ')
+        })()}</h1>
         <p className="text-slate-500 text-sm mt-1">{roleLabels[role]}</p>
       </header>
 
