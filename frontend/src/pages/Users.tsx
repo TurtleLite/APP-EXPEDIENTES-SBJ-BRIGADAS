@@ -14,6 +14,9 @@ const roleLabels: Record<string, string> = {
   medico: 'Médico',
 }
 
+const capitalizeName = (value: string) =>
+  value.replace(/\S+/g, (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+
 export function Users() {
   const [users, setUsers] = useState<User[]>([])
   const [showModal, setShowModal] = useState(false)
@@ -164,7 +167,7 @@ export function Users() {
               <input
                 placeholder="Nombre completo"
                 value={form.full_name}
-                onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+                onChange={(e) => setForm({ ...form, full_name: capitalizeName(e.target.value) })}
                 className="w-full px-3 py-2.5 border border-[#a9ded6] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               />
               <input

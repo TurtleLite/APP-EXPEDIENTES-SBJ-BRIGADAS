@@ -6,6 +6,10 @@ from app.core.security import hash_password
 from app.schemas.user import UserCreate, UserUpdate
 
 
+def _title_case(text: str) -> str:
+    return ' '.join(word.capitalize() for word in text.split())
+
+
 def get_users(db: Session, skip: int = 0, limit: int = 100) -> list[User]:
     return db.query(User).offset(skip).limit(limit).all()
 
@@ -28,7 +32,7 @@ def create_user(db: Session, data: UserCreate) -> User:
     user = User(
         username=data.username,
         telefono=data.telefono,
-        full_name=data.full_name,
+        full_name=_title_case(data.full_name),
         hashed_password=hash_password(data.password),
         role=data.role,
     )
@@ -52,6 +56,8 @@ def update_user(db: Session, user_id: int, data) -> User:
         password = update_data.pop("password")
         if password:
             update_data["hashed_password"] = hash_password(password)
+    if "full_name" in update_data:
+        update_data["full_name"] = _title_case(update_data["full_name"])
     for key, value in update_data.items():
         setattr(user, key, value)
     try:
@@ -71,6 +77,8 @@ def update_own_profile(db: Session, user: User, data) -> User:
         password = update_data.pop("password")
         if password:
             update_data["hashed_password"] = hash_password(password)
+    if "full_name" in update_data:
+        update_data["full_name"] = _title_case(update_data["full_name"])
     for key, value in update_data.items():
         setattr(user, key, value)
     try:
