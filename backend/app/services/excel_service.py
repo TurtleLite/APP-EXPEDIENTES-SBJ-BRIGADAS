@@ -135,14 +135,14 @@ def export_to_excel(
         ws.merge_cells(f"B{row}:{last_col}{row}")
         c = ws.cell(row=row, column=2, value=institution.upper())
         c.font = Font(bold=True, size=10, color=DARK)
-        c.alignment = Alignment(horizontal="left", vertical="center")
+        c.alignment = Alignment(horizontal="center", vertical="center")
         ws.row_dimensions[row].height = 15
         row += 1
 
         ws.merge_cells(f"B{row}:{last_col}{row}")
         c = ws.cell(row=row, column=2, value=title)
         c.font = Font(bold=True, size=15, color=PRIMARY)
-        c.alignment = Alignment(horizontal="left", vertical="center")
+        c.alignment = Alignment(horizontal="center", vertical="center")
         ws.row_dimensions[row].height = 18
         row += 1
 
@@ -153,7 +153,7 @@ def export_to_excel(
             value=f"Generado el {now.strftime('%d/%m/%Y')} a las {now.strftime('%H:%M')}   |   Total de registros: {count if count is not None else len(records)}",
         )
         c.font = Font(size=8.5, italic=True, color=MUTED)
-        c.alignment = Alignment(horizontal="left", vertical="center")
+        c.alignment = Alignment(horizontal="center", vertical="center")
         ws.row_dimensions[row].height = 13
         row += 1
 
