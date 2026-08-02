@@ -17,11 +17,15 @@ const roleLabels: Record<string, string> = {
 const capitalizeName = (value: string) =>
   value.replace(/\S+/g, (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
 
+const TITLE_RE = /^(Dr|Dra|Lic)\.?\s+(.*)$/i
+
+const emptyForm = () => ({ username: '', telefono: '', full_name: '', password: '', role: 'medico', titulo: '' })
+
 export function Users() {
   const [users, setUsers] = useState<User[]>([])
   const [showModal, setShowModal] = useState(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
-  const [form, setForm] = useState({ username: '', telefono: '', full_name: '', password: '', role: 'medico' })
+  const [form, setForm] = useState(emptyForm)
   const { user: currentUser } = useAuth()
   const { toast, confirm } = useNotification()
 
@@ -39,6 +43,8 @@ export function Users() {
   const handleSave = async () => {
     try {
       const payload: any = { ...form }
+      const name = (payload.full_name || '').trim()
+      payload.full_name = payload.titulo ? `${payload.titulo}. ${name}` : name
       if (editingUser && !payload.password) delete payload.password
       if (editingUser) {
         await usersApi.update(editingUser.id, payload)
@@ -47,7 +53,7 @@ export function Users() {
       }
       setShowModal(false)
       setEditingUser(null)
-      setForm({ username: '', telefono: '', full_name: '', password: '', role: 'medico' })
+      setForm(emptyForm())
       loadUsers()
     } catch (err: any) {
       toast(err.response?.data?.detail || 'Error al guardar usuario', 'error')
@@ -66,13 +72,15 @@ export function Users() {
   }
 
   const openEdit = (user: User) => {
+    const match = user.full_name.match(TITLE_RE)
     setEditingUser(user)
     setForm({
       username: user.username,
       telefono: user.telefono,
-      full_name: user.full_name,
+      full_name: match ? match[2] : user.full_name,
       password: '',
       role: user.role,
+      titulo: match ? match[1].charAt(0).toUpperCase() + match[1].slice(1) : '',
     })
     setShowModal(true)
   }
@@ -87,7 +95,7 @@ export function Users() {
           <button
             onClick={() => {
               setEditingUser(null)
-              setForm({ username: '', telefono: '', full_name: '', password: '', role: 'medico' })
+              setForm(emptyForm())
               setShowModal(true)
             }}
             className="flex items-center gap-1.5 bg-[#0d9488] text-white px-4 py-2 rounded-xl hover:bg-[#0f766e] shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
@@ -164,12 +172,24 @@ export function Users() {
               {editingUser ? 'Editar Usuario' : 'Nuevo Usuario'}
             </h2>
             <div className="space-y-3">
-              <input
-                placeholder="Nombre completo"
-                value={form.full_name}
-                onChange={(e) => setForm({ ...form, full_name: capitalizeName(e.target.value) })}
-                className="w-full px-3 py-2.5 border border-[#a9ded6] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
-              />
+              <div className="flex gap-2">
+                <select
+                  value={form.titulo}
+                  onChange={(e) => setForm({ ...form, titulo: e.target.value })}
+                  className="w-28 shrink-0 px-3 py-2.5 border border-[#a9ded6] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                >
+                  <option value="">Sin título</option>
+                  <option value="Dr">Dr</option>
+                  <option value="Dra">Dra</option>
+                  <option value="Lic">Lic</option>
+                </select>
+                <input
+                  placeholder="Nombre completo"
+                  value={form.full_name}
+                  onChange={(e) => setForm({ ...form, full_name: capitalizeName(e.target.value) })}
+                  className="flex-1 min-w-0 px-3 py-2.5 border border-[#a9ded6] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                />
+              </div>
               <input
                 placeholder="Usuario"
                 value={form.username}

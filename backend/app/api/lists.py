@@ -229,7 +229,7 @@ def count_records_endpoint(
 def list_records(
     list_id: int,
     skip: int = 0,
-    limit: int = 100,
+    limit: int = 1000,
     search: str = None,
     search_field: str = None,
     db: Session = Depends(get_db),

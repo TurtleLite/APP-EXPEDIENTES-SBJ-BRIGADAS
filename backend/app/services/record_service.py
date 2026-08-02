@@ -27,7 +27,7 @@ def get_records(db: Session, list_id: int, skip: int = 0, limit: int = 100,
         query = query.filter(
             cast(ListRecord.data, String).ilike(f"%{search}%")
         )
-    return query.offset(skip).limit(limit).all()
+    return query.order_by(ListRecord.id.desc()).offset(skip).limit(limit).all()
 
 
 def get_record(db: Session, record_id: int) -> ListRecord:
