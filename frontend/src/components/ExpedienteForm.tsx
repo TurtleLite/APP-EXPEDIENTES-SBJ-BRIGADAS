@@ -136,6 +136,8 @@ function filterSections(role?: string): Section[] {
   return SECTIONS
 }
 
+const FULL_WIDTH_KEYS = new Set(['domicilio', 'historia_enfermedad', 'examen_fisico', 'diagnostico'])
+
 export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }: Props) {
   const sections = filterSections(role)
   const [data, setData] = useState<Record<string, any>>(editingRecord?.data || {})
@@ -263,9 +265,9 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
                   {isOpen ? <ChevronDown size={16} className="text-slate-400" /> : <ChevronRight size={16} className="text-slate-400" />}
                 </button>
                 {isOpen && (
-                  <div className="px-4 py-3 space-y-3 bg-white">
+                  <div className="px-4 py-3 grid grid-cols-1 lg:grid-cols-2 gap-x-4 gap-y-3 bg-white">
                     {section.fields.map((field) => (
-                      <div key={field.key}>
+                      <div key={field.key} className={FULL_WIDTH_KEYS.has(field.key) ? 'lg:col-span-2' : ''}>
                         <label className="block text-sm font-medium text-slate-700 mb-1">
                           {field.label}
                         </label>
