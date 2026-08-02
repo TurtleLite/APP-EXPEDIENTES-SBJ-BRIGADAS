@@ -6,20 +6,16 @@ from reportlab.lib.pagesizes import letter, landscape
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import mm
-from reportlab.lib.enums import TA_LEFT
-from reportlab.platypus import (
-    SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image,
-)
+from reportlab.lib.enums import TA_LEFT, TA_CENTER
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.pdfgen import canvas as pdfcanvas
-
-LOGO_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "logo_sbj.png")
 
 PRIMARY = colors.HexColor("#6E7B91")
 DARK = colors.HexColor("#3F4650")
-HOVER = colors.HexColor("#5F6B80")
 BORDER = colors.HexColor("#D7DBE1")
 ALT_ROW = colors.HexColor("#F4F6F8")
 MUTED = colors.HexColor("#8A919C")
+BODY_TEXT = colors.HexColor("#444B54")
 
 FILTER_LABELS = {
     "especialidad": "Especialidad",
@@ -71,9 +67,7 @@ def _compute_widths(records: list[dict], columns: list[str]) -> list[float]:
             val = record.get(col)
             if val is not None:
                 longest = max(longest, len(str(val)))
-        mm_per_char = 2.2
-        width = max(14, min(55, longest * mm_per_char))
-        widths.append(width)
+        widths.append(max(12, min(45, longest * 2.0)))
     return widths
 
 
@@ -117,59 +111,40 @@ def export_to_pdf(
         canvas.restoreState()
 
     styles = getSampleStyleSheet()
+    inst_style = ParagraphStyle(
+        "Inst", parent=styles["Normal"], fontName="Helvetica-Bold", fontSize=12, textColor=DARK, leading=15,
+    )
+    title_style = ParagraphStyle(
+        "RepTitle", parent=styles["Normal"], fontName="Helvetica-Bold", fontSize=16, textColor=PRIMARY,
+        leading=19, spaceBefore=2,
+    )
+    meta_style = ParagraphStyle(
+        "Meta", parent=styles["Normal"], fontSize=9, textColor=MUTED, leading=11, spaceBefore=5,
+    )
     cell_style = ParagraphStyle(
-        "Cell",
-        parent=styles["Normal"],
-        fontName="Helvetica",
-        fontSize=8,
-        leading=10,
-        textColor=colors.HexColor("#444B54"),
-        alignment=TA_LEFT,
+        "Cell", parent=styles["Normal"], fontName="Helvetica", fontSize=10, leading=12,
+        textColor=BODY_TEXT, alignment=TA_LEFT,
     )
     head_style = ParagraphStyle(
-        "Head",
-        parent=cell_style,
-        fontName="Helvetica-Bold",
-        fontSize=9,
-        leading=11,
-        textColor=colors.white,
-        alignment=1,
+        "Head", parent=cell_style, fontName="Helvetica-Bold", fontSize=10, leading=12,
+        textColor=colors.white, alignment=TA_CENTER,
+    )
+    filt_style = ParagraphStyle(
+        "Filt", parent=cell_style, fontSize=9, leading=11,
     )
 
     elements = []
 
-    if os.path.exists(LOGO_PATH):
-        img = Image(LOGO_PATH, width=30 * mm, height=22.5 * mm)
-        img.hAlign = "LEFT"
-    else:
-        img = Paragraph("", styles["Normal"])
-
     now = datetime.datetime.now()
-    right_cell = [
-        Paragraph(
-            institution,
-            ParagraphStyle("Inst", parent=styles["Normal"], fontName="Helvetica-Bold", fontSize=11, textColor=HOVER, leading=14),
-        ),
-        Paragraph(
-            title,
-            ParagraphStyle("RepTitle", parent=styles["Normal"], fontName="Helvetica-Bold", fontSize=18, textColor=DARK, leading=22, spaceBefore=2),
-        ),
+    elements.append(Paragraph(institution, inst_style))
+    elements.append(Paragraph(title, title_style))
+    elements.append(
         Paragraph(
             f"Generado el {now.strftime('%d/%m/%Y %H:%M')}  ·  Total de registros: {count if count is not None else len(records)}",
-            ParagraphStyle("Meta", parent=styles["Normal"], fontSize=9, textColor=MUTED, spaceBefore=6),
-        ),
-    ]
-
-    header_table = Table([[img, right_cell]], colWidths=[34 * mm, None])
-    header_table.setStyle(TableStyle([
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("LEFTPADDING", (0, 0), (-1, -1), 0),
-        ("RIGHTPADDING", (0, 0), (-1, -1), 0),
-        ("TOPPADDING", (0, 0), (-1, -1), 0),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
-    ]))
-    elements.append(header_table)
-    elements.append(Spacer(1, 3 * mm))
+            meta_style,
+        )
+    )
+    elements.append(Spacer(1, 4 * mm))
 
     sep = Table([[""]], colWidths=[page[0] - 32 * mm], rowHeights=[1.6])
     sep.setStyle(TableStyle([("BACKGROUND", (0, 0), (-1, -1), PRIMARY)]))
@@ -179,7 +154,7 @@ def export_to_pdf(
     filter_text = _format_filters(filters)
     if filter_text != "Sin filtros":
         filt_row = Table(
-            [[Paragraph(f"<b>Filtros aplicados:</b> {filter_text}", cell_style)]],
+            [[Paragraph(f"<b>Filtros aplicados:</b> {filter_text}", filt_style)]],
             colWidths=[page[0] - 32 * mm],
         )
         filt_row.setStyle(TableStyle([
@@ -208,7 +183,7 @@ def export_to_pdf(
     max_width = page[0] - 32 * mm
     if total_width > max_width:
         scale = max_width / total_width
-        widths = [max(14, w * scale) for w in widths]
+        widths = [max(12, w * scale) for w in widths]
 
     table = Table(table_data, colWidths=widths, repeatRows=1)
     table.setStyle(TableStyle([

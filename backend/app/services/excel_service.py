@@ -37,7 +37,7 @@ def _thin_border(color: str = BORDER):
     return Border(left=side, right=side, top=side, bottom=side)
 
 
-def _content_widths(columns: List[str], records: List[dict], max_w: int = 40, min_w: int = 10) -> List[int]:
+def _content_widths(records: List[dict], columns: List[str]) -> List[int]:
     widths = []
     for col in columns:
         longest = len(str(col))
@@ -45,7 +45,7 @@ def _content_widths(columns: List[str], records: List[dict], max_w: int = 40, mi
             val = record.get(col)
             if val is not None:
                 longest = max(longest, len(str(val)))
-        widths.append(max(min_w, min(max_w, longest + 4)))
+        widths.append(max(8, min(26, round(longest * 1.15))))
     return widths
 
 
@@ -100,54 +100,76 @@ def export_to_excel(
 
     ws.sheet_view.showGridLines = False
 
-    header_row = 1
+    row = 1
     if title:
-        header_row = 5
-
-        ws.merge_cells(f"A1:{last_col}1")
-        c = ws.cell(row=1, column=1, value=institution)
-        c.font = Font(name="Calibri", bold=True, size=16, color=DARK)
+        ws.merge_cells(f"A{row}:{last_col}{row}")
+        c = ws.cell(row=row, column=1, value=institution)
+        c.font = Font(bold=True, size=12, color=DARK)
         c.alignment = Alignment(horizontal="left", vertical="center")
-        ws.row_dimensions[1].height = 28
+        ws.row_dimensions[row].height = 24
+        row += 1
 
-        ws.merge_cells(f"A2:{last_col}2")
-        c = ws.cell(row=2, column=1, value=title)
-        c.font = Font(name="Calibri", bold=True, size=13, color=PRIMARY)
+        ws.merge_cells(f"A{row}:{last_col}{row}")
+        c = ws.cell(row=row, column=1, value=title)
+        c.font = Font(bold=True, size=16, color=PRIMARY)
         c.alignment = Alignment(horizontal="left", vertical="center")
-        ws.row_dimensions[2].height = 22
+        ws.row_dimensions[row].height = 24
+        row += 1
 
-        ws.merge_cells(f"A3:{last_col}3")
-        meta = (
-            f"Generado el {now.strftime('%d/%m/%Y %H:%M')}  ·  "
-            f"Total de registros: {count if count is not None else len(records)}  ·  "
-            f"Filtros: {_format_filters(filters)}"
+        ws.merge_cells(f"A{row}:{last_col}{row}")
+        c = ws.cell(
+            row=row,
+            column=1,
+            value=f"Generado el {now.strftime('%d/%m/%Y %H:%M')}  ·  Total de registros: {count if count is not None else len(records)}",
         )
-        c = ws.cell(row=3, column=1, value=meta)
-        c.font = Font(name="Calibri", size=10, italic=True, color=MUTED)
+        c.font = Font(size=9, italic=True, color=MUTED)
         c.alignment = Alignment(horizontal="left", vertical="center")
-        ws.row_dimensions[3].height = 18
+        ws.row_dimensions[row].height = 16
+        row += 1
 
-        ws.row_dimensions[4].height = 6
+        row += 1  # spacer
+
+        ws.merge_cells(f"A{row}:{last_col}{row}")
+        c = ws.cell(row=row, column=1)
+        c.fill = PatternFill(start_color=PRIMARY, end_color=PRIMARY, fill_type="solid")
+        ws.row_dimensions[row].height = 3
+        row += 1
+
+        row += 1  # spacer
+
+        filter_text = _format_filters(filters)
+        if filter_text != "Sin filtros":
+            ws.merge_cells(f"A{row}:{last_col}{row}")
+            c = ws.cell(row=row, column=1, value=f"Filtros aplicados: {filter_text}")
+            c.font = Font(size=9, color=DARK)
+            c.fill = PatternFill(start_color=ALT_ROW, end_color=ALT_ROW, fill_type="solid")
+            c.alignment = Alignment(horizontal="left", vertical="center")
+            c.border = _thin_border()
+            ws.row_dimensions[row].height = 16
+            row += 1
+            row += 1  # spacer
+
+    header_row = row
 
     for col_idx, col_name in enumerate(columns, 1):
         cell = ws.cell(row=header_row, column=col_idx, value=col_name)
         cell.fill = PatternFill(start_color=PRIMARY, end_color=PRIMARY, fill_type="solid")
-        cell.font = Font(color="FFFFFF", bold=True, size=11)
+        cell.font = Font(color="FFFFFF", bold=True, size=10)
         cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
         cell.border = _thin_border()
-    ws.row_dimensions[header_row].height = 26
+    ws.row_dimensions[header_row].height = 22
 
-    for row_idx, record in enumerate(records, header_row + 1):
+    for data_idx, record in enumerate(records, header_row + 1):
         for col_idx, col_name in enumerate(columns, 1):
             val = record.get(col_name, "")
-            cell = ws.cell(row=row_idx, column=col_idx, value=val)
+            cell = ws.cell(row=data_idx, column=col_idx, value=val)
             cell.border = _thin_border()
-            cell.font = Font(name="Calibri", size=10)
+            cell.font = Font(size=10)
             cell.alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
-            if (row_idx - header_row) % 2 == 0:
+            if (data_idx - header_row) % 2 == 0:
                 cell.fill = PatternFill(start_color=ALT_ROW, end_color=ALT_ROW, fill_type="solid")
 
-    widths = _content_widths(columns, records)
+    widths = _content_widths(records, columns)
     for col_idx, w in enumerate(widths, 1):
         ws.column_dimensions[get_column_letter(col_idx)].width = w
 
