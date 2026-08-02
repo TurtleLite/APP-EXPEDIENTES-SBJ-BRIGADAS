@@ -92,7 +92,7 @@ export function Users() {
     <div className="h-full flex flex-col gap-4">
       <div className="flex items-center justify-between shrink-0">
         <div>
-          <h1 className="font-serif text-2xl font-bold text-[#78350f]">Usuarios</h1>
+          <h1 className="font-serif text-2xl font-bold text-[#7c5636]">Usuarios</h1>
         </div>
         {currentUser?.role === 'admin' && (
           <button
@@ -101,7 +101,7 @@ export function Users() {
               setForm(emptyForm())
               setShowModal(true)
             }}
-            className="flex items-center gap-1.5 bg-[#d97706] text-white px-4 py-2 rounded-xl hover:bg-[#b45309] shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
+            className="flex items-center gap-1.5 bg-[#b07a40] text-white px-4 py-2 rounded-xl hover:bg-[#9c6a36] shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
           >
             <UserPlus size={16} />
             Nuevo Usuario
@@ -109,11 +109,11 @@ export function Users() {
         )}
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-[#fde68a] flex flex-col min-h-0 flex-1">
+      <div className="bg-white rounded-xl shadow-sm border border-[#f0e0c0] flex flex-col min-h-0 flex-1">
         <div className="flex-1 min-h-0 overflow-y-auto">
         <table className="w-full">
           <thead className="sticky top-0 z-10">
-            <tr className="bg-amber-50 border-b border-[#fde68a]">
+            <tr className="bg-amber-50 border-b border-[#f0e0c0]">
               <th className="text-left px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Nombre</th>
               <th className="text-left px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Usuario</th>
               <th className="text-left px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Teléfono</th>
@@ -171,7 +171,7 @@ export function Users() {
       {showModal && (
         <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-xl px-5 py-3 w-[95vw] max-w-5xl shadow-2xl">
-            <h2 className="font-serif text-lg font-bold mb-4 text-[#78350f]">
+            <h2 className="font-serif text-lg font-bold mb-4 text-[#7c5636]">
               {editingUser ? 'Editar Usuario' : 'Nuevo Usuario'}
             </h2>
             <div className="space-y-3">
@@ -179,7 +179,7 @@ export function Users() {
                 <select
                   value={form.titulo}
                   onChange={(e) => setForm({ ...form, titulo: e.target.value })}
-                  className="w-28 shrink-0 px-3 py-2.5 border border-[#fde68a] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                  className="w-28 shrink-0 px-3 py-2.5 border border-[#f0e0c0] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
                 >
                   <option value="">Sin título</option>
                   <option value="Dr.">Dr.</option>
@@ -190,38 +190,38 @@ export function Users() {
                   placeholder="Nombres"
                   value={form.nombres}
                   onChange={(e) => setForm({ ...form, nombres: capitalizeName(e.target.value) })}
-                  className="flex-1 min-w-0 px-3 py-2.5 border border-[#fde68a] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                  className="flex-1 min-w-0 px-3 py-2.5 border border-[#f0e0c0] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
                 />
               </div>
               <input
                 placeholder="Apellidos"
                 value={form.apellidos}
                 onChange={(e) => setForm({ ...form, apellidos: capitalizeName(e.target.value) })}
-                className="w-full px-3 py-2.5 border border-[#fde68a] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                className="w-full px-3 py-2.5 border border-[#f0e0c0] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               />
               <input
                 placeholder="Usuario"
                 value={form.username}
                 onChange={(e) => setForm({ ...form, username: e.target.value })}
-                className="w-full px-3 py-2.5 border border-[#fde68a] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                className="w-full px-3 py-2.5 border border-[#f0e0c0] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               />
               <input
                 placeholder="Teléfono"
                 type="tel"
                 value={form.telefono}
                 onChange={(e) => setForm({ ...form, telefono: e.target.value })}
-                className="w-full px-3 py-2.5 border border-[#fde68a] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                className="w-full px-3 py-2.5 border border-[#f0e0c0] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               />
               <PasswordInput
                 placeholder={editingUser ? 'Nueva contraseña (dejar vacío)' : 'Contraseña'}
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="w-full px-3 py-2.5 border border-[#fde68a] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                className="w-full px-3 py-2.5 border border-[#f0e0c0] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               />
               <select
                 value={form.role}
                 onChange={(e) => setForm({ ...form, role: e.target.value })}
-                className="w-full px-3 py-2.5 border border-[#fde68a] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                className="w-full px-3 py-2.5 border border-[#f0e0c0] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               >
                 <option value="medico">Médico</option>
                 <option value="direccion_medica">Dirección Médica</option>
@@ -233,7 +233,7 @@ export function Users() {
               <button onClick={() => setShowModal(false)} className="px-4 py-2 text-sm text-slate-600 hover:bg-amber-50 rounded-xl transition-all duration-200">
                 Cancelar
               </button>
-              <button onClick={handleSave} className="px-4 py-2 text-sm bg-[#d97706] text-white rounded-xl hover:bg-[#b45309] shadow-sm hover:shadow-md transition-all duration-200 font-medium">
+              <button onClick={handleSave} className="px-4 py-2 text-sm bg-[#b07a40] text-white rounded-xl hover:bg-[#9c6a36] shadow-sm hover:shadow-md transition-all duration-200 font-medium">
                 {editingUser ? 'Actualizar' : 'Crear'}
               </button>
             </div>
