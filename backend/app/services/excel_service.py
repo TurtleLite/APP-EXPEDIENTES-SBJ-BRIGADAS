@@ -187,10 +187,9 @@ def export_to_excel(
     widths = _content_widths(records, columns)
     total_cols = len(widths) + (1 if title else 0)
     total_units = sum(widths) + (10 if title else 0)
-    printable_units = ((11.0 - 0.8) * 96 - 5 * total_cols) / 7.0
-    if total_units > printable_units:
-        factor = printable_units / total_units
-        widths = [round(w * factor, 2) for w in widths]
+    target_units = ((11.0 - 0.8) * 96 - 5 * total_cols) / 7.0 * 1.03
+    factor = target_units / total_units
+    widths = [round(w * factor, 2) for w in widths]
     for i, w in enumerate(widths, data_col0):
         ws.column_dimensions[get_column_letter(i)].width = w
 
@@ -211,7 +210,7 @@ def export_to_excel(
             cell = ws.cell(row=data_idx, column=col, value=val)
             cell.border = _thin_border()
             cell.font = Font(size=10, color="444B54")
-            cell.alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
+            cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
             if (data_idx - header_row) % 2 == 0:
                 cell.fill = PatternFill(start_color=ALT_ROW, end_color=ALT_ROW, fill_type="solid")
             lines = math.ceil((len(str(val)) + 1) / max(1.0, widths[col_idx - 1] - 1))
