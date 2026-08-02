@@ -96,7 +96,7 @@ export function Dashboard() {
   return (
     <div className="h-full flex flex-col min-h-0">
       {denied && (
-        <div className="fixed top-4 right-4 z-50 flex items-center gap-2.5 bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-xl shadow-lg animate-pulse">
+        <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 flex items-center gap-2.5 bg-rose-50 border-2 border-rose-200 text-rose-700 px-5 py-4 rounded-xl shadow-xl animate-pulse">
           <Lock size={16} className="shrink-0" />
           <p className="text-sm font-semibold">No tienes acceso a {denied}</p>
         </div>
