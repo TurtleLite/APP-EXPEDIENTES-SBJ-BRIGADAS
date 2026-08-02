@@ -127,22 +127,22 @@ def export_to_excel(
         ws.column_dimensions["A"].width = 10
         if os.path.exists(LOGO_PATH):
             logo = XLImage(LOGO_PATH)
-            logo.width = 66
-            logo.height = 50
+            logo.width = 62
+            logo.height = 46
             ws.add_image(logo, "A1")
 
         ws.merge_cells(f"B{row}:{last_col}{row}")
         c = ws.cell(row=row, column=2, value=institution)
         c.font = Font(bold=True, size=10, color=DARK)
         c.alignment = Alignment(horizontal="left", vertical="center")
-        ws.row_dimensions[row].height = 18
+        ws.row_dimensions[row].height = 15
         row += 1
 
         ws.merge_cells(f"B{row}:{last_col}{row}")
         c = ws.cell(row=row, column=2, value=title)
         c.font = Font(bold=True, size=13, color=PRIMARY)
         c.alignment = Alignment(horizontal="left", vertical="center")
-        ws.row_dimensions[row].height = 20
+        ws.row_dimensions[row].height = 17
         row += 1
 
         ws.merge_cells(f"B{row}:{last_col}{row}")
@@ -153,9 +153,10 @@ def export_to_excel(
         )
         c.font = Font(size=8, italic=True, color=MUTED)
         c.alignment = Alignment(horizontal="left", vertical="center")
-        ws.row_dimensions[row].height = 14
+        ws.row_dimensions[row].height = 12
         row += 1
 
+        ws.row_dimensions[row].height = 4
         row += 1  # spacer
 
         ws.merge_cells(f"A{row}:{last_col}{row}")
@@ -164,6 +165,7 @@ def export_to_excel(
         ws.row_dimensions[row].height = 2
         row += 1
 
+        ws.row_dimensions[row].height = 4
         row += 1  # spacer
 
         filter_text = _format_filters(filters)
@@ -174,8 +176,9 @@ def export_to_excel(
             c.fill = PatternFill(start_color=ALT_ROW, end_color=ALT_ROW, fill_type="solid")
             c.alignment = Alignment(horizontal="left", vertical="center")
             c.border = _thin_border()
-            ws.row_dimensions[row].height = 14
+            ws.row_dimensions[row].height = 12
             row += 1
+            ws.row_dimensions[row].height = 4
             row += 1  # spacer
 
     header_row = row
@@ -191,7 +194,7 @@ def export_to_excel(
         cell.font = Font(color="FFFFFF", bold=True, size=10)
         cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
         cell.border = _thin_border()
-    ws.row_dimensions[header_row].height = 18
+    ws.row_dimensions[header_row].height = 15
 
     for data_idx, record in enumerate(records, header_row + 1):
         max_lines = 1
