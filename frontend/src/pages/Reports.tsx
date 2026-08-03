@@ -134,7 +134,9 @@ export function Reports() {
       const url = window.URL.createObjectURL(new Blob([res.data]))
       const a = document.createElement('a')
       a.href = url
-      a.download = `reporte_${reportId}.xlsx`
+      const cd = res.headers['content-disposition']
+      const match = cd && cd.match(/filename="?(.+?)"?\s*$/i)
+      a.download = match ? match[1] : `reporte_${reportId}.xlsx`
       a.click()
       window.URL.revokeObjectURL(url)
     } catch (err: any) {

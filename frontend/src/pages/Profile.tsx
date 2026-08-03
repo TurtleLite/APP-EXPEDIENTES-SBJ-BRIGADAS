@@ -10,10 +10,23 @@ import { User as UserIcon, KeyRound, ShieldCheck, CheckCircle2, UserCircle2 } fr
 const capitalizeName = (value: string) =>
   value.replace(/\S+/g, (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
 
+const TITLE_RE = /^(Dr|Dra|Lic)\.?\s+(.*)$/i
+
+const parseName = (fullName: string) => {
+  const match = fullName.match(TITLE_RE)
+  const name = (match ? match[2] : fullName).trim().split(/\s+/).filter(Boolean)
+  const half = Math.ceil(name.length / 2)
+  return {
+    titulo: match ? `${match[1].charAt(0).toUpperCase() + match[1].slice(1)}.` : '',
+    nombres: name.slice(0, half).join(' '),
+    apellidos: name.slice(half).join(' '),
+  }
+}
+
 export function Profile() {
   const { user, updateUser } = useAuth()
   const { toast } = useNotification()
-  const [fullName, setFullName] = useState(user?.full_name || '')
+  const [nameParts, setNameParts] = useState(() => parseName(user?.full_name || ''))
   const [telefono, setTelefono] = useState(user?.telefono || '')
   const [password, setPassword] = useState('')
   const [saving, setSaving] = useState(false)
@@ -22,13 +35,17 @@ export function Profile() {
   const meta = ROLE_META[user.role] || ROLE_META.medico
 
   const handleSave = async () => {
-    if (!fullName.trim() || !telefono.trim()) {
+    const fullName = [nameParts.nombres, nameParts.apellidos].map((p) => (p || '').trim()).filter(Boolean).join(' ')
+    if (!fullName || !telefono.trim()) {
       toast('El nombre y el teléfono son obligatorios', 'error')
       return
     }
     try {
       setSaving(true)
-      const payload: any = { full_name: fullName.trim(), telefono: telefono.trim() }
+      const payload: any = {
+        full_name: nameParts.titulo ? `${nameParts.titulo} ${fullName}` : fullName,
+        telefono: telefono.trim(),
+      }
       if (password) payload.password = password
       const res = await usersApi.updateMe(payload)
       updateUser(res.data)
@@ -70,10 +87,30 @@ export function Profile() {
           </h2>
           <div className="space-y-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Nombre completo</label>
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Nombre</label>
+              <div className="flex gap-2">
+                <select
+                  value={nameParts.titulo}
+                  onChange={(e) => setNameParts({ ...nameParts, titulo: e.target.value })}
+                  className="w-28 shrink-0 px-3 py-2.5 border border-[#E3E6EB] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                >
+                  <option value="">Sin título</option>
+                  <option value="Dr.">Dr.</option>
+                  <option value="Dra.">Dra.</option>
+                  <option value="Lic.">Lic.</option>
+                </select>
+                <input
+                  value={nameParts.nombres}
+                  onChange={(e) => setNameParts({ ...nameParts, nombres: capitalizeName(e.target.value) })}
+                  className="flex-1 min-w-0 px-3 py-2.5 border border-[#E3E6EB] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Apellidos</label>
               <input
-                value={fullName}
-                onChange={(e) => setFullName(capitalizeName(e.target.value))}
+                value={nameParts.apellidos}
+                onChange={(e) => setNameParts({ ...nameParts, apellidos: capitalizeName(e.target.value) })}
                 className="w-full px-3 py-2.5 border border-[#E3E6EB] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               />
             </div>

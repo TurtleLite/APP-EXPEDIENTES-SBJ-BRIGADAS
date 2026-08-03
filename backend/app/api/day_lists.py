@@ -104,7 +104,7 @@ def export_day_list_excel(
     columns = _report_columns()
     title = f"Listado de Cirugías - {d.strftime('%d/%m/%Y')}"
     os.makedirs(settings.REPORTS_DIR, exist_ok=True)
-    filepath = os.path.join(settings.REPORTS_DIR, f"listado_{d.isoformat()}.xlsx")
+    filepath = os.path.join(settings.REPORTS_DIR, f"LISTADO_{d.isoformat()}.xlsx")
     export_day_list_to_excel(sections, columns, filepath, title=title, count=len(ordered))
     media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     return FileResponse(filepath, media_type=media_type, filename=os.path.basename(filepath))

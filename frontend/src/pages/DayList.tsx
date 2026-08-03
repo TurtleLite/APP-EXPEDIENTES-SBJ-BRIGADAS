@@ -206,7 +206,7 @@ export function DayList() {
       const url = window.URL.createObjectURL(new Blob([res.data]))
       const a = document.createElement('a')
       a.href = url
-      a.download = `listado_${date}.xlsx`
+      a.download = `LISTADO_${date}.xlsx`
       a.click()
       window.URL.revokeObjectURL(url)
       setSaved(true)

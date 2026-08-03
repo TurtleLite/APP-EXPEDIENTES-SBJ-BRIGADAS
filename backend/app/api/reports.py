@@ -74,6 +74,14 @@ def _report_columns() -> list[str]:
     return [label for label, _ in REPORT_COLUMNS]
 
 
+def _report_sequence_filename(db: Session, report: Report) -> str:
+    """Nombre de descarga con numeración por usuario: REPORTE_EXPEDIENTES_N."""
+    seq = db.query(Report).filter(
+        Report.created_by == report.created_by, Report.id <= report.id
+    ).count()
+    return f"REPORTE_EXPEDIENTES_{seq}.xlsx"
+
+
 def _report_rows(records: list[ListRecord]) -> list[dict]:
     rows = []
     for idx, rec in enumerate(records, 1):
@@ -188,7 +196,7 @@ def generate_excel_report(
     export_to_excel(data, columns, filepath, title=report.name, filters=report.filters, count=len(data))
     report.file_path_excel = filepath
     db.commit()
-    return {"message": "Reporte Excel generado", "file_path": filepath, "count": len(data)}
+    return {"message": "Reporte Excel generado", "file_path": filepath, "filename": _report_sequence_filename(db, report), "count": len(data)}
 
 
 @router.get("/{report_id}/preview")
@@ -229,7 +237,7 @@ def download_report(
     if not file_path or not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="Archivo no encontrado. Genere el reporte primero.")
     media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    return FileResponse(file_path, media_type=media_type, filename=os.path.basename(file_path))
+    return FileResponse(file_path, media_type=media_type, filename=_report_sequence_filename(db, report))
 
 
 @router.delete("/{report_id}")
