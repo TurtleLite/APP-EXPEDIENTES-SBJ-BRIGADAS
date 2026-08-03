@@ -4,7 +4,7 @@ import { ListRecord, ListDefinition } from '../types'
 import { useNotification } from '../contexts/NotificationContext'
 import {
   Search, Plus, Trash2, ArrowUp, ArrowDown, Save, Printer,
-  ChevronLeft, ChevronRight, X, ClipboardList,
+  ChevronLeft, ChevronRight, X, ClipboardList, FileSpreadsheet,
 } from 'lucide-react'
 
 function isoDate(d: Date): string {
@@ -66,10 +66,10 @@ export function DayList() {
         ids.forEach((id: string, idx: number) => { order[id] = idx })
         const byId: Record<string, ListRecord> = {}
         records.forEach((r) => { byId[r.id] = r })
-        const items = ids
+        const items: ListRecord[] = ids
           .map((id: string) => byId[id])
-          .filter(Boolean)
-        items.sort((a, b) => (order[a.id] ?? 0) - (order[b.id] ?? 0))
+          .filter((r): r is ListRecord => Boolean(r))
+        items.sort((a: ListRecord, b: ListRecord) => (order[a.id] ?? 0) - (order[b.id] ?? 0))
         setCart(items)
         setSaved(res.data?.id != null)
       })
@@ -83,7 +83,7 @@ export function DayList() {
     return records
       .filter((r) => {
         if (cart.some((c) => c.id === r.id)) return false
-        if (waitingOnly && r.data?.estatus_cirugia && r.data.estatus_cirugia !== 'En espera') return false
+        if (onlyWaiting && r.data?.estatus_cirugia && r.data.estatus_cirugia !== 'En espera') return false
         if (q) {
           const hay = [patientName(r), r.data?.especialidad, r.data?.perfil, r.data?.diagnostico]
             .filter(Boolean).join(' ').toLowerCase()
@@ -92,7 +92,7 @@ export function DayList() {
         return true
       })
       .sort((a, b) => patientName(a).localeCompare(patientName(b)))
-  }, [records, cart, search, waitingOnly])
+  }, [records, cart, search, onlyWaiting])
 
   const add = (r: ListRecord) => {
     if (cart.some((c) => c.id === r.id)) return
@@ -137,6 +137,27 @@ export function DayList() {
     } catch {
       setCart([])
       setSaved(true)
+    }
+  }
+
+  const exportExcel = async () => {
+    if (cart.length === 0) {
+      toast('El listado está vacío', 'error')
+      return
+    }
+    try {
+      await dayListsApi.save(date, cart.map((r) => r.id))
+      const res = await dayListsApi.exportExcel(date)
+      const url = window.URL.createObjectURL(new Blob([res.data]))
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `listado_${date}.xlsx`
+      a.click()
+      window.URL.revokeObjectURL(url)
+      setSaved(true)
+      toast('Excel generado correctamente', 'success')
+    } catch (err: any) {
+      toast(err.response?.data?.detail || 'Error al generar Excel', 'error')
     }
   }
 
@@ -215,8 +236,8 @@ export function DayList() {
               <label className="flex items-center gap-1.5 text-xs text-slate-500 whitespace-nowrap cursor-pointer select-none">
                 <input
                   type="checkbox"
-                  checked={waitingOnly}
-                  onChange={(e) => setWaitingOnly(e.target.checked)}
+                  checked={onlyWaiting}
+                  onChange={(e) => setOnlyWaiting(e.target.checked)}
                   className="accent-[#6E7B91]"
                 />
                 Solo en espera
@@ -231,7 +252,7 @@ export function DayList() {
               </div>
             ) : available.length === 0 ? (
               <p className="text-sm text-slate-400 text-center py-12">
-                {search || waitingOnly ? 'Sin pacientes que coincidan' : 'No hay pacientes disponibles'}
+                {search || onlyWaiting ? 'Sin pacientes que coincidan' : 'No hay pacientes disponibles'}
               </p>
             ) : (
               <ul className="divide-y divide-[#E3E6EB]">
@@ -282,6 +303,14 @@ export function DayList() {
               >
                 <Printer size={14} />
                 Imprimir
+              </button>
+              <button
+                onClick={exportExcel}
+                disabled={cart.length === 0}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-600 rounded-xl text-xs font-medium border border-[#E3E6EB] hover:bg-[#EDF0F4] transition-colors disabled:opacity-50 disabled:pointer-events-none"
+              >
+                <FileSpreadsheet size={14} />
+                Excel
               </button>
               {cart.length > 0 && (
                 <button

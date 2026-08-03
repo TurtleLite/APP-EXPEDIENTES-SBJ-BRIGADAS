@@ -2,9 +2,12 @@ from datetime import date, datetime
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.core.database import get_db
+from app.models.list_definition import ListRecord
 from app.models.surgery_day_list import SurgeryDayList
 from app.models.user import User
 from app.services.auth_service import get_current_user, require_role
@@ -70,6 +73,36 @@ def save_day_list(
     db.commit()
     db.refresh(day_list)
     return _serialize(day_list)
+
+
+@router.get("/{list_date}/export-excel")
+def export_day_list_excel(
+    list_date: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    import os
+    from app.api.reports import _report_columns, _report_rows
+    from app.services.excel_service import export_to_excel
+
+    d = _parse_date(list_date)
+    day_list = db.query(SurgeryDayList).filter(SurgeryDayList.date == d).first()
+    if not day_list or not day_list.record_ids:
+        raise HTTPException(status_code=404, detail="No hay listado guardado para esa fecha")
+
+    ids = [int(i) for i in day_list.record_ids if str(i).isdigit()]
+    records = db.query(ListRecord).filter(ListRecord.id.in_(ids)).all()
+    by_id = {r.id: r for r in records}
+    ordered = [by_id[i] for i in ids if i in by_id]
+
+    rows = _report_rows(ordered)
+    columns = _report_columns()
+    title = f"Listado Diario de Cirugías - {d.strftime('%d/%m/%Y')}"
+    os.makedirs(settings.REPORTS_DIR, exist_ok=True)
+    filepath = os.path.join(settings.REPORTS_DIR, f"listado_{d.isoformat()}.xlsx")
+    export_to_excel(rows, columns, filepath, title=title, count=len(rows))
+    media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    return FileResponse(filepath, media_type=media_type, filename=os.path.basename(filepath))
 
 
 @router.delete("/{list_date}")

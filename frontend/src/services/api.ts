@@ -100,6 +100,8 @@ export const dayListsApi = {
   save: (date: string, recordIds: (string | number)[]) =>
     api.put(`/day-lists/${date}`, { record_ids: recordIds }),
   delete: (date: string) => api.delete(`/day-lists/${date}`),
+  exportExcel: (date: string) =>
+    api.get(`/day-lists/${date}/export-excel`, { responseType: 'blob' }),
 }
 
 export default api
