@@ -330,6 +330,77 @@ def _write_section_table(
     return row + 1
 
 
+def export_to_excel_stream(
+    rows,
+    columns: List[str],
+    filepath: str,
+    title: Optional[str] = None,
+    count: Optional[int] = None,
+    institution: str = "Centro Médico San Benito José",
+):
+    """Exportación en streaming (memoria constante) para listas muy grandes.
+    No incluye logo ni celdas combinadas (limitaciones de openpyxl write_only)."""
+    from openpyxl.cell import WriteOnlyCell
+
+    wb = openpyxl.Workbook(write_only=True)
+    ws = wb.create_sheet("Reporte")
+    now = _now_honduras()
+
+    widths = [KNOWN_WIDTHS.get(col, 18.0) for col in columns]
+    for i, w in enumerate(widths, 2):
+        ws.column_dimensions[get_column_letter(i)].width = w
+
+    def styled(value, font=None, fill=None, align=None):
+        cell = WriteOnlyCell(ws, value=value)
+        if font:
+            cell.font = font
+        if fill:
+            cell.fill = fill
+        if align:
+            cell.alignment = align
+        return cell
+
+    if title:
+        ws.append([styled(institution.upper(), font=Font(bold=True, size=10, color=DARK))])
+        ws.append([styled(title, font=Font(bold=True, size=15, color=PRIMARY))])
+        ws.append([styled(
+            f"Generado el {now.strftime('%d/%m/%Y')} a las {now.strftime('%H:%M')}   |   Total de registros: {count if count is not None else ''}",
+            font=Font(size=8, italic=True, color=MUTED),
+        )])
+        ws.append([])
+
+    header_cells = []
+    for col in columns:
+        cell = styled(col, font=Font(color="FFFFFF", bold=True, size=10),
+                      fill=PatternFill(start_color=PRIMARY, end_color=PRIMARY, fill_type="solid"),
+                      align=Alignment(horizontal="center", vertical="center"))
+        header_cells.append(cell)
+    ws.append(header_cells)
+
+    for record in rows:
+        ws.append([record.get(col, "") for col in columns])
+
+    ws.sheet_properties.pageSetUpPr = PageSetupProperties(fitToPage=True)
+    ws.print_options.horizontalCentered = True
+    ws.page_setup.paperSize = 1
+    ws.page_setup.orientation = "landscape"
+    ws.page_setup.fitToWidth = 1
+    ws.page_setup.fitToHeight = 0
+    ws.page_margins.left = 0.4
+    ws.page_margins.right = 0.4
+    ws.page_margins.top = 0.7
+    ws.page_margins.bottom = 0.7
+
+    ws.oddFooter.left.text = f"Generado el {now.strftime('%d/%m/%Y')}"
+    ws.oddFooter.left.size = 8
+    ws.oddFooter.left.color = MUTED
+    ws.oddFooter.right.text = "Página &P de &N"
+    ws.oddFooter.right.size = 8
+    ws.oddFooter.right.color = MUTED
+
+    wb.save(filepath)
+
+
 def export_day_list_to_excel(
     sections: List[dict],
     columns: List[str],

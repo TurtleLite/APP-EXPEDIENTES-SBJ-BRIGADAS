@@ -3,7 +3,7 @@ from sqlalchemy import or_
 from app.models.list_definition import ListRecord, ListDefinition
 from typing import Optional
 
-_SEARCH_FIELDS = ["nombre", "apellido", "identidad", "expediente", "diagnostico", "especialidad"]
+_SEARCH_FIELDS = ["nombre", "apellido", "identidad", "expediente", "diagnostico", "especialidad", "perfil"]
 
 
 def _apply_search(query, search: Optional[str], search_field: Optional[str]):
@@ -36,9 +36,21 @@ def get_records(db: Session, list_id: int, skip: int = 0, limit: int = 1000,
 
 def paginate_records(db: Session, list_id: int, search: Optional[str] = None,
                      search_field: Optional[str] = None, page: int = 1,
-                     page_size: int = 50) -> tuple[list[ListRecord], int]:
+                     page_size: int = 50, exclude_statuses: Optional[list] = None,
+                     waiting_only: bool = False,
+                     estatus_cirugia: Optional[str] = None) -> tuple[list[ListRecord], int]:
     query = db.query(ListRecord).filter(ListRecord.list_definition_id == list_id)
     query = _apply_search(query, search, search_field)
+    if estatus_cirugia:
+        query = query.filter(ListRecord.data.op("->>")("estatus_cirugia") == estatus_cirugia)
+    if exclude_statuses:
+        statuses = [s for s in exclude_statuses if s]
+        if statuses:
+            st = ListRecord.data.op("->>")("estatus_cirugia")
+            query = query.filter(~st.in_(statuses))
+    if waiting_only:
+        st = ListRecord.data.op("->>")("estatus_cirugia")
+        query = query.filter(or_(st.is_(None), st == "En espera"))
     total = query.count()
     items = (
         query.order_by(ListRecord.id.desc())

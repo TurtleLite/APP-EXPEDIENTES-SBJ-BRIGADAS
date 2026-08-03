@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { listsApi } from '../services/api'
 import { ListRecord, ListDefinition } from '../types'
 import { useNotification } from '../contexts/NotificationContext'
 import { Search, ChevronDown } from 'lucide-react'
 
 const STATUS_OPTIONS = ['En espera', 'Reprogramar', 'Cancelado', 'Fuera de perfil San Benito', 'Operado', 'No se presentó']
+const PAGE_SIZE = 50
 
 const statusStyles: Record<string, string> = {
   'Operado': 'bg-emerald-100 text-emerald-600 border-emerald-200',
@@ -18,51 +19,84 @@ const statusStyles: Record<string, string> = {
 
 export function EstadoCirugia() {
   const [records, setRecords] = useState<ListRecord[]>([])
+  const [total, setTotal] = useState(0)
+  const [hasMore, setHasMore] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [filter, setFilter] = useState('')
   const [search, setSearch] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [listId, setListId] = useState<string | null>(null)
   const { toast } = useNotification()
+  const pageRef = useRef(1)
+  const reqRef = useRef(0)
+
+  const loadPage = useCallback(async (reset = false) => {
+    if (!listId) return false
+    const next = reset ? 1 : pageRef.current + 1
+    const reqId = ++reqRef.current
+    setLoadingMore(true)
+    try {
+      const params: Record<string, any> = { page: next, page_size: PAGE_SIZE }
+      if (filter) params.estatus_cirugia = filter
+      if (search.trim()) params.search = search.trim()
+      const res = await listsApi.getRecords(listId, params)
+      if (reqId !== reqRef.current) return false
+      const data = res.data
+      pageRef.current = data.page
+      setTotal(data.total)
+      setHasMore(data.page * data.page_size < data.total)
+      setRecords(reset ? data.items : (prev) => [...prev, ...data.items])
+      return true
+    } catch {
+      if (reqId === reqRef.current) toast('Error al cargar registros', 'error')
+      return false
+    } finally {
+      if (reqId === reqRef.current) setLoadingMore(false)
+    }
+  }, [listId, filter, search])
 
   useEffect(() => {
     let cancelled = false
-    async function load() {
+    async function setup() {
       try {
-        setLoading(true)
-        if (!listId) {
-          const listsRes = await listsApi.list()
-          const lists: ListDefinition[] = listsRes.data
-          const system = lists.find((l) => l.is_system)
-          if (!cancelled && system) {
-            setListId(system.id)
-            return
-          }
-          if (!cancelled) toast('No se encontró la lista de expedientes', 'error')
-        } else {
-          const res = await listsApi.getRecords(listId)
-          if (!cancelled) setRecords(res.data)
+        const listsRes = await listsApi.list()
+        const lists: ListDefinition[] = listsRes.data
+        const system = lists.find((l) => l.is_system)
+        if (!cancelled && system) {
+          setListId(system.id)
+          return
         }
+        if (!cancelled) toast('No se encontró la lista de expedientes', 'error')
       } catch {
         if (!cancelled) toast('Error al cargar registros', 'error')
       } finally {
         if (!cancelled) setLoading(false)
       }
     }
-    load()
+    setup()
     return () => { cancelled = true }
-  }, [listId])
+  }, [])
 
-  const filtered = records.filter((r) => {
-    const matchesStatus = !filter || (r.data?.estatus_cirugia || '') === filter
-    const q = search.trim().toLowerCase()
-    const haystack = [r.data?.nombre, r.data?.apellido, r.data?.especialidad, r.data?.perfil, r.data?.estatus_cirugia]
-      .filter(Boolean)
-      .join(' ')
-      .toLowerCase()
-    const matchesSearch = !q || haystack.includes(q)
-    return matchesStatus && matchesSearch
-  })
+  useEffect(() => {
+    if (!listId) return
+    setLoading(true)
+    setRecords([])
+    pageRef.current = 0
+    const t = setTimeout(() => {
+      loadPage(true).then((fresh) => {
+        if (fresh) setLoading(false)
+      })
+    }, 300)
+    return () => { clearTimeout(t) }
+  }, [listId, filter, search])
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget
+    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 150) {
+      if (hasMore && !loadingMore && !loading) loadPage(false)
+    }
+  }
 
   const updateStatus = async (recordId: string, status: string) => {
     if (!listId) return
@@ -72,10 +106,9 @@ export function EstadoCirugia() {
       await listsApi.updateRecord(listId, recordId, {
         data: { ...record.data, estatus_cirugia: status },
       })
-      const res = await listsApi.getRecords(listId)
-      setRecords(res.data)
       setEditingId(null)
       toast('Estatus actualizado', 'success')
+      loadPage(true)
     } catch {
       toast('Error al actualizar', 'error')
     }
@@ -115,13 +148,13 @@ export function EstadoCirugia() {
             <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
           </div>
           <span className="text-sm text-slate-500 ml-auto">
-            <span className="font-medium text-slate-700">{filtered.length}</span> de <span className="font-medium text-slate-700">{records.length}</span> registros
+            <span className="font-medium text-slate-700">{total}</span> registros
           </span>
         </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-[#E3E6EB] flex flex-col min-h-0 flex-1 transition-shadow duration-200 hover:shadow-md">
-        <div className="flex-1 min-h-0 overflow-y-auto">
+        <div className="flex-1 min-h-0 overflow-y-auto" onScroll={handleScroll}>
           <table className="w-full text-sm">
             <thead className="sticky top-0 z-10">
               <tr className="bg-slate-100 border-b border-[#E3E6EB]">
@@ -141,9 +174,9 @@ export function EstadoCirugia() {
                     </div>
                   </td>
                 </tr>
-              ) : filtered.length === 0 ? (
+              ) : records.length === 0 ? (
                 <tr><td colSpan={4} className="px-4 py-12 text-center text-slate-400 text-sm">Sin registros</td></tr>
-              ) : filtered.map((r, idx) => (
+              ) : records.map((r, idx) => (
                 <tr key={r.id} className={`border-b border-slate-100 transition-all duration-150 hover:bg-slate-100/50 ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-100/20'}`}>
                   <td className="px-6 py-4 font-medium text-slate-900">
                     {`${r.data?.nombre || ''} ${r.data?.apellido || ''}`}
@@ -179,6 +212,20 @@ export function EstadoCirugia() {
               ))}
             </tbody>
           </table>
+          {!loading && hasMore && (
+            <div className="flex items-center justify-center gap-2 py-3 border-t border-[#E3E6EB]">
+              {loadingMore ? (
+                <div className="w-5 h-5 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <button
+                  onClick={() => loadPage(false)}
+                  className="px-3 py-1.5 text-xs font-medium text-[#5F6B80] bg-white border border-[#E3E6EB] rounded-xl hover:bg-[#F8F9FA] transition-colors"
+                >
+                  Cargar más
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

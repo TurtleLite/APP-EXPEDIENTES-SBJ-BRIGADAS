@@ -14,10 +14,14 @@ EXPRESSION_INDEXES = [
     "CREATE INDEX IF NOT EXISTS idx_list_records_list_id ON list_records (list_definition_id, id DESC)",
 ]
 
+INVERTED_INDEXES = [
+    "CREATE INVERTED INDEX IF NOT EXISTS idx_list_records_data ON list_records (data)",
+]
+
 
 def ensure_performance_indexes(engine) -> None:
     with engine.begin() as conn:
-        for sql in EXPRESSION_INDEXES:
+        for sql in EXPRESSION_INDEXES + INVERTED_INDEXES:
             try:
                 conn.execute(text(sql))
                 logger.info(f"Índice listo: {sql.split(' ON ')[1]}")

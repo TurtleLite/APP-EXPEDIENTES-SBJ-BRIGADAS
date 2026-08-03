@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { listsApi, dayListsApi } from '../services/api'
 import { ListRecord, ListDefinition } from '../types'
 import { useNotification } from '../contexts/NotificationContext'
@@ -20,18 +20,25 @@ function patientName(r: ListRecord): string {
 }
 
 const EXCLUDED_STATUSES = ['Operado', 'Fuera de perfil San Benito']
+const PAGE_SIZE = 50
 
 export function DayList() {
   const { toast } = useNotification()
   const [listId, setListId] = useState<string | null>(null)
-  const [records, setRecords] = useState<ListRecord[]>([])
+  const [available, setAvailable] = useState<ListRecord[]>([])
+  const [availableTotal, setAvailableTotal] = useState(0)
+  const [availablePage, setAvailablePage] = useState(1)
+  const [availableHasMore, setAvailableHasMore] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [cart, setCart] = useState<ListRecord[]>([])
   const [date, setDate] = useState<string>(isoDate(new Date()))
   const [search, setSearch] = useState('')
   const [onlyWaiting, setOnlyWaiting] = useState(true)
-  const [loading, setLoading] = useState(true)
   const [loadingDate, setLoadingDate] = useState(false)
   const [saved, setSaved] = useState(false)
+  const availableScrollRef = useRef<HTMLDivElement>(null)
+  const reqRef = useRef(0)
 
   useEffect(() => {
     let cancelled = false
@@ -41,11 +48,7 @@ export function DayList() {
         const listsRes = await listsApi.list()
         const lists: ListDefinition[] = listsRes.data
         const system = lists.find((l) => l.is_system)
-        if (system) {
-          setListId(system.id)
-          const recRes = await listsApi.getRecords(system.id)
-          if (!cancelled) setRecords(recRes.data)
-        }
+        if (system && !cancelled) setListId(system.id)
       } catch {
         if (!cancelled) toast('Error al cargar expedientes', 'error')
       } finally {
@@ -56,22 +59,77 @@ export function DayList() {
     return () => { cancelled = true }
   }, [])
 
+  const loadAvailable = useCallback(async (reset = false) => {
+    if (!listId) return false
+    const next = reset ? 1 : availablePage + 1
+    const reqId = ++reqRef.current
+    setLoadingMore(true)
+    try {
+      const params: Record<string, any> = {
+        page: next,
+        page_size: PAGE_SIZE,
+        exclude_statuses: EXCLUDED_STATUSES.join(','),
+        waiting_only: onlyWaiting,
+      }
+      if (search.trim()) params.search = search.trim()
+      const res = await listsApi.getRecords(listId, params)
+      if (reqId !== reqRef.current) return false
+      const data = res.data
+      setAvailablePage(data.page)
+      setAvailableTotal(data.total)
+      setAvailableHasMore(data.page * data.page_size < data.total)
+      setAvailable(reset ? data.items : (prev) => [...prev, ...data.items])
+      return true
+    } catch {
+      if (reqId === reqRef.current) toast('Error al cargar expedientes', 'error')
+      return false
+    } finally {
+      if (reqId === reqRef.current) setLoadingMore(false)
+    }
+  }, [listId, availablePage, search, onlyWaiting])
+
   useEffect(() => {
-    if (!date) return
+    if (!listId) return
+    setLoading(true)
+    setAvailable([])
+    setAvailablePage(0)
+    loadAvailable(true).then((fresh) => {
+      if (fresh) setLoading(false)
+    })
+  }, [listId, search, onlyWaiting])
+
+  const handleAvailableScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget
+    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 200) {
+      if (availableHasMore && !loadingMore) loadAvailable(false)
+    }
+  }
+
+  useEffect(() => {
+    if (!date || !listId) return
     let cancelled = false
     setLoadingDate(true)
     dayListsApi.get(date)
-      .then((res) => {
+      .then(async (res) => {
         if (cancelled) return
         const ids: string[] = (res.data?.record_ids || []).map(String)
         const order: Record<string, number> = {}
         ids.forEach((id: string, idx: number) => { order[id] = idx })
-        const byId: Record<string, ListRecord> = {}
-        records.forEach((r) => { byId[r.id] = r })
-        const items: ListRecord[] = ids
-          .map((id: string) => byId[id])
-          .filter((r): r is ListRecord => Boolean(r))
-          .filter((r) => !(r.data?.estatus_cirugia && EXCLUDED_STATUSES.includes(r.data.estatus_cirugia)))
+        let items: ListRecord[] = []
+        if (ids.length > 0) {
+          try {
+            const recRes = await listsApi.getRecordsByIds(listId, ids)
+            const byId: Record<string, ListRecord> = {}
+            recRes.data.forEach((r: ListRecord) => { byId[r.id] = r })
+            items = ids
+              .map((id: string) => byId[id])
+              .filter((r): r is ListRecord => Boolean(r))
+              .filter((r) => !(r.data?.estatus_cirugia && EXCLUDED_STATUSES.includes(r.data.estatus_cirugia)))
+          } catch {
+            items = []
+          }
+        }
+        if (cancelled) return
         items.sort((a: ListRecord, b: ListRecord) => (order[a.id] ?? 0) - (order[b.id] ?? 0))
         setCart(items)
         setSaved(res.data?.id != null)
@@ -79,24 +137,11 @@ export function DayList() {
       .catch(() => {})
       .finally(() => { if (!cancelled) setLoadingDate(false) })
     return () => { cancelled = true }
-  }, [date, listId, records])
+  }, [date, listId])
 
-  const available = useMemo(() => {
-    const q = search.trim().toLowerCase()
-    return records
-      .filter((r) => {
-        if (r.data?.estatus_cirugia && EXCLUDED_STATUSES.includes(r.data.estatus_cirugia)) return false
-        if (cart.some((c) => c.id === r.id)) return false
-        if (onlyWaiting && r.data?.estatus_cirugia && r.data.estatus_cirugia !== 'En espera') return false
-        if (q) {
-          const hay = [patientName(r), r.data?.especialidad, r.data?.perfil, r.data?.diagnostico]
-            .filter(Boolean).join(' ').toLowerCase()
-          if (!hay.includes(q)) return false
-        }
-        return true
-      })
-      .sort((a, b) => patientName(a).localeCompare(patientName(b)))
-  }, [records, cart, search, onlyWaiting])
+  const visibleAvailable = useMemo(() =>
+    available.filter((r) => !cart.some((c) => c.id === r.id)),
+  [available, cart])
 
   const add = (r: ListRecord) => {
     if (cart.some((c) => c.id === r.id)) return
@@ -255,7 +300,7 @@ export function DayList() {
           <div className="p-3 border-b border-[#E3E6EB] space-y-2.5">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold text-[#3F4650]">Pacientes disponibles</h2>
-              <span className="text-xs text-slate-400">{available.length} pacientes</span>
+              <span className="text-xs text-slate-400">{availableTotal} pacientes</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="relative flex-1">
@@ -279,19 +324,19 @@ export function DayList() {
               </label>
             </div>
           </div>
-          <div className="flex-1 overflow-y-auto min-h-0">
+          <div className="flex-1 overflow-y-auto min-h-0" onScroll={handleAvailableScroll} ref={availableScrollRef}>
             {loading ? (
               <div className="flex items-center justify-center gap-2 text-slate-400 py-12">
                 <div className="w-5 h-5 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
                 <span className="text-sm">Cargando...</span>
               </div>
-            ) : available.length === 0 ? (
+            ) : visibleAvailable.length === 0 ? (
               <p className="text-sm text-slate-400 text-center py-12">
                 {search || onlyWaiting ? 'Sin pacientes que coincidan' : 'No hay pacientes disponibles'}
               </p>
             ) : (
               <ul className="divide-y divide-[#E3E6EB]">
-                {available.map((r) => (
+                {visibleAvailable.map((r) => (
                   <li key={r.id}>
                     <button
                       onClick={() => add(r)}
@@ -311,6 +356,25 @@ export function DayList() {
                   </li>
                 ))}
               </ul>
+            )}
+            {!loading && (
+              <div className="flex flex-col items-center gap-2 py-3">
+                {loadingMore ? (
+                  <div className="w-5 h-5 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
+                ) : availableHasMore ? (
+                  <button
+                    onClick={() => loadAvailable(false)}
+                    className="px-3 py-1.5 text-xs font-medium text-[#5F6B80] bg-white border border-[#E3E6EB] rounded-xl hover:bg-[#F8F9FA] transition-colors"
+                  >
+                    Cargar más
+                  </button>
+                ) : null}
+                {visibleAvailable.length > 0 && (
+                  <p className="text-xs text-slate-400">
+                    Mostrando {visibleAvailable.length} de {availableTotal}
+                  </p>
+                )}
+              </div>
             )}
           </div>
         </div>

@@ -201,17 +201,28 @@ def export_list_excel(
     current_user: User = Depends(get_current_user),
 ):
     from app.services.list_service import get_list_definition
-    from app.services.record_service import get_records
-    from app.services.excel_service import export_to_excel
+    from app.services.record_service import count_records, get_records
+    from app.services.excel_service import export_to_excel, export_to_excel_stream
     from fastapi.responses import FileResponse
     import os
     ld = get_list_definition(db, list_id)
     columns = [c["label"] for c in ld.columns_config]
-    records = get_records(db, list_id)
-    data = [r.data for r in records]
+    total = count_records(db, list_id)
     os.makedirs(settings.EXPORTS_DIR, exist_ok=True)
     filepath = os.path.join(settings.EXPORTS_DIR, f"export_lista_{list_id}.xlsx")
-    export_to_excel(data, columns, filepath, title=ld.name, count=len(data))
+    STREAM_THRESHOLD = 20000
+    BATCH_SIZE = 5000
+    if total > STREAM_THRESHOLD:
+        def gen_rows():
+            for skip in range(0, total, BATCH_SIZE):
+                batch = get_records(db, list_id, skip, BATCH_SIZE)
+                for r in batch:
+                    yield r.data
+        export_to_excel_stream(gen_rows(), columns, filepath, title=ld.name, count=total)
+    else:
+        records = get_records(db, list_id, 0, total)
+        data = [r.data for r in records]
+        export_to_excel(data, columns, filepath, title=ld.name, count=total)
     return FileResponse(filepath, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename=f"lista_{ld.name}.xlsx")
 
 
@@ -225,6 +236,28 @@ def count_records_endpoint(
     return {"count": count_records(db, list_id)}
 
 
+@router.get("/{list_id}/records/by-ids")
+def list_records_by_ids(
+    list_id: int,
+    ids: str = "",
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    from app.services.record_service import get_records_by_ids
+    id_list = [int(x) for x in ids.split(",") if x.strip().isdigit()]
+    records = get_records_by_ids(db, id_list)
+    return [
+        {
+            "id": str(r.id),
+            "list_definition_id": str(r.list_definition_id),
+            "data": r.data,
+            "created_by": str(r.created_by) if r.created_by else None,
+            "created_at": str(r.created_at),
+        }
+        for r in records
+    ]
+
+
 @router.get("/{list_id}/records")
 def list_records(
     list_id: int,
@@ -234,13 +267,21 @@ def list_records(
     search_field: str = None,
     page: int = None,
     page_size: int = None,
+    exclude_statuses: str = None,
+    waiting_only: bool = False,
+    estatus_cirugia: str = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     if page_size is not None:
         from app.services.record_service import paginate_records
         page = page or 1
-        items, total = paginate_records(db, list_id, search, search_field, page, page_size)
+        excluded = [s.strip() for s in (exclude_statuses or "").split(",") if s.strip()]
+        items, total = paginate_records(
+            db, list_id, search, search_field, page, page_size,
+            exclude_statuses=excluded or None, waiting_only=waiting_only,
+            estatus_cirugia=estatus_cirugia or None,
+        )
 
         def ser(r):
             return {
