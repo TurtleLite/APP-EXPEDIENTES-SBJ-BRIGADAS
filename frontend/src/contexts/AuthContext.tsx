@@ -19,8 +19,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const savedToken = localStorage.getItem('token')
-    const savedUser = localStorage.getItem('user')
+    const savedToken = sessionStorage.getItem('token')
+    const savedUser = sessionStorage.getItem('user')
     if (savedToken && savedUser) {
       try {
         const parsed = JSON.parse(savedUser)
@@ -29,8 +29,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(parsed)
         }
       } catch {
-        localStorage.removeItem('token')
-        localStorage.removeItem('user')
+        sessionStorage.removeItem('token')
+        sessionStorage.removeItem('user')
       }
     }
     setLoading(false)
@@ -39,21 +39,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (username: string, password: string) => {
     const res = await authApi.login(username, password)
     const data = res.data
-    localStorage.setItem('token', data.access_token)
-    localStorage.setItem('user', JSON.stringify(data.user))
+    sessionStorage.setItem('token', data.access_token)
+    sessionStorage.setItem('user', JSON.stringify(data.user))
     setToken(data.access_token)
     setUser(data.user)
   }
 
   const logout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
+    sessionStorage.removeItem('token')
+    sessionStorage.removeItem('user')
     setToken(null)
     setUser(null)
   }
 
   const updateUser = (updated: User) => {
-    localStorage.setItem('user', JSON.stringify(updated))
+    sessionStorage.setItem('user', JSON.stringify(updated))
     setUser(updated)
   }
 
