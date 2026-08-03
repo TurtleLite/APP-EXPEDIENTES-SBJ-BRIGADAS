@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { NotificationProvider } from './contexts/NotificationContext'
 import { Layout } from './components/Layout'
@@ -30,7 +30,7 @@ function RoleRoute({ children, roles }: { children: ReactNode; roles: string[] }
 
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <AuthProvider>
         <NotificationProvider>
         <Routes>
@@ -48,7 +48,7 @@ function App() {
         </Routes>
         </NotificationProvider>
       </AuthProvider>
-    </BrowserRouter>
+    </HashRouter>
   )
 }
 

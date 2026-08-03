@@ -21,7 +21,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !error.config?.url?.includes('/auth/')) {
       sessionStorage.removeItem('token')
       sessionStorage.removeItem('user')
-      window.location.href = '/login'
+      window.location.hash = '#/login'
     }
     return Promise.reject(error)
   }
