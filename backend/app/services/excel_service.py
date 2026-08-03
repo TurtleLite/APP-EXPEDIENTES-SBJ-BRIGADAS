@@ -125,7 +125,7 @@ def export_to_excel(
 
     row = 1
     if title:
-        ws.column_dimensions["A"].width = 13
+        ws.column_dimensions["A"].width = 3
         if os.path.exists(LOGO_PATH):
             logo = XLImage(LOGO_PATH)
             logo.width = 130
@@ -191,7 +191,7 @@ def export_to_excel(
 
     widths = _content_widths(records, columns)
     total_cols = len(widths) + (1 if title else 0)
-    col_a_units = 13 if title else 0
+    col_a_units = 3 if title else 0
     target_units = ((11.0 - 0.8) * 96 - 3 * total_cols) / 7.0
     factor = (target_units - col_a_units) / (sum(widths) or 1)
     widths = [round(w * factor, 2) for w in widths]
