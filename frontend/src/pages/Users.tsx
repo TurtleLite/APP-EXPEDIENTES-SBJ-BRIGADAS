@@ -6,6 +6,7 @@ import { useNotification } from '../contexts/NotificationContext'
 import { Plus, Pencil, Trash2, UserPlus } from 'lucide-react'
 import { RoleAvatar } from '../components/RoleAvatar'
 import { PasswordInput } from '../components/PasswordInput'
+import { formatPhone, isValidPhone } from '../utils/format'
 
 const roleLabels: Record<string, string> = {
   admin: 'Administrador',
@@ -41,6 +42,10 @@ export function Users() {
   useEffect(() => { loadUsers() }, [])
 
   const handleSave = async () => {
+    if (!isValidPhone(form.telefono)) {
+      toast('El teléfono debe tener el formato 0000-0000', 'error')
+      return
+    }
     try {
       const payload: any = { ...form }
       const fullName = [payload.nombres, payload.apellidos].map((p) => (p || '').trim()).filter(Boolean).join(' ')
@@ -78,7 +83,7 @@ export function Users() {
     setEditingUser(user)
     setForm({
       username: user.username,
-      telefono: user.telefono,
+      telefono: formatPhone(user.telefono),
       nombres: name.slice(0, half).join(' '),
       apellidos: name.slice(half).join(' '),
       password: '',
@@ -206,10 +211,10 @@ export function Users() {
                 className="w-full px-3 py-2.5 border border-[#E3E6EB] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               />
               <input
-                placeholder="Teléfono"
+                placeholder="0000-0000"
                 type="tel"
                 value={form.telefono}
-                onChange={(e) => setForm({ ...form, telefono: e.target.value })}
+                onChange={(e) => setForm({ ...form, telefono: formatPhone(e.target.value) })}
                 className="w-full px-3 py-2.5 border border-[#E3E6EB] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               />
               <PasswordInput

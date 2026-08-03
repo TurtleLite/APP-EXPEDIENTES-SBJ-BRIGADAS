@@ -5,6 +5,7 @@ import { useNotification } from '../contexts/NotificationContext'
 import { ROLE_META } from '../constants'
 import { RoleAvatar } from '../components/RoleAvatar'
 import { PasswordInput } from '../components/PasswordInput'
+import { formatPhone, isValidPhone } from '../utils/format'
 import { User as UserIcon, KeyRound, ShieldCheck, CheckCircle2, UserCircle2 } from 'lucide-react'
 
 const capitalizeName = (value: string) =>
@@ -27,7 +28,7 @@ export function Profile() {
   const { user, updateUser } = useAuth()
   const { toast } = useNotification()
   const [nameParts, setNameParts] = useState(() => parseName(user?.full_name || ''))
-  const [telefono, setTelefono] = useState(user?.telefono || '')
+  const [telefono, setTelefono] = useState(() => formatPhone(user?.telefono || ''))
   const [password, setPassword] = useState('')
   const [currentPassword, setCurrentPassword] = useState('')
   const [saving, setSaving] = useState(false)
@@ -39,6 +40,10 @@ export function Profile() {
     const fullName = [nameParts.nombres, nameParts.apellidos].map((p) => (p || '').trim()).filter(Boolean).join(' ')
     if (!fullName || !telefono.trim()) {
       toast('El nombre y el teléfono son obligatorios', 'error')
+      return
+    }
+    if (!isValidPhone(telefono)) {
+      toast('El teléfono debe tener el formato 0000-0000', 'error')
       return
     }
     try {
@@ -134,7 +139,8 @@ export function Profile() {
               <input
                 type="tel"
                 value={telefono}
-                onChange={(e) => setTelefono(e.target.value)}
+                onChange={(e) => setTelefono(formatPhone(e.target.value))}
+                placeholder="0000-0000"
                 className="w-full px-3 py-2.5 border border-[#E3E6EB] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               />
             </div>
