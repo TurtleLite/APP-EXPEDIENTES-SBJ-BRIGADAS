@@ -51,7 +51,6 @@ export function ListDetail() {
   const [espSaving, setEspSaving] = useState(false)
   const [showDupModal, setShowDupModal] = useState(false)
   const [duplicates, setDuplicates] = useState<DuplicateGroup[]>([])
-  const [dupLoading, setDupLoading] = useState(false)
 
   const loadEspecialidades = async () => {
     try {
@@ -117,6 +116,11 @@ export function ListDetail() {
     if (id && list?.is_system) loadEspecialidades()
   }, [id, list?.is_system])
 
+  useEffect(() => {
+    if (id && list?.is_system) refreshDuplicates()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, list?.is_system])
+
   const toggleSelect = (recordId: string) => {
     setSelectedIds((prev) => {
       const next = new Set(prev)
@@ -169,6 +173,7 @@ export function ListDetail() {
       const res = await listsApi.importExcel(id, file)
       toast(res.data.message, 'success')
       loadRecords()
+      refreshDuplicates()
     } catch (err: any) {
       toast(err.response?.data?.detail || 'Error al importar', 'error')
     }
@@ -185,6 +190,7 @@ export function ListDetail() {
       setEditingRecord(null)
       setFormData({})
       loadRecords()
+      refreshDuplicates()
     } catch (err: any) {
       toast(err.response?.data?.detail || 'Error al guardar registro', 'error')
     }
@@ -216,6 +222,7 @@ export function ListDetail() {
       const res = await api.post(`/lists/${id}/records/bulk-delete`, { ids })
       setSelectedIds(new Set())
       loadRecords()
+      refreshDuplicates()
       toast(res.data.message, 'success')
     } catch (err: any) {
       toast(err.response?.data?.detail || 'Error al eliminar', 'error')
@@ -269,16 +276,16 @@ export function ListDetail() {
     }
   }
 
-  const openDupModal = async () => {
+  const openDupModal = () => {
     setShowDupModal(true)
-    setDupLoading(true)
+  }
+
+  const refreshDuplicates = async () => {
     try {
       const res = await listsApi.getDuplicates(id)
       setDuplicates(res.data)
     } catch {
-      toast('Error al buscar duplicados', 'error')
-    } finally {
-      setDupLoading(false)
+      // silencioso
     }
   }
 
@@ -372,14 +379,19 @@ export function ListDetail() {
                   Especialidades
                 </button>
               )}
-              <button
-                onClick={openDupModal}
-                className="flex items-center gap-1.5 px-3 py-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100 transition-all duration-200"
-                title="Buscar expedientes con la misma identidad"
-              >
-                <AlertTriangle size={15} />
-                Duplicados
-              </button>
+              {duplicates.length > 0 && (
+                <button
+                  onClick={openDupModal}
+                  className="flex items-center gap-1.5 px-3 py-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100 transition-all duration-200"
+                  title={`${duplicates.length} identidad(es) repetida(s)`}
+                >
+                  <AlertTriangle size={15} />
+                  Duplicados
+                  <span className="px-1.5 py-0.5 rounded-full bg-amber-200 text-amber-800 text-[10px] font-bold">
+                    {duplicates.length}
+                  </span>
+                </button>
+              )}
               {selectedIds.size > 0 && (
                 <div className="flex items-center gap-2 flex-wrap">
                   <button
@@ -608,9 +620,7 @@ export function ListDetail() {
               <button onClick={() => setShowDupModal(false)} className="text-slate-400 hover:text-slate-600 text-xl leading-none p-1 rounded-full hover:bg-slate-100">×</button>
             </div>
             <div className="flex-1 overflow-y-auto min-h-0 p-5 space-y-2">
-              {dupLoading ? (
-                <p className="text-sm text-[#8A919C] text-center py-8">Buscando duplicados...</p>
-              ) : duplicates.length === 0 ? (
+              {duplicates.length === 0 ? (
                 <p className="text-sm text-[#8A919C] text-center py-8">No hay expedientes con la misma identidad</p>
               ) : (
                 duplicates.map((d) => (
@@ -631,7 +641,7 @@ export function ListDetail() {
                 ))
               )}
             </div>
-            {!dupLoading && duplicates.length > 0 && (
+            {duplicates.length > 0 && (
               <p className="px-5 py-3 text-xs text-[#8A919C] border-t border-[#E3E6EB] shrink-0">
                 Toca un grupo para buscar esa identidad en la lista.
               </p>
