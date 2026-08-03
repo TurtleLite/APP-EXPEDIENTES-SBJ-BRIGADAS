@@ -108,8 +108,14 @@ export function DayList() {
   const move = (id: string, dir: -1 | 1) => {
     setCart((prev) => {
       const idx = prev.findIndex((r) => r.id === id)
-      const target = idx + dir
-      if (idx < 0 || target < 0 || target >= prev.length) return prev
+      if (idx < 0) return prev
+      const esp = prev[idx].data?.especialidad || 'Sin especialidad'
+      let target = idx + dir
+      while (target >= 0 && target < prev.length) {
+        if ((prev[target].data?.especialidad || 'Sin especialidad') === esp) break
+        target += dir
+      }
+      if (target < 0 || target >= prev.length) return prev
       const next = [...prev]
       ;[next[idx], next[target]] = [next[target], next[idx]]
       return next
@@ -178,6 +184,31 @@ export function DayList() {
     })
     return m
   }, [cart])
+
+  const grouped = useMemo(() => {
+    const sections: { esp: string; items: { r: ListRecord; gi: number }[] }[] = []
+    const map = new Map<string, typeof sections[number]>()
+    cart.forEach((r, gi) => {
+      const esp = r.data?.especialidad || 'Sin especialidad'
+      let sec = map.get(esp)
+      if (!sec) {
+        sec = { esp, items: [] }
+        map.set(esp, sec)
+        sections.push(sec)
+      }
+      sec.items.push({ r, gi })
+    })
+    return sections
+  }, [cart])
+
+  const isFirstInGroup = (r: ListRecord) => {
+    const sec = grouped.find((g) => g.items.some((i) => i.r.id === r.id))
+    return sec ? sec.items[0].r.id === r.id : true
+  }
+  const isLastInGroup = (r: ListRecord) => {
+    const sec = grouped.find((g) => g.items.some((i) => i.r.id === r.id))
+    return sec ? sec.items[sec.items.length - 1].r.id === r.id : true
+  }
 
   return (
     <div className="h-full flex flex-col min-h-0">
@@ -335,34 +366,44 @@ export function DayList() {
                 <p className="text-sm">Agrega pacientes del panel izquierdo para armar el listado del día.</p>
               </div>
             ) : (
-              <ul className="divide-y divide-[#E3E6EB]">
-                {cart.map((r, idx) => (
-                  <li key={r.id} className="px-4 py-2.5 flex items-center gap-3 hover:bg-[#F8F9FA] transition-colors">
-                    <span className="w-6 h-6 rounded-full bg-[#6E7B91] text-white text-xs font-semibold flex items-center justify-center flex-none">
-                      {idx + 1}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-slate-900 truncate">{patientName(r)}</p>
-                      <p className="text-xs text-slate-500 truncate">
-                        {[r.data?.edad && `Edad: ${r.data.edad}`, r.data?.especialidad, r.data?.perfil, r.data?.diagnostico]
-                          .filter(Boolean).join(' · ') || 'Sin datos'}
-                      </p>
+              <div className="divide-y divide-[#E3E6EB]">
+                {grouped.map((sec) => (
+                  <div key={sec.esp}>
+                    <div className="flex items-center gap-2 px-4 py-2 bg-[#F8F9FA] border-y border-[#E3E6EB]">
+                      <span className="text-xs font-bold uppercase tracking-wider text-[#5F6B80]">{sec.esp}</span>
+                      <span className="px-1.5 py-0.5 rounded-full bg-[#6E7B91] text-white text-[10px] font-semibold">{sec.items.length}</span>
                     </div>
-                    <StatusBadge status={r.data?.estatus_cirugia} />
-                    <div className="flex items-center gap-0.5 flex-none">
-                      <button onClick={() => move(r.id, -1)} disabled={idx === 0} className="p-1 text-slate-400 hover:text-[#3F4650] rounded-lg hover:bg-[#EDF0F4] transition-colors disabled:opacity-30">
-                        <ArrowUp size={14} />
-                      </button>
-                      <button onClick={() => move(r.id, 1)} disabled={idx === cart.length - 1} className="p-1 text-slate-400 hover:text-[#3F4650] rounded-lg hover:bg-[#EDF0F4] transition-colors disabled:opacity-30">
-                        <ArrowDown size={14} />
-                      </button>
-                      <button onClick={() => remove(r.id)} className="p-1 text-red-300 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors">
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </li>
+                    <ul className="divide-y divide-[#E3E6EB]">
+                      {sec.items.map(({ r }, localIdx) => (
+                        <li key={r.id} className="px-4 py-2.5 flex items-center gap-3 hover:bg-[#F8F9FA] transition-colors">
+                          <span className="w-6 h-6 rounded-full bg-[#6E7B91] text-white text-xs font-semibold flex items-center justify-center flex-none">
+                            {localIdx + 1}
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-slate-900 truncate">{patientName(r)}</p>
+                            <p className="text-xs text-slate-500 truncate">
+                              {[r.data?.edad && `Edad: ${r.data.edad}`, r.data?.perfil, r.data?.diagnostico]
+                                .filter(Boolean).join(' · ') || 'Sin datos'}
+                            </p>
+                          </div>
+                          <StatusBadge status={r.data?.estatus_cirugia} />
+                          <div className="flex items-center gap-0.5 flex-none">
+                            <button onClick={() => move(r.id, -1)} disabled={isFirstInGroup(r)} className="p-1 text-slate-400 hover:text-[#3F4650] rounded-lg hover:bg-[#EDF0F4] transition-colors disabled:opacity-30">
+                              <ArrowUp size={14} />
+                            </button>
+                            <button onClick={() => move(r.id, 1)} disabled={isLastInGroup(r)} className="p-1 text-slate-400 hover:text-[#3F4650] rounded-lg hover:bg-[#EDF0F4] transition-colors disabled:opacity-30">
+                              <ArrowDown size={14} />
+                            </button>
+                            <button onClick={() => remove(r.id)} className="p-1 text-red-300 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors">
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 ))}
-              </ul>
+              </div>
             )}
           </div>
 
@@ -395,34 +436,40 @@ export function DayList() {
               {dayLabel} · {cart.length} pacientes
             </p>
           </div>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
-            <thead>
-              <tr style={{ background: '#6E7B91', color: '#FFFFFF' }}>
-                <th style={{ border: '1px solid #D7DBE1', padding: '6px 8px', textAlign: 'left' }}>No</th>
-                <th style={{ border: '1px solid #D7DBE1', padding: '6px 8px', textAlign: 'left' }}>Paciente</th>
-                <th style={{ border: '1px solid #D7DBE1', padding: '6px 8px', textAlign: 'left' }}>Especialidad</th>
-                <th style={{ border: '1px solid #D7DBE1', padding: '6px 8px', textAlign: 'left' }}>Perfil</th>
-                <th style={{ border: '1px solid #D7DBE1', padding: '6px 8px', textAlign: 'left' }}>Diagnóstico</th>
-                <th style={{ border: '1px solid #D7DBE1', padding: '6px 8px', textAlign: 'left' }}>Médico</th>
-                <th style={{ border: '1px solid #D7DBE1', padding: '6px 8px', textAlign: 'left' }}>Teléfono</th>
-                <th style={{ border: '1px solid #D7DBE1', padding: '6px 8px', textAlign: 'left' }}>Estatus</th>
-              </tr>
-            </thead>
-            <tbody>
-              {cart.map((r, idx) => (
-                <tr key={r.id} style={{ background: idx % 2 ? '#F4F6F8' : '#FFFFFF' }}>
-                  <td style={{ border: '1px solid #D7DBE1', padding: '3px 8px' }}>{idx + 1}</td>
-                  <td style={{ border: '1px solid #D7DBE1', padding: '3px 8px', fontWeight: 600 }}>{patientName(r)}</td>
-                  <td style={{ border: '1px solid #D7DBE1', padding: '3px 8px' }}>{r.data?.especialidad || ''}</td>
-                  <td style={{ border: '1px solid #D7DBE1', padding: '3px 8px' }}>{r.data?.perfil || ''}</td>
-                  <td style={{ border: '1px solid #D7DBE1', padding: '3px 8px' }}>{r.data?.diagnostico || ''}</td>
-                  <td style={{ border: '1px solid #D7DBE1', padding: '3px 8px' }}>{r.data?.nombre_medico || ''}</td>
-                  <td style={{ border: '1px solid #D7DBE1', padding: '3px 8px' }}>{r.data?.telefono || ''}</td>
-                  <td style={{ border: '1px solid #D7DBE1', padding: '3px 8px' }}>{r.data?.estatus_cirugia || ''}</td>
+        </div>
+        {grouped.map((sec) => (
+          <div key={`print-${sec.esp}`} style={{ marginBottom: '12px' }}>
+            <h2 style={{ margin: '8px 0 4px', fontSize: '12px', fontWeight: 700, color: '#3F4650', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              {sec.esp} <span style={{ color: '#8A919C', fontWeight: 400, textTransform: 'none' }}>· {sec.items.length} pacientes</span>
+            </h2>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
+              <thead>
+                <tr style={{ background: '#6E7B91', color: '#FFFFFF' }}>
+                  <th style={{ border: '1px solid #D7DBE1', padding: '6px 8px', textAlign: 'left' }}>No</th>
+                  <th style={{ border: '1px solid #D7DBE1', padding: '6px 8px', textAlign: 'left' }}>Paciente</th>
+                  <th style={{ border: '1px solid #D7DBE1', padding: '6px 8px', textAlign: 'left' }}>Perfil</th>
+                  <th style={{ border: '1px solid #D7DBE1', padding: '6px 8px', textAlign: 'left' }}>Diagnóstico</th>
+                  <th style={{ border: '1px solid #D7DBE1', padding: '6px 8px', textAlign: 'left' }}>Médico</th>
+                  <th style={{ border: '1px solid #D7DBE1', padding: '6px 8px', textAlign: 'left' }}>Teléfono</th>
+                  <th style={{ border: '1px solid #D7DBE1', padding: '6px 8px', textAlign: 'left' }}>Estatus</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {sec.items.map(({ r }, localIdx) => (
+                  <tr key={r.id} style={{ background: localIdx % 2 ? '#F4F6F8' : '#FFFFFF' }}>
+                    <td style={{ border: '1px solid #D7DBE1', padding: '3px 8px' }}>{localIdx + 1}</td>
+                    <td style={{ border: '1px solid #D7DBE1', padding: '3px 8px', fontWeight: 600 }}>{patientName(r)}</td>
+                    <td style={{ border: '1px solid #D7DBE1', padding: '3px 8px' }}>{r.data?.perfil || ''}</td>
+                    <td style={{ border: '1px solid #D7DBE1', padding: '3px 8px' }}>{r.data?.diagnostico || ''}</td>
+                    <td style={{ border: '1px solid #D7DBE1', padding: '3px 8px' }}>{r.data?.nombre_medico || ''}</td>
+                    <td style={{ border: '1px solid #D7DBE1', padding: '3px 8px' }}>{r.data?.telefono || ''}</td>
+                    <td style={{ border: '1px solid #D7DBE1', padding: '3px 8px' }}>{r.data?.estatus_cirugia || ''}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))}
         </div>
       </div>
     </div>
