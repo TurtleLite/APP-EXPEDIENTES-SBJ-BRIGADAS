@@ -51,7 +51,7 @@ KNOWN_WIDTHS = {
     "Pf": 4.43,
     "Origin": 17.86,
     "Phone NO.": 11.57,
-    "Housing": 6.7,
+    "Housing": 8.1,
     "Chart": 8.72,
     "Referred by": 15.86,
 }
@@ -134,30 +134,30 @@ def export_to_excel(
 
         ws.merge_cells(f"B{row}:{last_col}{row}")
         c = ws.cell(row=row, column=2, value=institution.upper())
-        c.font = Font(bold=True, size=9.5, color=PRIMARY)
+        c.font = Font(bold=True, size=10, color=DARK)
         c.alignment = Alignment(horizontal="center", vertical="center")
-        ws.row_dimensions[row].height = 22
+        ws.row_dimensions[row].height = 24
         row += 1
 
         ws.merge_cells(f"B{row}:{last_col}{row}")
         c = ws.cell(row=row, column=2, value=title)
-        c.font = Font(bold=True, size=14, color=DARK)
+        c.font = Font(bold=True, size=15, color=PRIMARY)
         c.alignment = Alignment(horizontal="center", vertical="center")
-        ws.row_dimensions[row].height = 24
+        ws.row_dimensions[row].height = 26
         row += 1
 
         ws.merge_cells(f"B{row}:{last_col}{row}")
         c = ws.cell(
             row=row,
             column=2,
-            value=f"Total de registros: {count if count is not None else len(records)}",
+            value=f"Generado el {now.strftime('%d/%m/%Y')} a las {now.strftime('%H:%M')}   |   Total de registros: {count if count is not None else len(records)}",
         )
         c.font = Font(size=8, italic=True, color=MUTED)
         c.alignment = Alignment(horizontal="center", vertical="center")
-        ws.row_dimensions[row].height = 14
+        ws.row_dimensions[row].height = 15
         row += 1
 
-        ws.row_dimensions[row].height = 3
+        ws.row_dimensions[row].height = 2
         row += 1  # spacer
 
         ws.merge_cells(f"B{row}:{last_col}{row}")
