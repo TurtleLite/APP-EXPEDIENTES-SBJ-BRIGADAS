@@ -12,6 +12,7 @@ from app.services.list_service import (
 from app.services.record_service import add_record, get_records, get_record, update_record, delete_record
 from app.services.excel_service import import_records_from_excel
 from app.services.auth_service import get_current_user, require_role
+from app.models.list_definition import ListRecord
 from app.models.user import User
 import os
 from app.core.config import settings
@@ -234,6 +235,36 @@ def count_records_endpoint(
 ):
     from app.services.record_service import count_records
     return {"count": count_records(db, list_id)}
+
+
+@router.get("/{list_id}/records/duplicates")
+def list_duplicate_identidades(
+    list_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    from sqlalchemy import text
+    rows = db.execute(text(
+        "SELECT data->>'identidad' AS identidad, array_agg(id) AS ids "
+        "FROM list_records "
+        "WHERE list_definition_id = :lid AND data->>'identidad' IS NOT NULL AND data->>'identidad' != '' "
+        "GROUP BY data->>'identidad' HAVING COUNT(*) > 1 "
+        "ORDER BY COUNT(*) DESC"
+    ), {"lid": list_id}).all()
+    result = []
+    for r in rows:
+        ids = list(r[1])
+        recs = db.query(ListRecord).filter(ListRecord.id.in_(ids)).all()
+        result.append({
+            "identidad": r[0],
+            "count": len(ids),
+            "record_ids": [str(x.id) for x in recs],
+            "nombres": [
+                f"{x.data.get('nombre', '')} {x.data.get('apellido', '')}".strip() or "Sin nombre"
+                for x in recs
+            ],
+        })
+    return result
 
 
 @router.get("/{list_id}/records/by-ids")

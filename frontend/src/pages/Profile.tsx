@@ -29,6 +29,7 @@ export function Profile() {
   const [nameParts, setNameParts] = useState(() => parseName(user?.full_name || ''))
   const [telefono, setTelefono] = useState(user?.telefono || '')
   const [password, setPassword] = useState('')
+  const [currentPassword, setCurrentPassword] = useState('')
   const [saving, setSaving] = useState(false)
 
   if (!user) return null
@@ -46,10 +47,18 @@ export function Profile() {
         full_name: nameParts.titulo ? `${nameParts.titulo} ${fullName}` : fullName,
         telefono: telefono.trim(),
       }
-      if (password) payload.password = password
+      if (password) {
+        if (!currentPassword) {
+          toast('Ingresa tu contraseña actual para cambiarla', 'error')
+          return
+        }
+        payload.password = password
+        payload.current_password = currentPassword
+      }
       const res = await usersApi.updateMe(payload)
       updateUser(res.data)
       setPassword('')
+      setCurrentPassword('')
       toast('Perfil actualizado correctamente', 'success')
     } catch (err: any) {
       toast(err.response?.data?.detail || 'Error al actualizar el perfil', 'error')
@@ -126,6 +135,15 @@ export function Profile() {
                 type="tel"
                 value={telefono}
                 onChange={(e) => setTelefono(e.target.value)}
+                className="w-full px-3 py-2.5 border border-[#E3E6EB] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Contraseña actual</label>
+              <PasswordInput
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                placeholder="Necesaria solo si cambiarás la contraseña"
                 className="w-full px-3 py-2.5 border border-[#E3E6EB] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
               />
             </div>

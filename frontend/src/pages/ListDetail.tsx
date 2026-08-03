@@ -4,11 +4,24 @@ import { listsApi, default as api } from '../services/api'
 import { ListDefinition, ListRecord } from '../types'
 import { useAuth } from '../contexts/AuthContext'
 import { useNotification } from '../contexts/NotificationContext'
-import { Plus, Upload, Search, Pencil, Trash2, Download, Stethoscope, CheckSquare, Square } from 'lucide-react'
+import { Plus, Upload, Search, Pencil, Trash2, Download, Stethoscope, CheckSquare, Square, Settings2, AlertTriangle } from 'lucide-react'
 import { ExpedienteForm } from '../components/ExpedienteForm'
+import { specialtiesApi } from '../services/api'
 
 const RECORD_COLUMNS = ['nombre', 'edad', 'diagnostico', 'perfil', 'domicilio', 'telefono', 'albergue', 'nombre_medico']
 const PAGE_SIZE = 50
+
+interface Specialty {
+  name: string
+  count: number
+}
+
+interface DuplicateGroup {
+  identidad: string
+  count: number
+  record_ids: string[]
+  nombres: string[]
+}
 
 export function ListDetail() {
   const { id } = useParams() as { id: string }
@@ -31,6 +44,14 @@ export function ListDetail() {
   const [hasMore, setHasMore] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const [showEspModal, setShowEspModal] = useState(false)
+  const [specialties, setSpecialties] = useState<Specialty[]>([])
+  const [editingEsp, setEditingEsp] = useState<Specialty | null>(null)
+  const [newEspName, setNewEspName] = useState('')
+  const [espSaving, setEspSaving] = useState(false)
+  const [showDupModal, setShowDupModal] = useState(false)
+  const [duplicates, setDuplicates] = useState<DuplicateGroup[]>([])
+  const [dupLoading, setDupLoading] = useState(false)
 
   const loadEspecialidades = async () => {
     try {
@@ -201,6 +222,73 @@ export function ListDetail() {
     }
   }
 
+  const loadSpecialties = async () => {
+    try {
+      const res = await specialtiesApi.list()
+      setSpecialties(res.data)
+    } catch {
+      toast('Error al cargar especialidades', 'error')
+    }
+  }
+
+  const openEspModal = () => {
+    setShowEspModal(true)
+    setEditingEsp(null)
+    setNewEspName('')
+    loadSpecialties()
+  }
+
+  const handleRenameEsp = async () => {
+    if (!editingEsp || !newEspName.trim()) {
+      toast('El nombre nuevo es obligatorio', 'error')
+      return
+    }
+    try {
+      setEspSaving(true)
+      const res = await specialtiesApi.rename(editingEsp.name, newEspName.trim())
+      toast(res.data?.message || 'Especialidad editada', 'success')
+      setEditingEsp(null)
+      await loadSpecialties()
+      await loadEspecialidades()
+    } catch (err: any) {
+      toast(err.response?.data?.detail || 'Error al editar la especialidad', 'error')
+    } finally {
+      setEspSaving(false)
+    }
+  }
+
+  const handleDeleteEsp = async (s: Specialty) => {
+    if (!await confirm(`¿Eliminar la especialidad "${s.name}"? Se quitará de ${s.count} expediente(s).`)) return
+    try {
+      const res = await specialtiesApi.remove(s.name)
+      toast(res.data?.message || 'Especialidad eliminada', 'success')
+      await loadSpecialties()
+      await loadEspecialidades()
+    } catch (err: any) {
+      toast(err.response?.data?.detail || 'Error al eliminar la especialidad', 'error')
+    }
+  }
+
+  const openDupModal = async () => {
+    setShowDupModal(true)
+    setDupLoading(true)
+    try {
+      const res = await listsApi.getDuplicates(id)
+      setDuplicates(res.data)
+    } catch {
+      toast('Error al buscar duplicados', 'error')
+    } finally {
+      setDupLoading(false)
+    }
+  }
+
+  const goToDuplicates = (identidad: string) => {
+    setShowDupModal(false)
+    setEspecialidadFilter('')
+    setSearchField('')
+    setSearch(identidad)
+  }
+
   return (
     <div className="h-full flex flex-col gap-4">
       <div className="flex items-center justify-between shrink-0">
@@ -274,6 +362,24 @@ export function ListDetail() {
                   <option key={esp} value={esp}>{esp}</option>
                 ))}
               </select>
+              {user?.role === 'admin' && (
+                <button
+                  onClick={openEspModal}
+                  className="flex items-center gap-1.5 px-3 py-2 text-sm text-slate-600 bg-white border border-[#E3E6EB] rounded-xl hover:bg-[#F8F9FA] transition-all duration-200"
+                  title="Administrar especialidades"
+                >
+                  <Settings2 size={15} />
+                  Especialidades
+                </button>
+              )}
+              <button
+                onClick={openDupModal}
+                className="flex items-center gap-1.5 px-3 py-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100 transition-all duration-200"
+                title="Buscar expedientes con la misma identidad"
+              >
+                <AlertTriangle size={15} />
+                Duplicados
+              </button>
               {selectedIds.size > 0 && (
                 <div className="flex items-center gap-2 flex-wrap">
                   <button
@@ -427,6 +533,109 @@ export function ListDetail() {
                 {editingRecord ? 'Actualizar' : 'Crear'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showEspModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setShowEspModal(false)}>
+          <div className="bg-white rounded-2xl w-[95vw] max-w-xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[#E3E6EB] shrink-0">
+              <h2 className="font-serif text-lg font-bold text-[#3F4650]">Administrar especialidades</h2>
+              <button onClick={() => setShowEspModal(false)} className="text-slate-400 hover:text-slate-600 text-xl leading-none p-1 rounded-full hover:bg-slate-100">×</button>
+            </div>
+            <div className="flex-1 overflow-y-auto min-h-0 p-5 space-y-2">
+              {editingEsp ? (
+                <div className="flex items-center gap-2 mb-4">
+                  <input
+                    type="text"
+                    value={newEspName}
+                    onChange={(e) => setNewEspName(e.target.value)}
+                    autoFocus
+                    placeholder={`Nuevo nombre para "${editingEsp.name}"`}
+                    className="flex-1 px-3 py-2 border border-[#E3E6EB] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                  />
+                  <button
+                    onClick={handleRenameEsp}
+                    disabled={espSaving}
+                    className="px-4 py-2 text-sm bg-[#6E7B91] text-white rounded-xl hover:bg-[#5F6B80] transition-all duration-200 font-medium disabled:opacity-50"
+                  >
+                    {espSaving ? 'Guardando...' : 'Guardar'}
+                  </button>
+                  <button onClick={() => setEditingEsp(null)} className="px-3 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-xl transition-all duration-200">
+                    Cancelar
+                  </button>
+                </div>
+              ) : (
+                specialties.map((s) => (
+                  <div key={s.name} className="flex items-center justify-between gap-3 px-4 py-3 bg-[#F8F9FA] border border-[#E3E6EB] rounded-xl">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-[#3F4650] truncate">{s.name}</p>
+                      <p className="text-xs text-[#8A919C]">{s.count} expediente(s)</p>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        onClick={() => { setEditingEsp(s); setNewEspName(s.name) }}
+                        className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors duration-200"
+                        title="Renombrar"
+                      >
+                        <Pencil size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteEsp(s)}
+                        className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                        title="Eliminar"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+              {specialties.length === 0 && !editingEsp && (
+                <p className="text-sm text-[#8A919C] text-center py-8">No hay especialidades registradas</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDupModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setShowDupModal(false)}>
+          <div className="bg-white rounded-2xl w-[95vw] max-w-2xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[#E3E6EB] shrink-0">
+              <h2 className="font-serif text-lg font-bold text-[#3F4650]">Expedientes duplicados por identidad</h2>
+              <button onClick={() => setShowDupModal(false)} className="text-slate-400 hover:text-slate-600 text-xl leading-none p-1 rounded-full hover:bg-slate-100">×</button>
+            </div>
+            <div className="flex-1 overflow-y-auto min-h-0 p-5 space-y-2">
+              {dupLoading ? (
+                <p className="text-sm text-[#8A919C] text-center py-8">Buscando duplicados...</p>
+              ) : duplicates.length === 0 ? (
+                <p className="text-sm text-[#8A919C] text-center py-8">No hay expedientes con la misma identidad</p>
+              ) : (
+                duplicates.map((d) => (
+                  <button
+                    key={d.identidad}
+                    onClick={() => goToDuplicates(d.identidad)}
+                    className="w-full text-left px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100 transition-all duration-200"
+                    title="Ver estos expedientes"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm font-medium text-[#3F4650]">
+                        {d.identidad}
+                        <span className="ml-2 text-xs font-semibold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">{d.count} copias</span>
+                      </p>
+                    </div>
+                    <p className="text-xs text-[#8A919C] mt-1 truncate">{d.nombres.join(' · ')}</p>
+                  </button>
+                ))
+              )}
+            </div>
+            {!dupLoading && duplicates.length > 0 && (
+              <p className="px-5 py-3 text-xs text-[#8A919C] border-t border-[#E3E6EB] shrink-0">
+                Toca un grupo para buscar esa identidad en la lista.
+              </p>
+            )}
           </div>
         </div>
       )}

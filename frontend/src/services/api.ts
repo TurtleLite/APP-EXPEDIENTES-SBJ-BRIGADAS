@@ -70,6 +70,8 @@ export const listsApi = {
     api.get(`/lists/${listId}/export-expediente`, { responseType: 'blob' }),
   getEspecialidades: (listId: string | number) =>
     api.get(`/lists/${listId}/especialidades`),
+  getDuplicates: (listId: string | number) =>
+    api.get(`/lists/${listId}/records/duplicates`),
   getFieldValues: (listId: string | number, field: string) =>
     api.get(`/lists/${listId}/field-values`, { params: { field } }),
   exportExpedienteSelected: async (listId: string | number, ids: string[]) => {
@@ -83,6 +85,12 @@ export const listsApi = {
     a.click()
     window.URL.revokeObjectURL(url)
   },
+}
+
+export const specialtiesApi = {
+  list: () => api.get('/specialties/'),
+  rename: (oldName: string, newName: string) => api.put('/specialties/rename', { old: oldName, new: newName }),
+  remove: (name: string) => api.delete('/specialties/', { params: { name } }),
 }
 
 export const reportsApi = {

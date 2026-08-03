@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 from app.models.user import User
-from app.core.security import hash_password
+from app.core.security import hash_password, verify_password
 from app.schemas.user import UserCreate, UserUpdate
 
 
@@ -71,11 +71,14 @@ def update_user(db: Session, user_id: int, data) -> User:
 
 def update_own_profile(db: Session, user: User, data) -> User:
     update_data = data.model_dump(exclude_unset=True)
-    allowed = {"full_name", "telefono", "password"}
+    allowed = {"full_name", "telefono", "password", "current_password"}
     update_data = {k: v for k, v in update_data.items() if k in allowed}
     if "password" in update_data:
         password = update_data.pop("password")
+        current_password = update_data.pop("current_password", None)
         if password:
+            if not current_password or not verify_password(current_password, user.hashed_password):
+                raise HTTPException(status_code=400, detail="La contraseña actual es incorrecta")
             update_data["hashed_password"] = hash_password(password)
     if "full_name" in update_data:
         update_data["full_name"] = _title_case(update_data["full_name"])
