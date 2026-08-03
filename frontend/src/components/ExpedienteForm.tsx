@@ -195,7 +195,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
 
   return (
     <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white/95 rounded-xl w-[96vw] max-w-7xl max-h-[95vh] flex flex-col overflow-hidden">
+      <div className="bg-white w-screen h-screen flex flex-col overflow-hidden">
         <div className="px-5 py-3 border-b border-[#E3E6EB] flex items-center justify-between shrink-0">
           <div>
             <h2 className="text-xl font-bold text-slate-900">{editingRecord ? 'Editar Expediente Médico' : 'Nuevo Expediente Médico'}</h2>
