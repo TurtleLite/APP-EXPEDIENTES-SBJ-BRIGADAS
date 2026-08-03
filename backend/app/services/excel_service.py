@@ -119,7 +119,7 @@ def export_to_excel(
     ncols = len(columns)
     data_col0 = 2 if title else 1
     last_col = get_column_letter(ncols + (1 if title else 0))
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=-6))).replace(tzinfo=None)
 
     ws.sheet_view.showGridLines = False
 
