@@ -76,7 +76,7 @@ export function Dashboard() {
     {
       label: 'Reportes',
       icon: <FileText size={22} />,
-      color: 'bg-slate-1000',
+      color: 'bg-slate-700',
       allowed: canReports,
       onClick: () => navigate('/reports'),
     },
