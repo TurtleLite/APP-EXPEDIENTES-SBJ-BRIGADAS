@@ -472,7 +472,6 @@ export function DayList() {
         ))}
         </div>
       </div>
-    </div>
   )
 }
 
