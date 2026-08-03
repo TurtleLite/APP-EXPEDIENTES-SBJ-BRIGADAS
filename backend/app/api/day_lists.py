@@ -1,0 +1,87 @@
+from datetime import date, datetime
+from typing import List
+
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+
+from app.core.database import get_db
+from app.models.surgery_day_list import SurgeryDayList
+from app.models.user import User
+from app.services.auth_service import get_current_user, require_role
+
+router = APIRouter(prefix="/day-lists", tags=["Listados del día"])
+
+
+def _parse_date(value: str) -> date:
+    try:
+        return datetime.strptime(value, "%Y-%m-%d").date()
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Fecha inválida. Use el formato YYYY-MM-DD")
+
+
+def _serialize(day_list: SurgeryDayList) -> dict:
+    return {
+        "id": str(day_list.id),
+        "date": day_list.date.isoformat(),
+        "record_ids": day_list.record_ids or [],
+        "count": len(day_list.record_ids or []),
+        "created_at": str(day_list.created_at),
+        "updated_at": str(day_list.updated_at),
+    }
+
+
+@router.get("/")
+def list_day_lists(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    lists = db.query(SurgeryDayList).order_by(SurgeryDayList.date.desc()).all()
+    return [_serialize(l) for l in lists]
+
+
+@router.get("/{list_date}")
+def get_day_list(
+    list_date: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    d = _parse_date(list_date)
+    day_list = db.query(SurgeryDayList).filter(SurgeryDayList.date == d).first()
+    if not day_list:
+        return {"id": None, "date": list_date, "record_ids": [], "count": 0}
+    return _serialize(day_list)
+
+
+@router.put("/{list_date}")
+def save_day_list(
+    list_date: str,
+    data: dict,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
+):
+    d = _parse_date(list_date)
+    ids = [str(i) for i in data.get("record_ids", [])]
+    day_list = db.query(SurgeryDayList).filter(SurgeryDayList.date == d).first()
+    if not day_list:
+        day_list = SurgeryDayList(date=d, record_ids=ids)
+        db.add(day_list)
+    else:
+        day_list.record_ids = ids
+    db.commit()
+    db.refresh(day_list)
+    return _serialize(day_list)
+
+
+@router.delete("/{list_date}")
+def delete_day_list(
+    list_date: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
+):
+    d = _parse_date(list_date)
+    day_list = db.query(SurgeryDayList).filter(SurgeryDayList.date == d).first()
+    if not day_list:
+        raise HTTPException(status_code=404, detail="No hay listado para esa fecha")
+    db.delete(day_list)
+    db.commit()
+    return {"message": "Listado eliminado"}

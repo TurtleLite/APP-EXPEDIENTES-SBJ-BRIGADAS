@@ -94,4 +94,12 @@ export const reportsApi = {
   delete: (id: string | number) => api.delete(`/reports/${id}`),
 }
 
+export const dayListsApi = {
+  list: () => api.get('/day-lists/'),
+  get: (date: string) => api.get(`/day-lists/${date}`),
+  save: (date: string, recordIds: (string | number)[]) =>
+    api.put(`/day-lists/${date}`, { record_ids: recordIds }),
+  delete: (date: string) => api.delete(`/day-lists/${date}`),
+}
+
 export default api

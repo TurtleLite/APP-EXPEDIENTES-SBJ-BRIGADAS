@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { listsApi } from '../services/api'
 import {
-  LayoutDashboard, Users, FileText, Table2, LogOut, Activity, UserCircle2, Lock,
+  LayoutDashboard, Users, FileText, Table2, LogOut, Activity, UserCircle2, Lock, ClipboardList,
 } from 'lucide-react'
 import { ROLE_META } from '../constants'
 import { RoleAvatar } from './RoleAvatar'
@@ -41,6 +41,7 @@ const navSections: NavSection[] = [
     title: 'Reportes',
     items: [
       { label: 'Reportes', path: '/reports', icon: <FileText size={18} />, roles: ['admin', 'direccion', 'direccion_medica'] },
+      { label: 'Listado Diario', path: '/listado-diario', icon: <ClipboardList size={18} />, roles: ['admin', 'direccion', 'direccion_medica'] },
       { label: 'Estatus Cirugía', path: '/estado-cirugia', icon: <Activity size={18} />, roles: ['admin', 'direccion'] },
     ],
   },

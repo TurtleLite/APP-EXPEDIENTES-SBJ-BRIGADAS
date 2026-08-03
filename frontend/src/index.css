@@ -16,3 +16,14 @@ body {
 .animate-slide-in {
   animation: slide-in 0.3s ease-out;
 }
+
+@media print {
+  body * { visibility: hidden; }
+  #print-root, #print-root * { visibility: visible; }
+  #print-root {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+}

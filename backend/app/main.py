@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import JSONResponse
-from app.api import auth, users, lists, reports
+from app.api import auth, users, lists, reports, day_lists
 from app.core.database import engine, Base, SessionLocal
 from sqlalchemy import inspect, text
 import logging
@@ -132,6 +132,7 @@ app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(lists.router)
 app.include_router(reports.router)
+app.include_router(day_lists.router)
 
 
 @app.get("/")
