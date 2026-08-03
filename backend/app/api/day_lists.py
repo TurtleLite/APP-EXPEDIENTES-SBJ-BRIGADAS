@@ -10,7 +10,7 @@ from app.core.database import get_db
 from app.models.list_definition import ListRecord
 from app.models.surgery_day_list import SurgeryDayList
 from app.models.user import User
-from app.services.auth_service import get_current_user, require_role
+from app.services.auth_service import require_role
 
 router = APIRouter(prefix="/day-lists", tags=["Listados del día"])
 
@@ -36,7 +36,7 @@ def _serialize(day_list: SurgeryDayList) -> dict:
 @router.get("/")
 def list_day_lists(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role("admin", "direccion_medica")),
 ):
     lists = db.query(SurgeryDayList).order_by(SurgeryDayList.date.desc()).all()
     return [_serialize(l) for l in lists]
@@ -46,7 +46,7 @@ def list_day_lists(
 def get_day_list(
     list_date: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role("admin", "direccion_medica")),
 ):
     d = _parse_date(list_date)
     day_list = db.query(SurgeryDayList).filter(SurgeryDayList.date == d).first()
@@ -60,7 +60,7 @@ def save_day_list(
     list_date: str,
     data: dict,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
+    current_user: User = Depends(require_role("admin", "direccion_medica")),
 ):
     d = _parse_date(list_date)
     ids = [str(i) for i in data.get("record_ids", [])]
@@ -79,7 +79,7 @@ def save_day_list(
 def export_day_list_excel(
     list_date: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role("admin", "direccion_medica")),
 ):
     import os
     from app.api.reports import _report_columns, _report_rows
@@ -114,7 +114,7 @@ def export_day_list_excel(
 def delete_day_list(
     list_date: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
+    current_user: User = Depends(require_role("admin", "direccion_medica")),
 ):
     d = _parse_date(list_date)
     day_list = db.query(SurgeryDayList).filter(SurgeryDayList.date == d).first()

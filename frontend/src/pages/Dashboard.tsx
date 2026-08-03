@@ -37,6 +37,7 @@ export function Dashboard() {
 
   const role = user?.role || 'medico'
   const canReports = role === 'admin' || role === 'direccion' || role === 'direccion_medica'
+  const canLists = role === 'admin' || role === 'direccion_medica'
 
   const goExpedientes = () => {
     if (systemListId) {
@@ -84,7 +85,7 @@ export function Dashboard() {
       label: 'Listados',
       icon: <ClipboardList size={22} />,
       color: 'bg-indigo-500',
-      allowed: canReports,
+      allowed: canLists,
       onClick: () => navigate('/listado-diario'),
     },
     {
