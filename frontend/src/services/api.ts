@@ -85,6 +85,12 @@ export const listsApi = {
   },
 }
 
+export const specialtiesApi = {
+  list: () => api.get('/specialties/'),
+  rename: (oldName: string, newName: string) => api.put('/specialties/rename', { old: oldName, new: newName }),
+  remove: (name: string) => api.delete('/specialties/', { params: { name } }),
+}
+
 export const reportsApi = {
   create: (data: any) => api.post('/reports/', data),
   list: () => api.get('/reports/'),
