@@ -16,6 +16,14 @@ from seed_expedientes import (
 random.seed(7)
 POR_ESPECIALIDAD = 10
 
+EXTRA_ESPECIALIDADES = {
+    "ORTOPEDIA": {
+        "diagnosticos": ESPECIALIDADES["Ortopedia y Traumatología"]["diagnosticos"],
+        "edades": ESPECIALIDADES["Ortopedia y Traumatología"]["edades"],
+        "quirurgica": True,
+    },
+}
+
 
 def _count_por_especialidad(db: Session, list_id: int) -> dict:
     recs = db.query(ListRecord).filter(ListRecord.list_definition_id == list_id).all()
@@ -39,8 +47,9 @@ def main():
 
         records = []
         idx = total_antes
-        for esp in ESPECIALIDADES:
-            cfg = ESPECIALIDADES[esp]
+        especialidades = dict(ESPECIALIDADES)
+        especialidades.update({k: v for k, v in EXTRA_ESPECIALIDADES.items() if k not in ESPECIALIDADES})
+        for esp, cfg in especialidades.items():
             faltantes = POR_ESPECIALIDAD - actual.get(esp.upper(), 0)
             for i in range(max(0, faltantes)):
                 idx += 1
