@@ -19,6 +19,8 @@ function patientName(r: ListRecord): string {
   return [d.nombre, d.apellido].filter(Boolean).join(' ').trim() || 'Sin nombre'
 }
 
+const EXCLUDED_STATUSES = ['Operado', 'Fuera de perfil San Benito']
+
 export function DayList() {
   const { toast } = useNotification()
   const [listId, setListId] = useState<string | null>(null)
@@ -69,6 +71,7 @@ export function DayList() {
         const items: ListRecord[] = ids
           .map((id: string) => byId[id])
           .filter((r): r is ListRecord => Boolean(r))
+          .filter((r) => !(r.data?.estatus_cirugia && EXCLUDED_STATUSES.includes(r.data.estatus_cirugia)))
         items.sort((a: ListRecord, b: ListRecord) => (order[a.id] ?? 0) - (order[b.id] ?? 0))
         setCart(items)
         setSaved(res.data?.id != null)
@@ -82,6 +85,7 @@ export function DayList() {
     const q = search.trim().toLowerCase()
     return records
       .filter((r) => {
+        if (r.data?.estatus_cirugia && EXCLUDED_STATUSES.includes(r.data.estatus_cirugia)) return false
         if (cart.some((c) => c.id === r.id)) return false
         if (onlyWaiting && r.data?.estatus_cirugia && r.data.estatus_cirugia !== 'En espera') return false
         if (q) {
