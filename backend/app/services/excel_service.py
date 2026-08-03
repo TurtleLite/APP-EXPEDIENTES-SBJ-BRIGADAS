@@ -171,8 +171,6 @@ def export_to_excel(
 
         filter_text = _format_filters(filters)
         if filter_text != "Sin filtros":
-            bar = ws.cell(row=row, column=1)
-            bar.fill = PatternFill(start_color=DARK, end_color=DARK, fill_type="solid")
             ws.merge_cells(f"B{row}:{last_col}{row}")
             c = ws.cell(row=row, column=2)
             from openpyxl.cell.rich_text import CellRichText, TextBlock
@@ -194,9 +192,14 @@ def export_to_excel(
     widths = _content_widths(records, columns)
     total_cols = len(widths) + (1 if title else 0)
     total_units = sum(widths) + (10 if title else 0)
-    target_units = ((11.0 - 0.8) * 96 - 5 * total_cols) / 7.0 * 1.03
+    target_units = ((11.0 - 0.8) * 96 - 5 * total_cols) / 7.0
     factor = target_units / total_units
     widths = [round(w * factor, 2) for w in widths]
+    if title:
+        missing = target_units - (sum(widths) + 13)
+        if missing > 1:
+            base = sum(widths)
+            widths = [round(w + missing * w / base, 2) for w in widths]
     for i, w in enumerate(widths, data_col0):
         ws.column_dimensions[get_column_letter(i)].width = w
 
@@ -231,6 +234,7 @@ def export_to_excel(
     ws.freeze_panes = ws.cell(row=header_row + 1, column=1)
 
     ws.sheet_properties.pageSetUpPr = PageSetupProperties(fitToPage=True)
+    ws.print_options.horizontalCentered = True
     ws.page_setup.paperSize = 1  # Carta (Letter) 8.5" x 11"
     ws.page_setup.orientation = "landscape"
     ws.page_setup.fitToWidth = 1
