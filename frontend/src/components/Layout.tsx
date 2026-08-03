@@ -187,6 +187,9 @@ export function Layout({ children }: { children: ReactNode }) {
         <footer className="pt-[7px] text-center text-xs text-[#8A919C]">
           © {new Date().getFullYear()} TurtleLite · Centro Médico San Benito José
         </footer>
+        <div className="fixed bottom-1.5 right-3 z-[1] text-[11px] font-medium text-slate-400/70 select-none pointer-events-none tracking-wide">
+          Versión 1.0
+        </div>
       </div>
     </div>
   )
