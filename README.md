@@ -4,23 +4,13 @@ Aplicación web para gestión de usuarios con roles, listas personalizables desd
 
 ## Requisitos de Infraestructura
 
-### ¿Necesito un servidor físico?
+**No necesitas ningún servidor físico.** Todo corre en la nube de forma gratuita:
 
-**Sí.** Para almacenar 256 GB de datos de forma gratuita, necesitas tu propio hardware. Opciones:
-
-| Opción | Costo | Almacenamiento | Recomendación |
-|--------|-------|----------------|---------------|
-| PC/Laptop dedicada | $0 (si ya tienes) | Según tu disco | ✅ Recomendado |
-| Raspberry Pi 4/5 (8GB) | ~$80-120 | SSD externo | ✅ Bueno para pruebas |
-| VPS (DigitalOcean, etc.) | ~$6-12/mes | 25-80GB | ❌ No alcanza 256GB |
-| AWS RDS / Supabase | Gratis solo 500MB | 500MB-1GB | ❌ No alcanza |
-
-**Requisitos mínimos del servidor:**
-- CPU: 2 núcleos
-- RAM: 4 GB
-- Disco: 256 GB+ (SSD recomendado)
-- SO: Ubuntu 22.04 LTS o similar
-- Conexión a internet (si accedes desde otros dispositivos)
+| Componente | Dónde corre | Costo |
+|------------|-------------|-------|
+| Frontend (React) | Render (Static Site) | Gratis |
+| Backend (FastAPI) | Render (Web Service) | Gratis |
+| Base de datos | CockroachLabs Cloud | Gratis (500MB) |
 
 ## Stack Tecnológico (100% gratuito)
 
@@ -34,18 +24,11 @@ Aplicación web para gestión de usuarios con roles, listas personalizables desd
 | Excel | openpyxl | MIT |
 | Autenticación | JWT | MIT |
 
-## Instalación y Ejecución
+## Instalación y Ejecución (desarrollo local)
 
-### 1. Base de Datos (CockroachDB en CockroachLabs Cloud)
+La base de datos ya está en la nube (ver [Despliegue](#despliegue-100-en-la-nube)); localmente solo configuras `backend/.env` con `DATABASE_URL` apuntando al cluster de CockroachLabs.
 
-La base de datos está alojada en la nube de **CockroachLabs** (SQL distribuido, compatible con PostgreSQL). No requiere instalación ni servidor local.
-
-- **Cluster:** `sanbenitojose-bancodepacientes-30660` (región `aws-us-east-1`)
-- **Host:** `sanbenitojose-bancodepacientes-30660.j77.aws-us-east-1.cockroachlabs.cloud:26257`
-- **Base de datos:** `defaultdb`
-- **Credenciales:** en `backend/.env` como `DATABASE_URL` con formato `cockroachdb://usuario:password@host:26257/defaultdb`
-
-### 2. Backend
+### 1. Backend
 
 ```bash
 cd backend
@@ -56,7 +39,7 @@ python run_seed.py
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-### 3. Frontend
+### 2. Frontend
 
 ```bash
 cd frontend
@@ -64,7 +47,7 @@ npm install
 npm run dev
 ```
 
-### 4. Acceso
+### 3. Acceso
 
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:8000
@@ -117,43 +100,52 @@ gestion-app/
 | Generar Excel/PDF | ✅ | ✅ | ✅ | ❌ |
 | Descargar reportes | ✅ | ✅ | ✅ | ✅ |
 
-## Despliegue
+## Despliegue (100% en la nube)
 
-### Frontend (Render - Gratis)
+### 1. Base de Datos (CockroachDB en CockroachLabs Cloud)
+
+La base de datos está alojada en la nube de **CockroachLabs** (SQL distribuido, compatible con PostgreSQL). No requiere instalación ni servidor local.
+
+- **Cluster:** `sanbenitojose-bancodepacientes-30660` (región `aws-us-east-1`)
+- **Host:** `sanbenitojose-bancodepacientes-30660.j77.aws-us-east-1.cockroachlabs.cloud:26257`
+- **Base de datos:** `defaultdb`
+- **Credenciales:** se configuran como variable de entorno `DATABASE_URL` con formato `cockroachdb://usuario:password@host:26257/defaultdb`
+
+### 2. Backend (Render — Web Service)
 
 1. Crea cuenta en https://render.com (con GitHub)
-2. New + → **Static Site**
+2. New + → **Web Service**
 3. Conecta el repositorio `APP-EXPEDIENTES-SBJ-BRIGADAS`
 4. Configura:
+   - **Root Directory:** `backend`
+   - **Build Command:** `pip install -r requirements.txt`
+   - **Start Command:** `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+5. Agrega variables de entorno:
+   - `DATABASE_URL` → la URL de CockroachLabs (formato `cockroachdb://...`)
+   - `SECRET_KEY` → una clave secreta aleatoria
+6. Deploy. La API quedará en `https://<tu-servicio>.onrender.com` (docs en `/docs`)
+
+### 3. Frontend (Render — Static Site)
+
+1. New + → **Static Site**
+2. Conecta el repositorio `APP-EXPEDIENTES-SBJ-BRIGADAS`
+3. Configura:
    - **Root Directory:** `frontend`
    - **Build Command:** `npm install && npm run build`
    - **Publish Directory:** `dist`
-5. Agrega variable de entorno:
-   - `VITE_API_URL` → (la URL del túnel de Cloudflare, se agrega después)
-6. Deploy
+4. Agrega variable de entorno:
+   - `VITE_API_URL` → `https://<tu-servicio-backend>.onrender.com`
+5. Deploy. El sitio queda en `https://<tu-sitio>.onrender.com`
 
-### Servidor (PC Windows)
+### URLs actuales del sistema
 
-1. Clona el repo en la PC
-2. Ejecuta `setup.bat` como **Administrador** (instala dependencias y crea la DB)
-3. Inicia el backend:
-   ```cmd
-   cd backend
-   venv\Scripts\activate
-   uvicorn app.main:app --host 0.0.0.0 --port 8000
-   ```
-4. En otra terminal, expón con Cloudflare Tunnel:
-   ```cmd
-   cloudflared tunnel --url http://localhost:8000
-   ```
-5. Copia la URL `https://xxx.trycloudflare.com` y pégala en `VITE_API_URL` en Render
-6. Render rebuild automáticamente el frontend apuntando a tu PC
+| Servicio | URL |
+|----------|-----|
+| Frontend | https://sistema-web-expedientes-cmsbj.onrender.com |
+| Backend API | https://expedientes-api-2dje.onrender.com |
+| Docs API | https://expedientes-api-2dje.onrender.com/docs |
 
-### Cloudflare Tunnel (Gratis)
-
-1. Descarga `cloudflared` desde https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/
-2. Ejecuta: `cloudflared tunnel --url http://localhost:8000`
-3. Obtienes una URL pública tipo `https://xxxx.trycloudflare.com`
+> **Nota:** el backend acepta peticiones CORS solo desde los orígenes listados en `ALLOWED_ORIGINS` (backend/app/main.py). Si cambias la URL del frontend o del backend, actualízala allí.
 
 ### Usuarios por defecto
 
