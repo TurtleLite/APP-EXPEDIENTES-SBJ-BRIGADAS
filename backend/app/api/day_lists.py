@@ -102,7 +102,7 @@ def export_day_list_excel(
     sections = [{"esp": esp, "rows": _report_rows(recs)} for esp, recs in grouped.items()]
 
     columns = _report_columns()
-    title = f"Listado Diario de Cirugías - {d.strftime('%d/%m/%Y')}"
+    title = f"Listado de Cirugías - {d.strftime('%d/%m/%Y')}"
     os.makedirs(settings.REPORTS_DIR, exist_ok=True)
     filepath = os.path.join(settings.REPORTS_DIR, f"listado_{d.isoformat()}.xlsx")
     export_day_list_to_excel(sections, columns, filepath, title=title, count=len(ordered))
