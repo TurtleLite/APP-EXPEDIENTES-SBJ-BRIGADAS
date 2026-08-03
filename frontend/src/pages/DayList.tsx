@@ -61,7 +61,7 @@ export function DayList() {
     dayListsApi.get(date)
       .then((res) => {
         if (cancelled) return
-        const ids = (res.data?.record_ids || []).map(String)
+        const ids: string[] = (res.data?.record_ids || []).map(String)
         const order: Record<string, number> = {}
         ids.forEach((id: string, idx: number) => { order[id] = idx })
         const byId: Record<string, ListRecord> = {}
