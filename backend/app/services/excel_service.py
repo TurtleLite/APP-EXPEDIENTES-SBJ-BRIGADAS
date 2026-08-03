@@ -134,39 +134,39 @@ def export_to_excel(
 
         ws.merge_cells(f"B{row}:{last_col}{row}")
         c = ws.cell(row=row, column=2, value=institution.upper())
-        c.font = Font(bold=True, size=10, color=DARK)
+        c.font = Font(bold=True, size=9.5, color=PRIMARY)
         c.alignment = Alignment(horizontal="center", vertical="center")
-        ws.row_dimensions[row].height = 24
+        ws.row_dimensions[row].height = 22
         row += 1
 
         ws.merge_cells(f"B{row}:{last_col}{row}")
         c = ws.cell(row=row, column=2, value=title)
-        c.font = Font(bold=True, size=15, color=PRIMARY)
+        c.font = Font(bold=True, size=14, color=DARK)
         c.alignment = Alignment(horizontal="center", vertical="center")
-        ws.row_dimensions[row].height = 26
+        ws.row_dimensions[row].height = 24
         row += 1
 
         ws.merge_cells(f"B{row}:{last_col}{row}")
         c = ws.cell(
             row=row,
             column=2,
-            value=f"Generado el {now.strftime('%d/%m/%Y')} a las {now.strftime('%H:%M')}   |   Total de registros: {count if count is not None else len(records)}",
+            value=f"Total de registros: {count if count is not None else len(records)}",
         )
-        c.font = Font(size=8.5, italic=True, color=MUTED)
+        c.font = Font(size=8, italic=True, color=MUTED)
         c.alignment = Alignment(horizontal="center", vertical="center")
-        ws.row_dimensions[row].height = 16
+        ws.row_dimensions[row].height = 14
         row += 1
 
-        ws.row_dimensions[row].height = 4
+        ws.row_dimensions[row].height = 3
         row += 1  # spacer
 
-        ws.merge_cells(f"A{row}:{last_col}{row}")
-        c = ws.cell(row=row, column=1)
-        c.fill = PatternFill(start_color=PRIMARY, end_color=PRIMARY, fill_type="solid")
-        ws.row_dimensions[row].height = 2
+        ws.merge_cells(f"B{row}:{last_col}{row}")
+        line = ws.cell(row=row, column=2)
+        line.fill = PatternFill(start_color=BORDER, end_color=BORDER, fill_type="solid")
+        ws.row_dimensions[row].height = 1.5
         row += 1
 
-        ws.row_dimensions[row].height = 4
+        ws.row_dimensions[row].height = 3
         row += 1  # spacer
 
         filter_text = _format_filters(filters)
