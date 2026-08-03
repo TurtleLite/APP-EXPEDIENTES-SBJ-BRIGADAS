@@ -11,7 +11,6 @@ import { Reports } from './pages/Reports'
 import { DayList } from './pages/DayList'
 import { EstadoCirugia } from './pages/EstadoCirugia'
 import { Profile } from './pages/Profile'
-import { Especialidades } from './pages/Especialidades'
 import { ReactNode } from 'react'
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
@@ -39,7 +38,6 @@ function App() {
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/perfil" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/users" element={<RoleRoute roles={['admin']}><Users /></RoleRoute>} />
-          <Route path="/especialidades" element={<RoleRoute roles={['admin']}><Especialidades /></RoleRoute>} />
           <Route path="/lists" element={<ProtectedRoute><Lists /></ProtectedRoute>} />
           <Route path="/lists/:id" element={<ProtectedRoute><ListDetail /></ProtectedRoute>} />
           <Route path="/reports" element={<RoleRoute roles={['admin', 'direccion', 'direccion_medica']}><Reports /></RoleRoute>} />
