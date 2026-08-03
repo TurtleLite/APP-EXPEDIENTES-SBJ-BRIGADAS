@@ -128,22 +128,22 @@ def export_to_excel(
         ws.column_dimensions["A"].width = 13
         if os.path.exists(LOGO_PATH):
             logo = XLImage(LOGO_PATH)
-            logo.width = 118
-            logo.height = 87
+            logo.width = 130
+            logo.height = 96
             ws.add_image(logo, "A1")
 
         ws.merge_cells(f"B{row}:{last_col}{row}")
         c = ws.cell(row=row, column=2, value=institution.upper())
         c.font = Font(bold=True, size=10, color=DARK)
         c.alignment = Alignment(horizontal="center", vertical="center")
-        ws.row_dimensions[row].height = 31
+        ws.row_dimensions[row].height = 34
         row += 1
 
         ws.merge_cells(f"B{row}:{last_col}{row}")
         c = ws.cell(row=row, column=2, value=title)
         c.font = Font(bold=True, size=15, color=PRIMARY)
         c.alignment = Alignment(horizontal="center", vertical="center")
-        ws.row_dimensions[row].height = 32
+        ws.row_dimensions[row].height = 34
         row += 1
 
         ws.merge_cells(f"B{row}:{last_col}{row}")
@@ -154,7 +154,7 @@ def export_to_excel(
         )
         c.font = Font(size=8, italic=True, color=MUTED)
         c.alignment = Alignment(horizontal="center", vertical="center")
-        ws.row_dimensions[row].height = 18
+        ws.row_dimensions[row].height = 20
         row += 1
 
         ws.row_dimensions[row].height = 2
@@ -191,13 +191,13 @@ def export_to_excel(
 
     widths = _content_widths(records, columns)
     total_cols = len(widths) + (1 if title else 0)
-    total_units = sum(widths) + (10 if title else 0)
-    target_units = ((11.0 - 0.8) * 96 - 5 * total_cols) / 7.0
-    factor = target_units / total_units
+    col_a_units = 13 if title else 0
+    target_units = ((11.0 - 0.8) * 96 - 3 * total_cols) / 7.0
+    factor = (target_units - col_a_units) / (sum(widths) or 1)
     widths = [round(w * factor, 2) for w in widths]
     if title:
-        missing = target_units - (sum(widths) + 13)
-        if missing > 1:
+        missing = target_units - col_a_units - sum(widths)
+        if missing > 0.5 and widths:
             base = sum(widths)
             widths = [round(w + missing * w / base, 2) for w in widths]
     for i, w in enumerate(widths, data_col0):
