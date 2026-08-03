@@ -99,7 +99,7 @@ HISTORIAS = {
     "Parasitosis": "Dolor abdominal recurrente, prurito anal nocturno y baja de peso. Presencia de parásitos en heces.",
 }
 HISTORIAS_KEYWORDS = {
-    "Hernia": ["Hernia"], "Apendicitis": ["Apendicitis"], "Cole": ["Colelitiasis", "Colecistitis"], "Mioma": ["Mioma"],
+    "Hernia": ["Hernia"], "Apendicitis": ["Apendicitis"], "Colelitiasis": ["Colelitiasis", "Colecistitis"], "Mioma": ["Mioma"],
     "Embarazo": ["Embarazo"], "Neumonía": ["Neumonía"], "Gastroenteritis": ["Gastroenteritis"], "Asma": ["Asma"],
     "DMT2": ["Diabetes"], "HTA": ["Hipertensión"], "Gastritis": ["Gastritis"], "Insuficiencia": ["Insuficiencia", "Fibrilación", "coronaria"],
     "Fractura": ["Fractura"], "Lumbalgia": ["Lumbalgia"], "Litiasis": ["Litiasis"], "Dermatitis": ["Dermatitis", "Psoriasis", "Micosis", "Acné"],
