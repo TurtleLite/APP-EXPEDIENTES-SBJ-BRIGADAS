@@ -83,7 +83,7 @@ def export_day_list_excel(
 ):
     import os
     from app.api.reports import _report_columns, _report_rows
-    from app.services.excel_service import export_to_excel
+    from app.services.excel_service import export_day_list_to_excel
 
     d = _parse_date(list_date)
     day_list = db.query(SurgeryDayList).filter(SurgeryDayList.date == d).first()
@@ -95,12 +95,17 @@ def export_day_list_excel(
     by_id = {r.id: r for r in records}
     ordered = [by_id[i] for i in ids if i in by_id]
 
-    rows = _report_rows(ordered)
+    grouped: dict[str, list] = {}
+    for rec in ordered:
+        esp = (rec.data or {}).get("especialidad") or "Sin especialidad"
+        grouped.setdefault(esp, []).append(rec)
+    sections = [{"esp": esp, "rows": _report_rows(recs)} for esp, recs in grouped.items()]
+
     columns = _report_columns()
     title = f"Listado Diario de Cirugías - {d.strftime('%d/%m/%Y')}"
     os.makedirs(settings.REPORTS_DIR, exist_ok=True)
     filepath = os.path.join(settings.REPORTS_DIR, f"listado_{d.isoformat()}.xlsx")
-    export_to_excel(rows, columns, filepath, title=title, count=len(rows))
+    export_day_list_to_excel(sections, columns, filepath, title=title, count=len(ordered))
     media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     return FileResponse(filepath, media_type=media_type, filename=os.path.basename(filepath))
 

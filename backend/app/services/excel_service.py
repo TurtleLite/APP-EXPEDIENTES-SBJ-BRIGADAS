@@ -103,26 +103,20 @@ def import_records_from_excel(db: Session, list_id: int, filepath: str) -> int:
     return count
 
 
-def export_to_excel(
-    records: List[dict],
-    columns: List[str],
-    filepath: str,
-    title: Optional[str] = None,
-    filters: Optional[dict] = None,
-    count: Optional[int] = None,
+def _now_honduras() -> datetime.datetime:
+    return datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=-6))).replace(tzinfo=None)
+
+
+def _write_header_block(
+    ws,
+    title: Optional[str],
+    count: int,
+    last_col: str,
+    data_col0: int,
+    now: datetime.datetime,
     institution: str = "Centro Médico San Benito José",
-):
-    wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.title = "Reporte"
-
-    ncols = len(columns)
-    data_col0 = 2 if title else 1
-    last_col = get_column_letter(ncols + (1 if title else 0))
-    now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=-6))).replace(tzinfo=None)
-
-    ws.sheet_view.showGridLines = False
-
+    filters: Optional[dict] = None,
+) -> int:
     row = 1
     if title:
         ws.column_dimensions["A"].width = 3
@@ -150,7 +144,7 @@ def export_to_excel(
         c = ws.cell(
             row=row,
             column=2,
-            value=f"Generado el {now.strftime('%d/%m/%Y')} a las {now.strftime('%H:%M')}   |   Total de registros: {count if count is not None else len(records)}",
+            value=f"Generado el {now.strftime('%d/%m/%Y')} a las {now.strftime('%H:%M')}   |   Total de registros: {count}",
         )
         c.font = Font(size=8, italic=True, color=MUTED)
         c.alignment = Alignment(horizontal="center", vertical="center")
@@ -186,6 +180,34 @@ def export_to_excel(
             row += 1
             ws.row_dimensions[row].height = 4
             row += 1  # spacer
+
+    return row
+
+
+def export_to_excel(
+    records: List[dict],
+    columns: List[str],
+    filepath: str,
+    title: Optional[str] = None,
+    filters: Optional[dict] = None,
+    count: Optional[int] = None,
+    institution: str = "Centro Médico San Benito José",
+):
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Reporte"
+
+    ncols = len(columns)
+    data_col0 = 2 if title else 1
+    last_col = get_column_letter(ncols + (1 if title else 0))
+    now = _now_honduras()
+
+    ws.sheet_view.showGridLines = False
+
+    row = _write_header_block(
+        ws, title, count if count is not None else len(records), last_col, data_col0, now,
+        institution=institution, filters=filters,
+    )
 
     header_row = row
 
@@ -245,6 +267,117 @@ def export_to_excel(
     ws.page_margins.bottom = 0.7
 
     ws.print_title_rows = f"{header_row}:{header_row}"
+
+    ws.oddFooter.left.text = f"Generado el {now.strftime('%d/%m/%Y')}"
+    ws.oddFooter.left.size = 8
+    ws.oddFooter.left.color = MUTED
+    ws.oddFooter.right.text = "Página &P de &N"
+    ws.oddFooter.right.size = 8
+    ws.oddFooter.right.color = MUTED
+
+    wb.save(filepath)
+
+
+def _write_section_table(
+    ws,
+    row: int,
+    esp: str,
+    records: List[dict],
+    columns: List[str],
+    widths: List[float],
+    data_col0: int,
+    last_col: str,
+) -> int:
+    first_col = get_column_letter(data_col0)
+    ws.merge_cells(f"{first_col}{row}:{last_col}{row}")
+    c = ws.cell(row=row, column=data_col0, value=f"{esp}  ·  {len(records)} pacientes")
+    c.font = Font(bold=True, size=11, color="FFFFFF")
+    c.fill = PatternFill(start_color=DARK, end_color=DARK, fill_type="solid")
+    c.alignment = Alignment(horizontal="left", vertical="center")
+    ws.row_dimensions[row].height = 18
+    row += 1
+
+    header_row = row
+    for col_idx, col_name in enumerate(columns, 1):
+        col = col_idx + data_col0 - 1
+        cell = ws.cell(row=row, column=col, value=col_name)
+        cell.fill = PatternFill(start_color=PRIMARY, end_color=PRIMARY, fill_type="solid")
+        cell.font = Font(color="FFFFFF", bold=True, size=10)
+        cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+        side_bottom = Side(style="medium", color="3F4650")
+        side_thin = Side(style="thin", color=BORDER)
+        cell.border = Border(left=side_thin, right=side_thin, top=side_thin, bottom=side_bottom)
+    ws.row_dimensions[header_row].height = 17
+    row += 1
+
+    for data_idx, record in enumerate(records, row):
+        max_lines = 1
+        for col_idx, col_name in enumerate(columns, 1):
+            col = col_idx + data_col0 - 1
+            val = record.get(col_name, "")
+            cell = ws.cell(row=data_idx, column=col, value=val)
+            cell.border = _thin_border()
+            cell.font = Font(size=10, color="444B54")
+            cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+            if (data_idx - header_row) % 2 == 0:
+                cell.fill = PatternFill(start_color=ALT_ROW, end_color=ALT_ROW, fill_type="solid")
+            lines = math.ceil((len(str(val)) + 1) / max(1.0, widths[col_idx - 1] - 1))
+            max_lines = max(max_lines, lines)
+        ws.row_dimensions[data_idx].height = 15 if max_lines == 1 else 15 + (max_lines - 1) * 13.5
+    row = data_idx + 1
+
+    ws.row_dimensions[row].height = 6
+    return row + 1
+
+
+def export_day_list_to_excel(
+    sections: List[dict],
+    columns: List[str],
+    filepath: str,
+    title: str,
+    count: Optional[int] = None,
+    institution: str = "Centro Médico San Benito José",
+):
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Listado"
+
+    ncols = len(columns)
+    data_col0 = 2
+    last_col = get_column_letter(ncols + 1)
+    now = _now_honduras()
+    all_rows = [r for sec in sections for r in sec["rows"]]
+    count = count if count is not None else len(all_rows)
+
+    ws.sheet_view.showGridLines = False
+
+    row = _write_header_block(ws, title, count, last_col, data_col0, now, institution=institution)
+
+    widths = _content_widths(all_rows, columns)
+    total_cols = len(widths) + 1
+    target_units = ((11.0 - 0.8) * 96 - 3 * total_cols) / 7.0
+    factor = (target_units - 3) / (sum(widths) or 1)
+    widths = [round(w * factor, 2) for w in widths]
+    missing = target_units - 3 - sum(widths)
+    if missing > 0.5 and widths:
+        base = sum(widths)
+        widths = [round(w + missing * w / base, 2) for w in widths]
+    for i, w in enumerate(widths, data_col0):
+        ws.column_dimensions[get_column_letter(i)].width = w
+
+    for sec in sections:
+        row = _write_section_table(ws, row, sec["esp"], sec["rows"], columns, widths, data_col0, last_col)
+
+    ws.sheet_properties.pageSetUpPr = PageSetupProperties(fitToPage=True)
+    ws.print_options.horizontalCentered = True
+    ws.page_setup.paperSize = 1  # Carta (Letter) 8.5" x 11"
+    ws.page_setup.orientation = "landscape"
+    ws.page_setup.fitToWidth = 1
+    ws.page_setup.fitToHeight = 0
+    ws.page_margins.left = 0.4
+    ws.page_margins.right = 0.4
+    ws.page_margins.top = 0.7
+    ws.page_margins.bottom = 0.7
 
     ws.oddFooter.left.text = f"Generado el {now.strftime('%d/%m/%Y')}"
     ws.oddFooter.left.size = 8

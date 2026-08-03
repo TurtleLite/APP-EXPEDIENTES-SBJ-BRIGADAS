@@ -3,7 +3,7 @@ import { listsApi, dayListsApi } from '../services/api'
 import { ListRecord, ListDefinition } from '../types'
 import { useNotification } from '../contexts/NotificationContext'
 import {
-  Search, Plus, Trash2, ArrowUp, ArrowDown, Save, Printer,
+  Search, Plus, Trash2, ArrowUp, ArrowDown, Save,
   ChevronLeft, ChevronRight, X, ClipboardList, FileSpreadsheet,
 } from 'lucide-react'
 
@@ -245,7 +245,7 @@ export function DayList() {
         </div>
       </div>
 
-      <div className="flex-1 grid lg:grid-cols-2 gap-4 min-h-0 mt-4 print:hidden">
+      <div className="flex-1 grid lg:grid-cols-2 gap-4 min-h-0 mt-4">
         {/* Panel pacientes disponibles */}
         <div className="bg-white rounded-xl shadow-sm border border-[#E3E6EB] flex flex-col min-h-0">
           <div className="p-3 border-b border-[#E3E6EB] space-y-2.5">
@@ -326,14 +326,6 @@ export function DayList() {
               >
                 <Save size={14} />
                 {saved ? 'Guardado' : 'Guardar'}
-              </button>
-              <button
-                onClick={() => window.print()}
-                disabled={cart.length === 0}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-xl text-xs font-medium border border-emerald-200 hover:bg-emerald-100 transition-colors disabled:opacity-50 disabled:pointer-events-none"
-              >
-                <Printer size={14} />
-                Imprimir
               </button>
               <button
                 onClick={exportExcel}
@@ -422,55 +414,6 @@ export function DayList() {
         </div>
       </div>
 
-      {/* Área imprimible */}
-      <div id="print-root" className="hidden">
-        <div style={{ fontFamily: 'Arial, sans-serif', color: '#1F2937', padding: '4px' }}>
-          <div style={{ textAlign: 'center', marginBottom: '10px' }}>
-            <p style={{ margin: 0, fontSize: '13px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#3F4650' }}>
-              Centro Médico San Benito José
-            </p>
-            <h1 style={{ margin: '2px 0', fontSize: '18px', fontWeight: 700, color: '#6E7B91' }}>
-              Listado Diario de Cirugías
-            </h1>
-            <p style={{ margin: 0, fontSize: '11px', color: '#8A919C' }}>
-              {dayLabel} · {cart.length} pacientes
-            </p>
-          </div>
-        </div>
-        {grouped.map((sec) => (
-          <div key={`print-${sec.esp}`} style={{ marginBottom: '12px' }}>
-            <h2 style={{ margin: '8px 0 4px', fontSize: '12px', fontWeight: 700, color: '#3F4650', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              {sec.esp} <span style={{ color: '#8A919C', fontWeight: 400, textTransform: 'none' }}>· {sec.items.length} pacientes</span>
-            </h2>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
-              <thead>
-                <tr style={{ background: '#6E7B91', color: '#FFFFFF' }}>
-                  <th style={{ border: '1px solid #D7DBE1', padding: '6px 8px', textAlign: 'left' }}>No</th>
-                  <th style={{ border: '1px solid #D7DBE1', padding: '6px 8px', textAlign: 'left' }}>Paciente</th>
-                  <th style={{ border: '1px solid #D7DBE1', padding: '6px 8px', textAlign: 'left' }}>Perfil</th>
-                  <th style={{ border: '1px solid #D7DBE1', padding: '6px 8px', textAlign: 'left' }}>Diagnóstico</th>
-                  <th style={{ border: '1px solid #D7DBE1', padding: '6px 8px', textAlign: 'left' }}>Médico</th>
-                  <th style={{ border: '1px solid #D7DBE1', padding: '6px 8px', textAlign: 'left' }}>Teléfono</th>
-                  <th style={{ border: '1px solid #D7DBE1', padding: '6px 8px', textAlign: 'left' }}>Estatus</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sec.items.map(({ r }, localIdx) => (
-                  <tr key={r.id} style={{ background: localIdx % 2 ? '#F4F6F8' : '#FFFFFF' }}>
-                    <td style={{ border: '1px solid #D7DBE1', padding: '3px 8px' }}>{localIdx + 1}</td>
-                    <td style={{ border: '1px solid #D7DBE1', padding: '3px 8px', fontWeight: 600 }}>{patientName(r)}</td>
-                    <td style={{ border: '1px solid #D7DBE1', padding: '3px 8px' }}>{r.data?.perfil || ''}</td>
-                    <td style={{ border: '1px solid #D7DBE1', padding: '3px 8px' }}>{r.data?.diagnostico || ''}</td>
-                    <td style={{ border: '1px solid #D7DBE1', padding: '3px 8px' }}>{r.data?.nombre_medico || ''}</td>
-                    <td style={{ border: '1px solid #D7DBE1', padding: '3px 8px' }}>{r.data?.telefono || ''}</td>
-                    <td style={{ border: '1px solid #D7DBE1', padding: '3px 8px' }}>{r.data?.estatus_cirugia || ''}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ))}
-        </div>
       </div>
   )
 }
