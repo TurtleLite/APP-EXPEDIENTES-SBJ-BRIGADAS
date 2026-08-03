@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { listsApi, default as api } from '../services/api'
 import { ListDefinition, ListRecord } from '../types'
@@ -8,6 +8,7 @@ import { Plus, Upload, Search, Pencil, Trash2, Download, Stethoscope, CheckSquar
 import { ExpedienteForm } from '../components/ExpedienteForm'
 
 const RECORD_COLUMNS = ['nombre', 'edad', 'diagnostico', 'perfil', 'domicilio', 'telefono', 'albergue', 'nombre_medico']
+const PAGE_SIZE = 50
 
 export function ListDetail() {
   const { id } = useParams() as { id: string }
@@ -25,6 +26,11 @@ export function ListDetail() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [especialidades, setEspecialidades] = useState<string[]>([])
   const [especialidadFilter, setEspecialidadFilter] = useState('')
+  const [total, setTotal] = useState(0)
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   const loadEspecialidades = async () => {
     try {
@@ -44,9 +50,11 @@ export function ListDetail() {
     }
   }
 
-  const loadRecords = async () => {
+  const loadRecords = useCallback(async (reset = false) => {
+    const next = reset ? 1 : page + 1
+    setLoadingMore(true)
     try {
-      const params: any = {}
+      const params: any = { page: next, page_size: PAGE_SIZE }
       if (especialidadFilter) {
         params.search = especialidadFilter
         params.search_field = 'especialidad'
@@ -55,20 +63,34 @@ export function ListDetail() {
         if (searchField) params.search_field = searchField
       }
       const res = await listsApi.getRecords(id, params)
-      setRecords(res.data)
+      const data = res.data
+      setPage(data.page)
+      setTotal(data.total)
+      setHasMore(data.page * data.page_size < data.total)
+      setRecords(reset ? data.items : (prev) => [...prev, ...data.items])
+      if (reset) {
+        setSelectedIds(new Set())
+        if (scrollRef.current) scrollRef.current.scrollTop = 0
+      }
     } catch (err) { console.error(err) }
+    finally { setLoadingMore(false) }
+  }, [id, page, search, searchField, especialidadFilter])
+
+  const handleScroll = () => {
+    const el = scrollRef.current
+    if (!el || loadingMore || !hasMore) return
+    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 100) {
+      loadRecords(false)
+    }
   }
 
   useEffect(() => {
-    if (id) {
-      loadList()
-      loadRecords()
-    }
+    if (id) loadList()
   }, [id])
 
   useEffect(() => {
-    if (id) loadRecords()
-  }, [search, searchField, especialidadFilter])
+    if (id) loadRecords(true)
+  }, [id, search, searchField, especialidadFilter])
 
   useEffect(() => {
     if (id && list?.is_system) loadEspecialidades()
@@ -236,6 +258,9 @@ export function ListDetail() {
                   className="w-full pl-9 pr-3 py-2 border border-[#E3E6EB] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
                 />
               </div>
+              <span className="ml-auto self-center text-xs text-slate-400 whitespace-nowrap">
+                {total.toLocaleString()} expediente{total === 1 ? '' : 's'}
+              </span>
             </div>
             {list?.is_system && (
               <div className="flex items-center gap-2.5 flex-wrap">
@@ -282,7 +307,7 @@ export function ListDetail() {
           )}
         </div>
 
-        <div className="flex-1 min-h-0 overflow-y-auto">
+        <div ref={scrollRef} onScroll={handleScroll} className="flex-1 min-h-0 overflow-y-auto">
           <table className="w-full">
             <thead className="sticky top-0 z-10">
               <tr className="bg-slate-100 border-b border-[#E3E6EB]">
@@ -333,6 +358,20 @@ export function ListDetail() {
               )}
             </tbody>
           </table>
+          <div className="flex items-center justify-center gap-2 py-4">
+            {loadingMore ? (
+              <span className="text-sm text-slate-400">Cargando...</span>
+            ) : hasMore ? (
+              <button
+                onClick={() => loadRecords(false)}
+                className="text-sm font-medium text-[#6E7B91] hover:underline"
+              >
+                Cargar más
+              </button>
+            ) : records.length > 0 ? (
+              <span className="text-xs text-slate-400">Fin de la lista</span>
+            ) : null}
+          </div>
         </div>
       </div>
 
@@ -342,7 +381,7 @@ export function ListDetail() {
           role={user?.role}
           editingRecord={editingRecord || undefined}
           onClose={() => { setShowExpedienteForm(false); setEditingRecord(null) }}
-          onSaved={loadRecords}
+          onSaved={() => loadRecords(true)}
         />
       )}
       {showModal && (

@@ -1,7 +1,18 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import or_, cast, String
+from sqlalchemy import or_
 from app.models.list_definition import ListRecord, ListDefinition
 from typing import Optional
+
+_SEARCH_FIELDS = ["nombre", "apellido", "identidad", "expediente", "diagnostico", "especialidad"]
+
+
+def _apply_search(query, search: Optional[str], search_field: Optional[str]):
+    if not search:
+        return query
+    like = f"%{search}%"
+    fields = [search_field] if search_field else _SEARCH_FIELDS
+    clauses = [ListRecord.data.op("->>")(field).ilike(like) for field in fields]
+    return query.filter(or_(*clauses))
 
 
 def add_record(db: Session, list_id: int, data: dict, user_id: int = None) -> ListRecord:
@@ -16,18 +27,26 @@ def count_records(db: Session, list_id: int) -> int:
     return db.query(ListRecord).filter(ListRecord.list_definition_id == list_id).count()
 
 
-def get_records(db: Session, list_id: int, skip: int = 0, limit: int = 100,
+def get_records(db: Session, list_id: int, skip: int = 0, limit: int = 1000,
                 search: Optional[str] = None, search_field: Optional[str] = None) -> list[ListRecord]:
     query = db.query(ListRecord).filter(ListRecord.list_definition_id == list_id)
-    if search and search_field:
-        query = query.filter(
-            ListRecord.data[search_field].as_string().ilike(f"%{search}%")
-        )
-    elif search:
-        query = query.filter(
-            cast(ListRecord.data, String).ilike(f"%{search}%")
-        )
+    query = _apply_search(query, search, search_field)
     return query.order_by(ListRecord.id.desc()).offset(skip).limit(limit).all()
+
+
+def paginate_records(db: Session, list_id: int, search: Optional[str] = None,
+                     search_field: Optional[str] = None, page: int = 1,
+                     page_size: int = 50) -> tuple[list[ListRecord], int]:
+    query = db.query(ListRecord).filter(ListRecord.list_definition_id == list_id)
+    query = _apply_search(query, search, search_field)
+    total = query.count()
+    items = (
+        query.order_by(ListRecord.id.desc())
+        .offset((page - 1) * page_size)
+        .limit(page_size)
+        .all()
+    )
+    return items, total
 
 
 def get_record(db: Session, record_id: int) -> ListRecord:

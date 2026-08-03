@@ -46,6 +46,9 @@ async def lifespan(app: FastAPI):
                     conn.execute(text("ALTER TABLE list_records ADD COLUMN created_by INTEGER REFERENCES users(id)"))
                     conn.commit()
                 logger.info("Added created_by column to list_records")
+            from app.services.db_indexes import ensure_performance_indexes
+            ensure_performance_indexes(engine)
+            logger.info("Índices de rendimiento asegurados")
         if "users" in inspector.get_table_names():
             columns = [c["name"] for c in inspector.get_columns("users")]
             if "email" in columns and "telefono" not in columns:

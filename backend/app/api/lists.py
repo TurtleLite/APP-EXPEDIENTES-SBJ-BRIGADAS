@@ -232,9 +232,31 @@ def list_records(
     limit: int = 1000,
     search: str = None,
     search_field: str = None,
+    page: int = None,
+    page_size: int = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    if page_size is not None:
+        from app.services.record_service import paginate_records
+        page = page or 1
+        items, total = paginate_records(db, list_id, search, search_field, page, page_size)
+
+        def ser(r):
+            return {
+                "id": str(r.id),
+                "list_definition_id": str(r.list_definition_id),
+                "data": r.data,
+                "created_by": str(r.created_by) if r.created_by else None,
+                "created_at": str(r.created_at),
+            }
+
+        return {
+            "items": [ser(r) for r in items],
+            "total": total,
+            "page": page,
+            "page_size": page_size,
+        }
     from app.services.record_service import get_records
     records = get_records(db, list_id, skip, limit, search, search_field)
     return [
