@@ -75,11 +75,11 @@ export function Profile() {
   return (
     <div className="h-full flex flex-col gap-4">
       <div className={`rounded-2xl overflow-hidden shadow-md bg-gradient-to-br ${meta.gradient} shrink-0`}>
-        <div className="px-6 py-4 flex items-center gap-4">
+        <div className="px-6 py-5 flex items-center gap-5">
           <RoleAvatar role={user.role} size="lg" />
           <div className="flex-1 min-w-0">
             <h1 className="text-xl font-bold text-white truncate">{user.full_name}</h1>
-            <div className="mt-1.5 flex flex-wrap items-center gap-2">
+            <div className="mt-2 flex flex-wrap items-center gap-2.5">
               <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${meta.badge}`}>
                 {meta.label}
               </span>
@@ -93,16 +93,16 @@ export function Profile() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-0">
-        <section className="bg-white rounded-2xl shadow-sm border border-[#E3E6EB] p-5 lg:min-h-0 flex flex-col">
-          <h2 className="text-base font-semibold text-slate-900 flex items-center gap-2 mb-4">
-            <UserCircle2 size={17} className="text-slate-500" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 flex-1 min-h-0">
+        <section className="bg-white rounded-2xl shadow-sm border border-[#E3E6EB] p-6 lg:min-h-0 flex flex-col">
+          <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-5">
+            <UserCircle2 size={18} className="text-slate-500" />
             Mis datos
           </h2>
-          <div className="space-y-3.5">
+          <div className="space-y-5">
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Nombre y apellidos</label>
-              <div className="flex gap-2.5">
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Nombre y apellidos</label>
+              <div className="flex gap-3">
                 <select
                   value={nameParts.titulo}
                   onChange={(e) => setNameParts({ ...nameParts, titulo: e.target.value })}
@@ -127,16 +127,16 @@ export function Profile() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Usuario</label>
+                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Usuario</label>
                 <div className="flex items-center gap-2 px-3.5 py-2.5 border border-slate-100 bg-slate-100 rounded-xl text-sm text-slate-500 truncate">
                   <UserIcon size={14} className="shrink-0" />
                   <span className="truncate">{user.username}</span>
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Teléfono</label>
+                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Teléfono</label>
                 <input
                   type="tel"
                   value={telefono}
@@ -146,9 +146,9 @@ export function Profile() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Contraseña actual</label>
+                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Contraseña actual</label>
                 <PasswordInput
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
@@ -157,7 +157,7 @@ export function Profile() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Nueva contraseña</label>
+                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Nueva contraseña</label>
                 <PasswordInput
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -177,16 +177,16 @@ export function Profile() {
           </div>
         </section>
 
-        <section className="bg-white rounded-2xl shadow-sm border border-[#E3E6EB] p-5 lg:min-h-0 flex flex-col">
-          <h2 className="text-base font-semibold text-slate-900 flex items-center gap-2 mb-4">
-            <ShieldCheck size={17} className="text-slate-500" />
+        <section className="bg-white rounded-2xl shadow-sm border border-[#E3E6EB] p-6 lg:min-h-0 flex flex-col">
+          <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-5">
+            <ShieldCheck size={18} className="text-slate-500" />
             Accesos según tu rol
           </h2>
-          <div className={`inline-flex self-start items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold border mb-4 ${meta.badge}`}>
+          <div className={`inline-flex self-start items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold border mb-5 ${meta.badge}`}>
             <span className={`w-2 h-2 rounded-full bg-gradient-to-r ${meta.gradient}`} />
             {meta.label}
           </div>
-          <ul className="space-y-2.5 flex-1">
+          <ul className="space-y-3 flex-1">
             {meta.permissions.map((p) => (
               <li key={p} className="flex items-start gap-3 text-sm text-slate-600">
                 <CheckCircle2 size={16} className="text-emerald-500 shrink-0 mt-0.5" />
@@ -194,7 +194,7 @@ export function Profile() {
               </li>
             ))}
           </ul>
-          <div className="mt-4 pt-4 border-t border-slate-100 flex items-center gap-2 text-xs text-slate-400">
+          <div className="mt-6 pt-5 border-t border-slate-100 flex items-center gap-2 text-xs text-slate-400">
             <KeyRound size={14} />
             El rol lo asigna el administrador del sistema
           </div>

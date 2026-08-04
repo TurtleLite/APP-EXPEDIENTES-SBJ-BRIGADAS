@@ -99,9 +99,8 @@ export function Layout({ children }: { children: ReactNode }) {
         </div>
       )}
       <aside className="w-48 bg-white flex flex-col shrink-0 h-screen sticky top-0 shadow-lg">
-        <div className="p-5 border-b border-[#E3E6EB] text-center">
-          <h1 className="text-sm font-bold text-[#3F4650] mb-3 tracking-wide">EXPEDIENTES SBJ</h1>
-          <img src="/logo_sbj.png" alt="Logo SBJ Cirugias" className="w-28 h-auto mx-auto" />
+        <div className="p-5 border-b border-[#E3E6EB] flex items-center justify-center">
+          <img src="/logo_sbj.png" alt="Logo SBJ Cirugias" className="w-40 h-auto mx-auto" />
         </div>
         <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
           {navSections.map((section) => (
