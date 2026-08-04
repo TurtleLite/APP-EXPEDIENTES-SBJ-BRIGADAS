@@ -36,7 +36,6 @@ const SECTIONS: Section[] = [
       { key: 'telefono', label: 'Teléfono', type: 'text' },
       { key: 'telefono2', label: 'Teléfono 2', type: 'text', optional: true },
       { key: 'telefono3', label: 'Teléfono 3', type: 'text', optional: true },
-      { key: 'expediente', label: 'Expediente', type: 'text' },
     ],
   },
   {
@@ -327,17 +326,6 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
                             <option value="media">Media</option>
                             <option value="alta">Alta</option>
                           </select>
-                        ) : field.key === 'expediente' ? (
-                          <input
-                            type="text"
-                            inputMode="numeric"
-                            value={data[field.key] || ''}
-                            onChange={(e) => {
-                              setValue(field.key, e.target.value.replace(/\D/g, ''))
-                            }}
-                            placeholder="Solo números"
-                            className="w-full px-3 py-2 border border-[#E3E6EB] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
-                          />
                         ) : field.key === 'sexo' ? (
                           <select
                             value={data[field.key] || ''}

@@ -1,8 +1,45 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import or_, func
+from sqlalchemy import or_, func, text
 from app.models.list_definition import ListRecord, ListDefinition
 from typing import Optional
 import unicodedata
+
+_EXPEDIENTE_LIST_NAME = "Expediente Médico"
+_EXPEDIENTE_SEQUENCE = "expediente_seq"
+
+
+def _is_expediente_list(db: Session, list_id: int) -> bool:
+    ld = db.query(ListDefinition).filter(ListDefinition.id == list_id).first()
+    return bool(ld and ld.name == _EXPEDIENTE_LIST_NAME)
+
+
+def _next_expediente_number(db: Session) -> str:
+    n = db.execute(text(f"SELECT nextval('{_EXPEDIENTE_SEQUENCE}')")).scalar()
+    return f"{int(n):05d}"
+
+
+def renumber_expedientes(db: Session):
+    ld = db.query(ListDefinition).filter(ListDefinition.name == _EXPEDIENTE_LIST_NAME).first()
+    if not ld:
+        return 0
+    db.execute(text(f"CREATE SEQUENCE IF NOT EXISTS {_EXPEDIENTE_SEQUENCE} START 1"))
+    records = (
+        db.query(ListRecord)
+        .filter(ListRecord.list_definition_id == ld.id)
+        .order_by(ListRecord.id.asc())
+        .all()
+    )
+    for i, record in enumerate(records, start=1):
+        data = dict(record.data)
+        data["expediente"] = f"{i:05d}"
+        record.data = data
+    db.commit()
+    db.execute(
+        text(f"SELECT setval('{_EXPEDIENTE_SEQUENCE}', :next_value, false)"),
+        {"next_value": len(records) + 1},
+    )
+    db.commit()
+    return len(records)
 
 _SEARCH_FIELDS = ["nombre", "apellido", "identidad", "expediente", "diagnostico", "especialidad", "perfil"]
 
@@ -42,6 +79,9 @@ def _apply_search(query, search: Optional[str], search_field: Optional[str]):
 
 
 def add_record(db: Session, list_id: int, data: dict, user_id: int = None) -> ListRecord:
+    if _is_expediente_list(db, list_id):
+        data = dict(data)
+        data["expediente"] = _next_expediente_number(db)
     record = ListRecord(list_definition_id=list_id, data=data, created_by=user_id)
     db.add(record)
     db.commit()
@@ -121,6 +161,9 @@ def update_record(db: Session, record_id: int, data: dict, user_id: int = None, 
     else:
         from fastapi import HTTPException
         raise HTTPException(status_code=403, detail="Acción no permitida")
+    if _is_expediente_list(db, record.list_definition_id):
+        data = dict(data)
+        data["expediente"] = record.data.get("expediente")
     record.data = data
     db.commit()
     db.refresh(record)

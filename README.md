@@ -154,3 +154,38 @@ La base de datos está alojada en la nube de **CockroachLabs** (SQL distribuido,
 | admin | admin123 | Administrador |
 | direccion | direccion123 | Dirección |
 | medico | medico123 | Médico |
+
+## Respaldo de la base de datos (Art. 15 del Acuerdo Marco)
+
+El respaldo se realiza con el script `backend/backup_db.py` (Python puro, funciona en Windows, Linux y Render; no requiere binarios adicionales).
+
+```bash
+cd backend
+python backup_db.py              # respaldo completo comprimido
+python backup_db.py --keep 14    # conservar los últimos 14 respaldos (default: 7)
+```
+
+- **Salida:** `backend/backups/backup_YYYYMMDD_HHMMSS.sql.gz` (esquema + datos de las 5 tablas, con `BEGIN;...COMMIT;`).
+- **Conexión:** lee `DATABASE_URL` de la variable de entorno o de `backend/.env`.
+- **Retención:** elimina automáticamente los respaldos más antiguos que los `--keep` últimos.
+- **Restaurar** (por ejemplo en un cluster nuevo):
+
+  ```bash
+  gunzip -k backups/backup_20260101_000000.sql.gz
+  psql "cockroachdb://usuario:password@host:26257/defaultdb" -f backups/backup_20260101_000000.sql
+  ```
+
+### Programar el respaldo diario
+
+**Windows (Task Scheduler):**
+1. `Win+R` → `taskschd.msc` → Crear tarea básica.
+2. Nombre: `Respaldo SBJ` → Diaria → hora deseada (ej. 03:00).
+3. Acción: Iniciar programa → `python.exe` (el de `backend\venv\Scripts\python.exe`) con argumentos `"C:\ruta\APP-EXPEDIENTES-SBJ-BRIGADAS\backend\backup_db.py"` y "Iniciar en" el directorio `backend`.
+
+**Linux/Render (cron):**
+
+```cron
+0 3 * * * cd /ruta/APP-EXPEDIENTES-SBJ-BRIGADAS/backend && python3 backup_db.py
+```
+
+> **Nota:** `backups/` está en `.gitignore`; los respaldos contienen datos de pacientes y no deben subirse al repositorio. Para protección adicional, copia el respaldo diario a un almacenamiento externo (Google Drive, OneDrive, disco USB, etc.).

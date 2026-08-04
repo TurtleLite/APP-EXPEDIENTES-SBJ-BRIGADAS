@@ -26,6 +26,9 @@ ALLOWED_ORIGINS = [
 async def lifespan(app: FastAPI):
     try:
         Base.metadata.create_all(bind=engine)
+        with engine.connect() as conn:
+            conn.execute(text("CREATE SEQUENCE IF NOT EXISTS expediente_seq START 1"))
+            conn.commit()
         logger.info("Tablas creadas")
     except Exception as e:
         logger.warning(f"Error creando tablas: {e}")

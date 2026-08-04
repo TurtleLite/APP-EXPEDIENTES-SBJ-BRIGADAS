@@ -89,12 +89,16 @@ def import_records_from_excel(db: Session, list_id: int, filepath: str) -> int:
                 break
 
     count = 0
+    from app.services.record_service import _is_expediente_list, _next_expediente_number
+    is_expediente = _is_expediente_list(db, list_id)
     for row in ws.iter_rows(min_row=2, values_only=False):
         data = {}
         for i, cell in enumerate(row):
             if cell.value is not None and i in col_map:
                 data[col_map[i]] = cell.value
         if data:
+            if is_expediente:
+                data["expediente"] = _next_expediente_number(db)
             record = ListRecord(list_definition_id=list_id, data=data)
             db.add(record)
             count += 1

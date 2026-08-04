@@ -228,7 +228,6 @@ def main():
                 "telefono": gen_tel(),
                 "telefono2": gen_tel() if random.random() < 0.3 else "",
                 "telefono3": "",
-                "expediente": f"{i+1:03d}",
                 "domicilio": random.choice(DOMICILIOS),
                 "historia_enfermedad": historia,
                 "enfermedades_previas": random.choice(ENFERMEDADES_PREVIAS),
@@ -255,6 +254,8 @@ def main():
         for data in records:
             db.add(ListRecord(list_definition_id=exp.id, data=data, created_by=exp.created_by))
         db.commit()
+        from app.services.record_service import renumber_expedientes
+        renumber_expedientes(db)
         total = db.query(ListRecord).filter(ListRecord.list_definition_id == exp.id).count()
         print(f"Se insertaron 50 expedientes. Total ahora: {total}")
     finally:
