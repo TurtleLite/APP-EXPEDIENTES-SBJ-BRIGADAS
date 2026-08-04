@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 
-export function PasswordInput({ value, onChange, placeholder, className = '' }: {
+export function PasswordInput({ value, onChange, placeholder, className = '', disabled = false }: {
   value: string
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   placeholder?: string
   className?: string
+  disabled?: boolean
 }) {
   const [visible, setVisible] = useState(false)
   return (
@@ -15,12 +16,14 @@ export function PasswordInput({ value, onChange, placeholder, className = '' }: 
         value={value}
         onChange={onChange}
         placeholder={placeholder}
+        disabled={disabled}
         className={`${className} pr-10`}
       />
       <button
         type="button"
         onClick={() => setVisible(!visible)}
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors duration-200"
+        disabled={disabled}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors duration-200 disabled:text-slate-300"
         aria-label={visible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
         title={visible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
       >
