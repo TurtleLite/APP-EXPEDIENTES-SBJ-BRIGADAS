@@ -475,6 +475,10 @@ def export_day_list_to_excel(
     for i, w in enumerate(widths, data_col0):
         ws.column_dimensions[get_column_letter(i)].width = w
 
+    if "Observación" in columns:
+        obs_col = get_column_letter(columns.index("Observación") + data_col0)
+        ws.column_dimensions[obs_col].width = _px_to_units(100)
+
     for sec in sections:
         row = _write_section_table(ws, row, sec["esp"], sec["rows"], columns, widths, data_col0, last_col)
 
