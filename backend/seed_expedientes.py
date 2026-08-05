@@ -209,7 +209,7 @@ def main():
                 fecha_cirugia = (date.today() - timedelta(days=dias)).isoformat()
 
             perfil = random.choice(PERFILES_CODIGO)
-            criticidad = random.choice(["baja", "media", "alta"])
+            criticidad = random.choice(["Baja", "Media", "Alta"])
             fecha_elab = (date.today() - timedelta(days=random.randint(1, 400))).isoformat()
 
             data = {

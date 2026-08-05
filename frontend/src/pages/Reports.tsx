@@ -11,6 +11,9 @@ const CRITICIDAD_LABELS: Record<string, string> = {
   baja: 'Baja',
   media: 'Media',
   alta: 'Alta',
+  Baja: 'Baja',
+  Media: 'Media',
+  Alta: 'Alta',
 }
 
 const criticidadLabel = (v: string) => CRITICIDAD_LABELS[v] || v

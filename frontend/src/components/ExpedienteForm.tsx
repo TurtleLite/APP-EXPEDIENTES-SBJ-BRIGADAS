@@ -388,9 +388,9 @@ export function ExpedienteForm({ listId, role, medicoName, onClose, onSaved, edi
                               className="w-full px-3 py-2 border border-[#E3E6EB] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                             >
                               <option value="">Seleccione...</option>
-                              <option value="baja">Baja</option>
-                              <option value="media">Media</option>
-                              <option value="alta">Alta</option>
+                              <option value="Baja">Baja</option>
+                              <option value="Media">Media</option>
+                              <option value="Alta">Alta</option>
                             </select>
                           ) : (
                             <div className="px-3 py-2 rounded-lg bg-slate-50 border border-dashed border-[#E3E6EB] text-xs text-slate-500">

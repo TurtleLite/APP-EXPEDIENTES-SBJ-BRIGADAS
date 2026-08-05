@@ -69,7 +69,7 @@ def main():
                 historia = diagnostico_historia(diag)
                 peso, talla, bmi = gen_peso_talla(edad)
                 perfil = str((i % 4) + 1)
-                criticidad = random.choice(["baja", "media", "alta"])
+                criticidad = random.choice(["Baja", "Media", "Alta"])
                 fecha_elab = (date.today() - timedelta(days=random.randint(1, 180))).isoformat()
                 fecha_cirugia = (date.today() + timedelta(days=random.randint(7, 90))).isoformat()
 
