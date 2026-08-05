@@ -10,6 +10,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 import fnmatch
+import os
 
 ALLOWED_ORIGINS = [
     "https://sistema-web-expedientes-cmsbj.onrender.com",
@@ -20,6 +21,12 @@ ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://localhost:8000",
 ]
+
+_EXTRA_ORIGINS = os.getenv("ALLOWED_ORIGINS", "")
+for _origin in _EXTRA_ORIGINS.split(","):
+    _origin = _origin.strip()
+    if _origin and _origin not in ALLOWED_ORIGINS:
+        ALLOWED_ORIGINS.append(_origin)
 
 
 @asynccontextmanager

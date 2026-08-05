@@ -14,8 +14,19 @@ def _is_expediente_list(db: Session, list_id: int) -> bool:
 
 
 def _next_expediente_number(db: Session) -> str:
-    n = db.execute(text(f"SELECT nextval('{_EXPEDIENTE_SEQUENCE}')")).scalar()
-    return f"{int(n):05d}"
+    ld = db.query(ListDefinition).filter(ListDefinition.name == _EXPEDIENTE_LIST_NAME).first()
+    for _ in range(100):
+        n = int(db.execute(text(f"SELECT nextval('{_EXPEDIENTE_SEQUENCE}')")).scalar())
+        candidate = f"{n:05d}"
+        exists = False
+        if ld:
+            exists = bool(db.query(ListRecord).filter(
+                ListRecord.list_definition_id == ld.id,
+                ListRecord.data.op("->>")("expediente") == candidate,
+            ).first())
+        if not exists:
+            return candidate
+    raise RuntimeError("No se pudo generar un número de expediente único")
 
 
 def renumber_expedientes(db: Session):
@@ -103,6 +114,7 @@ def add_record(db: Session, list_id: int, data: dict, user_id: int = None) -> Li
         data = dict(data)
         data = _compose_domicilio(data)
         data["expediente"] = _next_expediente_number(db)
+        data.setdefault("estatus_cirugia", "En espera")
     record = ListRecord(list_definition_id=list_id, data=data, created_by=user_id)
     db.add(record)
     db.commit()

@@ -61,6 +61,10 @@ KNOWN_WIDTHS = {
     "Referred by": 15.86,
 }
 
+# Columnas angostas/numéricas: se envuelven (wrap) en vez de encoger la fuente.
+# Las demás usan "shrink to fit" (el texto se reduce hasta caber en una sola línea).
+NARROW_COLUMNS = {"No", "Age", "Pf", "Chart", "Phone NO.", "Housing"}
+
 
 def _content_widths(records: List[dict], columns: List[str]) -> List[int]:
     widths = []
@@ -104,6 +108,8 @@ def import_records_from_excel(db: Session, list_id: int, filepath: str) -> int:
         if data:
             if is_expediente:
                 data["expediente"] = _next_expediente_number(db)
+            if is_expediente and not data.get("estatus_cirugia"):
+                data["estatus_cirugia"] = "En espera"
             record = ListRecord(list_definition_id=list_id, data=data)
             db.add(record)
             count += 1
@@ -257,11 +263,16 @@ def export_to_excel(
             cell = ws.cell(row=data_idx, column=col, value=val)
             cell.border = _thin_border()
             cell.font = Font(size=10, color="444B54")
-            cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True, shrink_to_fit=True)
+            is_narrow = col_name in NARROW_COLUMNS
+            cell.alignment = Alignment(
+                horizontal="center", vertical="center",
+                wrap_text=is_narrow, shrink_to_fit=not is_narrow,
+            )
             if (data_idx - header_row) % 2 == 0:
                 cell.fill = PatternFill(start_color=ALT_ROW, end_color=ALT_ROW, fill_type="solid")
-            lines = math.ceil((len(str(val)) + 1) / max(1.0, widths[col_idx - 1] - 1))
-            max_lines = max(max_lines, lines)
+            if is_narrow:
+                lines = math.ceil((len(str(val)) + 1) / max(1.0, widths[col_idx - 1] - 1))
+                max_lines = max(max_lines, lines)
         ws.row_dimensions[data_idx].height = 15 if max_lines == 1 else 15 + (max_lines - 1) * 13.5
 
     first_col = get_column_letter(data_col0)
@@ -331,11 +342,16 @@ def _write_section_table(
             cell = ws.cell(row=data_idx, column=col, value=val)
             cell.border = _thin_border()
             cell.font = Font(size=10, color="444B54")
-            cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True, shrink_to_fit=True)
+            is_narrow = col_name in NARROW_COLUMNS
+            cell.alignment = Alignment(
+                horizontal="center", vertical="center",
+                wrap_text=is_narrow, shrink_to_fit=not is_narrow,
+            )
             if (data_idx - header_row) % 2 == 0:
                 cell.fill = PatternFill(start_color=ALT_ROW, end_color=ALT_ROW, fill_type="solid")
-            lines = math.ceil((len(str(val)) + 1) / max(1.0, widths[col_idx - 1] - 1))
-            max_lines = max(max_lines, lines)
+            if is_narrow:
+                lines = math.ceil((len(str(val)) + 1) / max(1.0, widths[col_idx - 1] - 1))
+                max_lines = max(max_lines, lines)
         ws.row_dimensions[data_idx].height = 15 if max_lines == 1 else 15 + (max_lines - 1) * 13.5
     row = data_idx + 1
 
@@ -394,7 +410,11 @@ def export_to_excel_stream(
         ws.append([
             styled(
                 record.get(col, ""),
-                align=Alignment(horizontal="center", vertical="center", wrap_text=True, shrink_to_fit=True),
+                align=Alignment(
+                    horizontal="center", vertical="center",
+                    wrap_text=col in NARROW_COLUMNS,
+                    shrink_to_fit=col not in NARROW_COLUMNS,
+                ),
             )
             for col in columns
         ])
