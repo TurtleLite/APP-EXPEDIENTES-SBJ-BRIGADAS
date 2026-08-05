@@ -262,6 +262,9 @@ def export_to_excel(
     if "Observación" in columns:
         obs_col = get_column_letter(columns.index("Observación") + data_col0)
         ws.column_dimensions[obs_col].width = _px_to_units(100)
+    if "Origin" in columns:
+        origin_col = get_column_letter(columns.index("Origin") + data_col0)
+        ws.column_dimensions[origin_col].width = _px_to_units(150)
 
     for col_idx, col_name in enumerate(columns, 1):
         col = col_idx + (1 if title else 0)
@@ -487,7 +490,7 @@ def export_day_list_to_excel(
         ws.column_dimensions[obs_col].width = _px_to_units(100)
     if "Origin" in columns:
         origin_col = get_column_letter(columns.index("Origin") + data_col0)
-        ws.column_dimensions[origin_col].width = _px_to_units(120)
+        ws.column_dimensions[origin_col].width = _px_to_units(150)
 
     for sec in sections:
         row = _write_section_table(ws, row, sec["esp"], sec["rows"], columns, widths, data_col0, last_col)
