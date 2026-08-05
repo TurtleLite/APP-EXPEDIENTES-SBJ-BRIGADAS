@@ -7,7 +7,7 @@ import { useNotification } from '../contexts/NotificationContext'
 import { Plus, Upload, Search, Pencil, Trash2, Download, Stethoscope, CheckSquare, Square, Settings2, Eye, MapPin, X } from 'lucide-react'
 import { ExpedienteForm, SECTIONS } from '../components/ExpedienteForm'
 import { specialtiesApi, localitiesApi } from '../services/api'
-import { areSimilarNames } from '../utils/format'
+import { areSimilarNames, normalizeText } from '../utils/format'
 import { TIPO_LOCALIDAD_OPTIONS } from '../constants'
 
 const RECORD_COLUMNS = ['nombre', 'edad', 'diagnostico', 'perfil', 'domicilio', 'telefono', 'albergue', 'nombre_medico']
@@ -50,6 +50,8 @@ export function ListDetail() {
   const [editingLoc, setEditingLoc] = useState<{ name: string; tipo: string; count: number } | null>(null)
   const [newLocName, setNewLocName] = useState('')
   const [locSaving, setLocSaving] = useState(false)
+  const [espSearch, setEspSearch] = useState('')
+  const [locSearch, setLocSearch] = useState('')
 
   const loadEspecialidades = async () => {
     try {
@@ -237,6 +239,7 @@ export function ListDetail() {
     setShowEspModal(true)
     setEditingEsp(null)
     setNewEspName('')
+    setEspSearch('')
     loadSpecialties()
   }
 
@@ -284,6 +287,7 @@ export function ListDetail() {
     setShowLocModal(true)
     setEditingLoc(null)
     setNewLocName('')
+    setLocSearch('')
     loadLocalities()
   }
 
@@ -316,17 +320,17 @@ export function ListDetail() {
     }
   }
 
-  const similarLocalities = (): { names: string[] }[] => {
+  const similarLocalities = (items: { name: string; tipo: string; count: number }[] = localities): { names: string[] }[] => {
     const groups: { names: string[] }[] = []
     const used = new Set<number>()
-    for (let i = 0; i < localities.length; i++) {
+    for (let i = 0; i < items.length; i++) {
       if (used.has(i)) continue
-      const group = [localities[i]]
+      const group = [items[i]]
       used.add(i)
-      for (let j = i + 1; j < localities.length; j++) {
+      for (let j = i + 1; j < items.length; j++) {
         if (used.has(j)) continue
-        if (areSimilarNames(localities[i].name, localities[j].name)) {
-          group.push(localities[j])
+        if (areSimilarNames(items[i].name, items[j].name)) {
+          group.push(items[j])
           used.add(j)
         }
       }
@@ -342,6 +346,14 @@ export function ListDetail() {
     if (d.departamento) parts.push(d.departamento)
     return parts.filter(Boolean).join(', ') || d.domicilio || ''
   }
+
+  const filteredSpecialties = espSearch.trim()
+    ? specialties.filter((s) => normalizeText(s.name).includes(normalizeText(espSearch.trim())))
+    : specialties
+
+  const filteredLocalities = locSearch.trim()
+    ? localities.filter((l) => normalizeText(l.name).includes(normalizeText(locSearch.trim())))
+    : localities
 
   return (
     <div className="h-full flex flex-col gap-4">
@@ -642,33 +654,48 @@ export function ListDetail() {
                   </button>
                 </div>
               ) : (
-                specialties.map((s) => (
-                  <div key={s.name} className="flex items-center justify-between gap-3 px-4 py-3 bg-[#F8F9FA] border border-[#E3E6EB] rounded-xl">
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-[#3F4650] truncate">{s.name}</p>
-                      <p className="text-xs text-[#8A919C]">{s.count} expediente(s)</p>
-                    </div>
-                    <div className="flex items-center gap-1 shrink-0">
-                      <button
-                        onClick={() => { setEditingEsp(s); setNewEspName(s.name) }}
-                        className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors duration-200"
-                        title="Renombrar"
-                      >
-                        <Pencil size={16} />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteEsp(s)}
-                        className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors duration-200"
-                        title="Eliminar"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
+                <>
+                  <div className="relative mb-3">
+                    <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="text"
+                      value={espSearch}
+                      onChange={(e) => setEspSearch(e.target.value)}
+                      placeholder="Buscar especialidad..."
+                      className="w-full pl-9 pr-3 py-2 border border-[#E3E6EB] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                    />
                   </div>
-                ))
+                  {filteredSpecialties.map((s) => (
+                    <div key={s.name} className="flex items-center justify-between gap-3 px-4 py-3 bg-[#F8F9FA] border border-[#E3E6EB] rounded-xl">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-[#3F4650] truncate">{s.name}</p>
+                        <p className="text-xs text-[#8A919C]">{s.count} expediente(s)</p>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <button
+                          onClick={() => { setEditingEsp(s); setNewEspName(s.name) }}
+                          className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors duration-200"
+                          title="Renombrar"
+                        >
+                          <Pencil size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteEsp(s)}
+                          className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                          title="Eliminar"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </>
               )}
               {specialties.length === 0 && !editingEsp && (
                 <p className="text-sm text-[#8A919C] text-center py-8">No hay especialidades registradas</p>
+              )}
+              {!editingEsp && espSearch.trim() && filteredSpecialties.length === 0 && (
+                <p className="text-sm text-[#8A919C] text-center py-8">Sin resultados para "{espSearch}"</p>
               )}
             </div>
           </div>
@@ -683,14 +710,26 @@ export function ListDetail() {
               <button onClick={() => setShowLocModal(false)} className="text-slate-400 hover:text-slate-600 text-xl leading-none p-1 rounded-full hover:bg-slate-100">×</button>
             </div>
             <div className="flex-1 overflow-y-auto min-h-0 p-5 space-y-2">
-              {similarLocalities().length > 0 && (
+              {!editingLoc && (
+                <div className="relative mb-3">
+                  <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    value={locSearch}
+                    onChange={(e) => setLocSearch(e.target.value)}
+                    placeholder="Buscar localidad..."
+                    className="w-full pl-9 pr-3 py-2 border border-[#E3E6EB] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                  />
+                </div>
+              )}
+              {similarLocalities(filteredLocalities).length > 0 && (
                 <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-2">
                   <p className="text-xs font-semibold text-amber-800 uppercase tracking-wider">Advertencia</p>
                   <p className="text-xs text-amber-700 mt-1">
-                    Se detectaron {similarLocalities().length} grupo(s) de localidades con nombres similares:
+                    Se detectaron {similarLocalities(filteredLocalities).length} grupo(s) de localidades con nombres similares:
                   </p>
                   <ul className="mt-2 space-y-1">
-                    {similarLocalities().map((g, gi) => (
+                    {similarLocalities(filteredLocalities).map((g, gi) => (
                       <li key={gi} className="text-xs text-amber-800">
                         • {g.names.join('  /  ')}
                       </li>
@@ -723,7 +762,7 @@ export function ListDetail() {
                   </button>
                 </div>
               ) : (
-                localities.map((l) => (
+                filteredLocalities.map((l) => (
                   <div key={`${l.name}-${l.tipo}`} className="flex items-center justify-between gap-3 px-4 py-3 bg-[#F8F9FA] border border-[#E3E6EB] rounded-xl">
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-[#3F4650] truncate">{l.name}</p>
@@ -752,6 +791,9 @@ export function ListDetail() {
               )}
               {localities.length === 0 && !editingLoc && (
                 <p className="text-sm text-[#8A919C] text-center py-8">No hay localidades registradas</p>
+              )}
+              {!editingLoc && locSearch.trim() && filteredLocalities.length === 0 && (
+                <p className="text-sm text-[#8A919C] text-center py-8">Sin resultados para "{locSearch}"</p>
               )}
             </div>
             <p className="px-5 py-3 text-xs text-[#8A919C] border-t border-[#E3E6EB] shrink-0">
