@@ -4,7 +4,7 @@ import { listsApi, default as api } from '../services/api'
 import { ListDefinition, ListRecord } from '../types'
 import { useAuth } from '../contexts/AuthContext'
 import { useNotification } from '../contexts/NotificationContext'
-import { Plus, Upload, Search, Pencil, Trash2, Download, Stethoscope, CheckSquare, Square, Settings2, AlertTriangle, Eye, MapPin, X } from 'lucide-react'
+import { Plus, Upload, Search, Pencil, Trash2, Download, Stethoscope, CheckSquare, Square, Settings2, Eye, MapPin, X } from 'lucide-react'
 import { ExpedienteForm, SECTIONS } from '../components/ExpedienteForm'
 import { specialtiesApi, localitiesApi } from '../services/api'
 import { areSimilarNames } from '../utils/format'
@@ -16,13 +16,6 @@ const PAGE_SIZE = 50
 interface Specialty {
   name: string
   count: number
-}
-
-interface DuplicateGroup {
-  identidad: string
-  count: number
-  record_ids: string[]
-  nombres: string[]
 }
 
 export function ListDetail() {
@@ -51,8 +44,6 @@ export function ListDetail() {
   const [editingEsp, setEditingEsp] = useState<Specialty | null>(null)
   const [newEspName, setNewEspName] = useState('')
   const [espSaving, setEspSaving] = useState(false)
-  const [showDupModal, setShowDupModal] = useState(false)
-  const [duplicates, setDuplicates] = useState<DuplicateGroup[]>([])
   const [previewRecord, setPreviewRecord] = useState<ListRecord | null>(null)
   const [showLocModal, setShowLocModal] = useState(false)
   const [localities, setLocalities] = useState<{ name: string; tipo: string; count: number }[]>([])
@@ -124,11 +115,6 @@ export function ListDetail() {
     if (id && list?.is_system) loadEspecialidades()
   }, [id, list?.is_system])
 
-  useEffect(() => {
-    if (id && list?.is_system) refreshDuplicates()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, list?.is_system])
-
   const toggleSelect = (recordId: string) => {
     setSelectedIds((prev) => {
       const next = new Set(prev)
@@ -181,7 +167,6 @@ export function ListDetail() {
       const res = await listsApi.importExcel(id, file)
       toast(res.data.message, 'success')
       loadRecords()
-      refreshDuplicates()
     } catch (err: any) {
       toast(err.response?.data?.detail || 'Error al importar', 'error')
     }
@@ -198,7 +183,6 @@ export function ListDetail() {
       setEditingRecord(null)
       setFormData({})
       loadRecords()
-      refreshDuplicates()
     } catch (err: any) {
       toast(err.response?.data?.detail || 'Error al guardar registro', 'error')
     }
@@ -234,7 +218,6 @@ export function ListDetail() {
       const res = await api.post(`/lists/${id}/records/bulk-delete`, { ids })
       setSelectedIds(new Set())
       loadRecords()
-      refreshDuplicates()
       toast(res.data.message, 'success')
     } catch (err: any) {
       toast(err.response?.data?.detail || 'Error al eliminar', 'error')
@@ -360,26 +343,6 @@ export function ListDetail() {
     return parts.filter(Boolean).join(', ') || d.domicilio || ''
   }
 
-  const openDupModal = () => {
-    setShowDupModal(true)
-  }
-
-  const refreshDuplicates = async () => {
-    try {
-      const res = await listsApi.getDuplicates(id)
-      setDuplicates(res.data)
-    } catch {
-      // silencioso
-    }
-  }
-
-  const goToDuplicates = (identidad: string) => {
-    setShowDupModal(false)
-    setEspecialidadFilter('')
-    setSearchField('')
-    setSearch(identidad)
-  }
-
   return (
     <div className="h-full flex flex-col gap-4">
       <div className="flex items-center justify-between shrink-0">
@@ -472,19 +435,6 @@ export function ListDetail() {
                     Localidades
                   </button>
                 </>
-              )}
-              {duplicates.length > 0 && (
-                <button
-                  onClick={openDupModal}
-                  className="flex items-center gap-1.5 px-3 py-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100 transition-all duration-200"
-                  title={`${duplicates.length} identidad(es) repetida(s)`}
-                >
-                  <AlertTriangle size={15} />
-                  Duplicados
-                  <span className="px-1.5 py-0.5 rounded-full bg-amber-200 text-amber-800 text-[10px] font-bold">
-                    {duplicates.length}
-                  </span>
-                </button>
               )}
               {selectedIds.size > 0 && (
                 <div className="flex items-center gap-2 flex-wrap">
@@ -724,44 +674,6 @@ export function ListDetail() {
           </div>
         </div>
       )}
-
-{showDupModal && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setShowDupModal(false)}>
-            <div className="bg-white rounded-2xl w-[95vw] max-w-2xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
-              <div className="flex items-center justify-between px-5 py-4 border-b border-[#E3E6EB] shrink-0">
-                <h2 className="font-serif text-lg font-bold text-[#3F4650]">Expedientes duplicados por identidad</h2>
-                <button onClick={() => setShowDupModal(false)} className="text-slate-400 hover:text-slate-600 text-xl leading-none p-1 rounded-full hover:bg-slate-100">×</button>
-              </div>
-              <div className="flex-1 overflow-y-auto min-h-0 p-5 space-y-2">
-                {duplicates.length === 0 ? (
-                  <p className="text-sm text-[#8A919C] text-center py-8">No hay expedientes con la misma identidad</p>
-                ) : (
-                  duplicates.map((d) => (
-                    <button
-                      key={d.identidad}
-                      onClick={() => goToDuplicates(d.identidad)}
-                      className="w-full text-left px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100 transition-all duration-200"
-                      title="Ver estos expedientes"
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="text-sm font-medium text-[#3F4650]">
-                          {d.identidad}
-                          <span className="ml-2 text-xs font-semibold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">{d.count} copias</span>
-                        </p>
-                      </div>
-                      <p className="text-xs text-[#8A919C] mt-1 truncate">{d.nombres.join(' · ')}</p>
-                    </button>
-                  ))
-                )}
-              </div>
-              {duplicates.length > 0 && (
-                <p className="px-5 py-3 text-xs text-[#8A919C] border-t border-[#E3E6EB] shrink-0">
-                  Toca un grupo para buscar esa identidad en la lista.
-                </p>
-              )}
-            </div>
-          </div>
-        )}
 
       {showLocModal && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setShowLocModal(false)}>
