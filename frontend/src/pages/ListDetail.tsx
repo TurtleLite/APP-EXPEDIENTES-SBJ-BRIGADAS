@@ -385,7 +385,7 @@ export function ListDetail() {
               <Plus size={16} />
               Nuevo
             </button>
-          ))}
+          )}
         </div>
       </div>
 
