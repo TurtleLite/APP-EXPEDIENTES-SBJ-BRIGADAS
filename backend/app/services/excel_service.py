@@ -61,9 +61,9 @@ KNOWN_WIDTHS = {
     "Referred by": 15.86,
 }
 
-# Columnas angostas/numéricas: se envuelven (wrap) en vez de encoger la fuente.
+# Columnas angostas/numéricas y Origin: se envuelven (wrap) en vez de encoger la fuente.
 # Las demás usan "shrink to fit" (el texto se reduce hasta caber en una sola línea).
-NARROW_COLUMNS = {"No", "Age", "Pf", "Chart", "Phone NO.", "Housing"}
+NARROW_COLUMNS = {"No", "Age", "Pf", "Chart", "Phone NO.", "Housing", "Origin"}
 
 
 def _content_widths(records: List[dict], columns: List[str]) -> List[int]:
@@ -478,6 +478,9 @@ def export_day_list_to_excel(
     if "Observación" in columns:
         obs_col = get_column_letter(columns.index("Observación") + data_col0)
         ws.column_dimensions[obs_col].width = _px_to_units(100)
+    if "Origin" in columns:
+        origin_col = get_column_letter(columns.index("Origin") + data_col0)
+        ws.column_dimensions[origin_col].width = _px_to_units(120)
 
     for sec in sections:
         row = _write_section_table(ws, row, sec["esp"], sec["rows"], columns, widths, data_col0, last_col)
