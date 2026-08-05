@@ -34,7 +34,7 @@ export function DayList() {
   const [cart, setCart] = useState<ListRecord[]>([])
   const [date, setDate] = useState<string>(isoDate(new Date()))
   const [search, setSearch] = useState('')
-  const [onlyWaiting, setOnlyWaiting] = useState(true)
+  const [statusFilter, setStatusFilter] = useState('En espera')
   const [loadingDate, setLoadingDate] = useState(false)
   const [saved, setSaved] = useState(false)
   const availableScrollRef = useRef<HTMLDivElement>(null)
@@ -69,8 +69,9 @@ export function DayList() {
         page: next,
         page_size: PAGE_SIZE,
         exclude_statuses: EXCLUDED_STATUSES.join(','),
-        waiting_only: onlyWaiting,
       }
+      if (statusFilter === 'En espera') params.waiting_only = true
+      else if (statusFilter !== 'all') params.estatus_cirugia = statusFilter
       if (search.trim()) params.search = search.trim()
       const res = await listsApi.getRecords(listId, params)
       if (reqId !== reqRef.current) return false
@@ -86,7 +87,7 @@ export function DayList() {
     } finally {
       if (reqId === reqRef.current) setLoadingMore(false)
     }
-  }, [listId, availablePage, search, onlyWaiting])
+  }, [listId, availablePage, search, statusFilter])
 
   useEffect(() => {
     if (!listId) return
@@ -96,7 +97,7 @@ export function DayList() {
     loadAvailable(true).then((fresh) => {
       if (fresh) setLoading(false)
     })
-  }, [listId, search, onlyWaiting])
+  }, [listId, search, statusFilter])
 
   const handleAvailableScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const el = e.currentTarget
@@ -315,15 +316,18 @@ export function DayList() {
                   className="w-full pl-8 pr-3 py-2 border border-[#E3E6EB] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
                 />
               </div>
-              <label className="flex items-center gap-1.5 text-xs text-slate-500 whitespace-nowrap cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={onlyWaiting}
-                  onChange={(e) => setOnlyWaiting(e.target.checked)}
-                  className="accent-[#6E7B91]"
-                />
-                Solo en espera
-              </label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                title="Filtrar por estatus de cirugía"
+                className="px-2.5 py-2 border border-[#E3E6EB] rounded-xl text-xs text-slate-600 bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+              >
+                <option value="En espera">En espera</option>
+                <option value="Reprogramar">Reprogramar</option>
+                <option value="Cancelado">Cancelado</option>
+                <option value="No se presentó">No se presentó</option>
+                <option value="all">Todos los estatus</option>
+              </select>
             </div>
           </div>
           <div className="flex-1 overflow-y-auto min-h-0" onScroll={handleAvailableScroll} ref={availableScrollRef}>
@@ -334,7 +338,7 @@ export function DayList() {
               </div>
             ) : visibleAvailable.length === 0 ? (
               <p className="text-sm text-slate-400 text-center py-12">
-                {search || onlyWaiting ? 'Sin pacientes que coincidan' : 'No hay pacientes disponibles'}
+                {search || statusFilter !== 'all' ? 'Sin pacientes que coincidan' : 'No hay pacientes disponibles'}
               </p>
             ) : (
               <ul className="divide-y divide-[#E3E6EB]">
