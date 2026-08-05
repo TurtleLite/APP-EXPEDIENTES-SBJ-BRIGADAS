@@ -41,8 +41,8 @@ const navSections: NavSection[] = [
     title: 'Reportes',
     items: [
       { label: 'Reportes', path: '/reports', icon: <FileText size={18} />, roles: ['admin', 'direccion', 'direccion_medica'] },
-      { label: 'Listados', path: '/listado-diario', icon: <ClipboardList size={18} />, roles: ['admin', 'direccion_medica'] },
-      { label: 'Estatus Cirugía', path: '/estado-cirugia', icon: <Activity size={18} />, roles: ['admin', 'direccion'] },
+      { label: 'Listados', path: '/listado-diario', icon: <ClipboardList size={18} />, roles: ['admin', 'direccion', 'direccion_medica'] },
+      { label: 'Estatus Cirugía', path: '/estado-cirugia', icon: <Activity size={18} />, roles: ['admin', 'direccion', 'direccion_medica'] },
     ],
   },
 ]

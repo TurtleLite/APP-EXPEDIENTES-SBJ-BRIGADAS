@@ -7,6 +7,14 @@ import { Plus, FileSpreadsheet, Download, Trash2, Eye, X } from 'lucide-react'
 
 const STATUS_OPTIONS = ['En espera', 'Reprogramar', 'Cancelado', 'Fuera de perfil San Benito', 'Operado', 'No apto para cirugía', 'No se presentó']
 
+const CRITICIDAD_LABELS: Record<string, string> = {
+  baja: 'Baja',
+  media: 'Media',
+  alta: 'Alta',
+}
+
+const criticidadLabel = (v: string) => CRITICIDAD_LABELS[v] || v
+
 interface PreviewData {
   name: string
   columns: string[]
@@ -204,7 +212,7 @@ export function Reports() {
     const items: { label: string; value: string; cls: string }[] = []
     if (filters?.especialidad) items.push({ label: 'Especialidad', value: filters.especialidad, cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' })
     if (filters?.perfil) items.push({ label: 'Perfil', value: filters.perfil, cls: 'bg-sky-50 text-sky-700 border-sky-200' })
-    if (filters?.criticidad) items.push({ label: 'Criticidad', value: filters.criticidad, cls: 'bg-rose-50 text-rose-700 border-rose-200' })
+    if (filters?.criticidad) items.push({ label: 'Criticidad', value: criticidadLabel(filters.criticidad), cls: 'bg-rose-50 text-rose-700 border-rose-200' })
     if (filters?.estatus_cirugia) items.push({ label: 'Estatus', value: filters.estatus_cirugia, cls: 'bg-violet-50 text-violet-700 border-violet-200' })
     return items
   }
@@ -376,7 +384,7 @@ export function Reports() {
                   >
                     <option value="">Criticidad clínica (todas)</option>
                     {criticidades.map((c) => (
-                      <option key={c} value={c}>{c}</option>
+                      <option key={c} value={c}>{criticidadLabel(c)}</option>
                     ))}
                   </select>
                   <select

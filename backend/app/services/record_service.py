@@ -17,7 +17,7 @@ def _next_expediente_number(db: Session) -> str:
     ld = db.query(ListDefinition).filter(ListDefinition.name == _EXPEDIENTE_LIST_NAME).first()
     for _ in range(100):
         n = int(db.execute(text(f"SELECT nextval('{_EXPEDIENTE_SEQUENCE}')")).scalar())
-        candidate = f"{n:05d}"
+        candidate = str(n)
         exists = False
         if ld:
             exists = bool(db.query(ListRecord).filter(
@@ -42,7 +42,7 @@ def renumber_expedientes(db: Session):
     )
     for i, record in enumerate(records, start=1):
         data = dict(record.data)
-        data["expediente"] = f"{i:05d}"
+        data["expediente"] = str(i)
         record.data = data
     db.commit()
     db.execute(
@@ -175,15 +175,8 @@ def update_record(db: Session, record_id: int, data: dict, user_id: int = None, 
         raise HTTPException(status_code=404, detail="Registro no encontrado")
     if user_role == "admin":
         pass
-    elif user_role == "direccion":
-        allowed = {"estatus_cirugia", "observacion_estatus"}
-        if not allowed.issuperset(data.keys()):
-            from fastapi import HTTPException
-            raise HTTPException(status_code=403, detail="Dirección solo puede cambiar el estatus de cirugía y su observación")
-    elif user_role == "direccion_medica":
-        if "estatus_cirugia" in data:
-            from fastapi import HTTPException
-            raise HTTPException(status_code=403, detail="Dirección Médica no puede cambiar el estatus de cirugía")
+    elif user_role in ("direccion", "direccion_medica"):
+        pass
     elif user_role == "medico":
         if record.created_by != user_id:
             from fastapi import HTTPException
@@ -209,9 +202,7 @@ def delete_record(db: Session, record_id: int, user_id: int = None, user_role: s
     if not record:
         from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Registro no encontrado")
-    if user_role == "admin" or user_role == "direccion_medica":
-        pass
-    elif user_role == "medico" and record.created_by == user_id:
+    if user_role == "admin" or user_role in ("direccion", "direccion_medica"):
         pass
     else:
         from fastapi import HTTPException

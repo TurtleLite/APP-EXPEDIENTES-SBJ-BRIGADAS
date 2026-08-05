@@ -363,7 +363,7 @@ export function ListDetail() {
           {list?.description && <p className="text-sm text-slate-600 mt-1">{list.description}</p>}
         </div>
         <div className="flex gap-2">
-          {user?.role !== 'direccion' && (list?.is_system ? (
+          {list?.is_system ? (
             <button
               onClick={() => { setEditingRecord(null); setShowExpedienteForm(true) }}
               className="flex items-center gap-1.5 bg-[#6E7B91] text-white px-5 py-2.5 rounded-xl hover:bg-[#5F6B80] shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
@@ -457,7 +457,7 @@ export function ListDetail() {
                     <Download size={16} />
                     Exportar {selectedIds.size} seleccionados
                   </button>
-                  {selectedIds.size === 1 && user?.role !== 'direccion' && (
+                  {selectedIds.size === 1 && (
                     <button
                       onClick={handleEditSelected}
                       className="flex items-center gap-1.5 px-4 py-2 bg-[#6E7B91] text-white rounded-xl hover:bg-[#5F6B80] shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
@@ -466,7 +466,7 @@ export function ListDetail() {
                       Editar
                     </button>
                   )}
-                  {user?.role !== 'direccion' && (
+                  {user?.role === 'admin' || user?.role === 'direccion' || user?.role === 'direccion_medica' ? (
                     <button
                       onClick={handleDeleteSelected}
                       className="flex items-center gap-1.5 px-4 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
@@ -474,7 +474,7 @@ export function ListDetail() {
                       <Trash2 size={16} />
                       Eliminar
                     </button>
-                  )}
+                  ) : null}
                 </div>
               )}
             </div>

@@ -368,7 +368,7 @@ def create_record(
 ):
     from fastapi import HTTPException
     from app.services.record_service import add_record
-    if current_user.role not in ("admin", "direccion_medica", "medico"):
+    if current_user.role not in ("admin", "direccion", "direccion_medica", "medico"):
         raise HTTPException(status_code=403, detail="No tienes permisos para crear expedientes")
     record = add_record(db, list_id, data.get("data", data), user_id=current_user.id)
     return {"id": str(record.id), "message": "Registro creado correctamente"}

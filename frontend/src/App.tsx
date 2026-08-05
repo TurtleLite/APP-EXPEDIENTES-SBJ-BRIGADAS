@@ -41,8 +41,8 @@ function App() {
           <Route path="/lists" element={<ProtectedRoute><Lists /></ProtectedRoute>} />
           <Route path="/lists/:id" element={<ProtectedRoute><ListDetail /></ProtectedRoute>} />
           <Route path="/reports" element={<RoleRoute roles={['admin', 'direccion', 'direccion_medica']}><Reports /></RoleRoute>} />
-          <Route path="/listado-diario" element={<RoleRoute roles={['admin', 'direccion_medica']}><DayList /></RoleRoute>} />
-          <Route path="/estado-cirugia" element={<RoleRoute roles={['admin', 'direccion']}><EstadoCirugia /></RoleRoute>} />
+          <Route path="/listado-diario" element={<RoleRoute roles={['admin', 'direccion', 'direccion_medica']}><DayList /></RoleRoute>} />
+          <Route path="/estado-cirugia" element={<RoleRoute roles={['admin', 'direccion', 'direccion_medica']}><EstadoCirugia /></RoleRoute>} />
           <Route path="/" element={<Navigate to="/dashboard" />} />
           <Route path="*" element={<Navigate to="/dashboard" />} />
         </Routes>
