@@ -61,28 +61,38 @@ KNOWN_WIDTHS = {
     "Referred by": 15.86,
 }
 
-# Columnas angostas/numéricas: se envuelven (wrap) y la fila crece. El resto usa
-# "shrink to fit" (fuente reducida en una sola línea).
-NARROW_COLUMNS = {"No", "Age", "Pf", "Chart", "Phone NO.", "Housing"}
-
-# Columnas que primero se envuelven hasta N líneas y solo entonces encogen la fuente.
-WRAP_SHRINK_COLUMNS = {"Origin", "Diagnostic/Procedure", "Nombre/Name", "Phone NO."}
-WRAP_MAX_LINES = 3
+def _units_to_px(units: float) -> int:
+    return int(round(units * 7 + 5))
 
 
 def _data_cell_alignment(col_name: str):
-    if col_name in WRAP_SHRINK_COLUMNS:
-        return Alignment(horizontal="center", vertical="center", wrap_text=True, shrink_to_fit=True)
-    if col_name in NARROW_COLUMNS:
-        return Alignment(horizontal="center", vertical="center", wrap_text=True, shrink_to_fit=False)
-    return Alignment(horizontal="center", vertical="center", wrap_text=False, shrink_to_fit=True)
+    # Todo el texto se envuelve; la fila crece si hace falta. Nunca se minimiza la fuente.
+    return Alignment(horizontal="center", vertical="center", wrap_text=True, shrink_to_fit=False)
 
 
 def _wrapped_lines(col_name: str, val, width: float) -> int:
-    lines = math.ceil((len(str(val)) + 1) / max(1.0, width - 1))
-    if col_name in WRAP_SHRINK_COLUMNS:
-        lines = min(lines, WRAP_MAX_LINES)
-    return lines
+    return math.ceil((len(str(val)) + 1) / max(1.0, width - 1))
+
+
+def _apply_fixed_widths(ws, columns: List[str], widths: List[float], data_col0: int):
+    """Aplica anchos fijos: Origin 120px y Nombre/Name 180px. Los píxeles liberados
+    respecto a los valores previos se suman a Observación (base 100px)."""
+    obs_px = 100
+    if "Origin" in columns:
+        obs_px += max(0, 150 - 120)
+        wid = _px_to_units(120)
+        widths[columns.index("Origin")] = wid
+        ws.column_dimensions[get_column_letter(columns.index("Origin") + data_col0)].width = wid
+    if "Nombre/Name" in columns:
+        old = _units_to_px(widths[columns.index("Nombre/Name")])
+        obs_px += max(0, old - 180)
+        wid = _px_to_units(180)
+        widths[columns.index("Nombre/Name")] = wid
+        ws.column_dimensions[get_column_letter(columns.index("Nombre/Name") + data_col0)].width = wid
+    if "Observación" in columns:
+        wid = _px_to_units(obs_px)
+        widths[columns.index("Observación")] = wid
+        ws.column_dimensions[get_column_letter(columns.index("Observación") + data_col0)].width = wid
 
 
 def _content_widths(records: List[dict], columns: List[str]) -> List[int]:
@@ -259,12 +269,7 @@ def export_to_excel(
     for i, w in enumerate(widths, data_col0):
         ws.column_dimensions[get_column_letter(i)].width = w
 
-    if "Observación" in columns:
-        obs_col = get_column_letter(columns.index("Observación") + data_col0)
-        ws.column_dimensions[obs_col].width = _px_to_units(100)
-    if "Origin" in columns:
-        origin_col = get_column_letter(columns.index("Origin") + data_col0)
-        ws.column_dimensions[origin_col].width = _px_to_units(150)
+    _apply_fixed_widths(ws, columns, widths, data_col0)
 
     for col_idx, col_name in enumerate(columns, 1):
         col = col_idx + (1 if title else 0)
@@ -288,9 +293,8 @@ def export_to_excel(
             cell.alignment = _data_cell_alignment(col_name)
             if (data_idx - header_row) % 2 == 0:
                 cell.fill = PatternFill(start_color=ALT_ROW, end_color=ALT_ROW, fill_type="solid")
-            if col_name in NARROW_COLUMNS or col_name in WRAP_SHRINK_COLUMNS:
-                lines = _wrapped_lines(col_name, val, widths[col_idx - 1])
-                max_lines = max(max_lines, lines)
+            lines = _wrapped_lines(col_name, val, widths[col_idx - 1])
+            max_lines = max(max_lines, lines)
         ws.row_dimensions[data_idx].height = 15 if max_lines == 1 else 15 + (max_lines - 1) * 13.5
 
     first_col = get_column_letter(data_col0)
@@ -363,9 +367,8 @@ def _write_section_table(
             cell.alignment = _data_cell_alignment(col_name)
             if (data_idx - header_row) % 2 == 0:
                 cell.fill = PatternFill(start_color=ALT_ROW, end_color=ALT_ROW, fill_type="solid")
-            if col_name in NARROW_COLUMNS or col_name in WRAP_SHRINK_COLUMNS:
-                lines = _wrapped_lines(col_name, val, widths[col_idx - 1])
-                max_lines = max(max_lines, lines)
+            lines = _wrapped_lines(col_name, val, widths[col_idx - 1])
+            max_lines = max(max_lines, lines)
         ws.row_dimensions[data_idx].height = 15 if max_lines == 1 else 15 + (max_lines - 1) * 13.5
     row = data_idx + 1
 
@@ -485,12 +488,7 @@ def export_day_list_to_excel(
     for i, w in enumerate(widths, data_col0):
         ws.column_dimensions[get_column_letter(i)].width = w
 
-    if "Observación" in columns:
-        obs_col = get_column_letter(columns.index("Observación") + data_col0)
-        ws.column_dimensions[obs_col].width = _px_to_units(100)
-    if "Origin" in columns:
-        origin_col = get_column_letter(columns.index("Origin") + data_col0)
-        ws.column_dimensions[origin_col].width = _px_to_units(150)
+    _apply_fixed_widths(ws, columns, widths, data_col0)
 
     for sec in sections:
         row = _write_section_table(ws, row, sec["esp"], sec["rows"], columns, widths, data_col0, last_col)
