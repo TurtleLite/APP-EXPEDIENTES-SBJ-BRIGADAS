@@ -43,6 +43,11 @@ def _thin_border(color: str = BORDER):
     return Border(left=side, right=side, top=side, bottom=side)
 
 
+def _px_to_units(px: int) -> float:
+    """Convierte píxeles a unidades de ancho de columna de Excel (1 unidad ≈ 7px)."""
+    return round(max(4.0, (px - 5) / 7.0), 2)
+
+
 KNOWN_WIDTHS = {
     "No": 4.0,
     "Nombre/Name": 32.81,
@@ -229,6 +234,10 @@ def export_to_excel(
     for i, w in enumerate(widths, data_col0):
         ws.column_dimensions[get_column_letter(i)].width = w
 
+    if "Observación" in columns:
+        obs_col = get_column_letter(columns.index("Observación") + data_col0)
+        ws.column_dimensions[obs_col].width = _px_to_units(100)
+
     for col_idx, col_name in enumerate(columns, 1):
         col = col_idx + (1 if title else 0)
         cell = ws.cell(row=header_row, column=col, value=col_name)
@@ -248,7 +257,7 @@ def export_to_excel(
             cell = ws.cell(row=data_idx, column=col, value=val)
             cell.border = _thin_border()
             cell.font = Font(size=10, color="444B54")
-            cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+            cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True, shrink_to_fit=True)
             if (data_idx - header_row) % 2 == 0:
                 cell.fill = PatternFill(start_color=ALT_ROW, end_color=ALT_ROW, fill_type="solid")
             lines = math.ceil((len(str(val)) + 1) / max(1.0, widths[col_idx - 1] - 1))
@@ -322,7 +331,7 @@ def _write_section_table(
             cell = ws.cell(row=data_idx, column=col, value=val)
             cell.border = _thin_border()
             cell.font = Font(size=10, color="444B54")
-            cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+            cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True, shrink_to_fit=True)
             if (data_idx - header_row) % 2 == 0:
                 cell.fill = PatternFill(start_color=ALT_ROW, end_color=ALT_ROW, fill_type="solid")
             lines = math.ceil((len(str(val)) + 1) / max(1.0, widths[col_idx - 1] - 1))
@@ -382,7 +391,13 @@ def export_to_excel_stream(
     ws.append(header_cells)
 
     for record in rows:
-        ws.append([record.get(col, "") for col in columns])
+        ws.append([
+            styled(
+                record.get(col, ""),
+                align=Alignment(horizontal="center", vertical="center", wrap_text=True, shrink_to_fit=True),
+            )
+            for col in columns
+        ])
 
     ws.sheet_properties.pageSetUpPr = PageSetupProperties(fitToPage=True)
     ws.print_options.horizontalCentered = True
