@@ -61,9 +61,28 @@ KNOWN_WIDTHS = {
     "Referred by": 15.86,
 }
 
-# Columnas angostas/numéricas y Origin: se envuelven (wrap) en vez de encoger la fuente.
-# Las demás usan "shrink to fit" (el texto se reduce hasta caber en una sola línea).
-NARROW_COLUMNS = {"No", "Age", "Pf", "Chart", "Phone NO.", "Housing", "Origin"}
+# Columnas angostas/numéricas: se envuelven (wrap) y la fila crece. El resto usa
+# "shrink to fit" (fuente reducida en una sola línea).
+NARROW_COLUMNS = {"No", "Age", "Pf", "Chart", "Phone NO.", "Housing"}
+
+# Columnas que primero se envuelven hasta N líneas y solo entonces encogen la fuente.
+WRAP_SHRINK_COLUMNS = {"Origin", "Diagnostic/Procedure", "Nombre/Name", "Phone NO."}
+WRAP_MAX_LINES = 3
+
+
+def _data_cell_alignment(col_name: str):
+    if col_name in WRAP_SHRINK_COLUMNS:
+        return Alignment(horizontal="center", vertical="center", wrap_text=True, shrink_to_fit=True)
+    if col_name in NARROW_COLUMNS:
+        return Alignment(horizontal="center", vertical="center", wrap_text=True, shrink_to_fit=False)
+    return Alignment(horizontal="center", vertical="center", wrap_text=False, shrink_to_fit=True)
+
+
+def _wrapped_lines(col_name: str, val, width: float) -> int:
+    lines = math.ceil((len(str(val)) + 1) / max(1.0, width - 1))
+    if col_name in WRAP_SHRINK_COLUMNS:
+        lines = min(lines, WRAP_MAX_LINES)
+    return lines
 
 
 def _content_widths(records: List[dict], columns: List[str]) -> List[int]:
@@ -263,15 +282,11 @@ def export_to_excel(
             cell = ws.cell(row=data_idx, column=col, value=val)
             cell.border = _thin_border()
             cell.font = Font(size=10, color="444B54")
-            is_narrow = col_name in NARROW_COLUMNS
-            cell.alignment = Alignment(
-                horizontal="center", vertical="center",
-                wrap_text=is_narrow, shrink_to_fit=not is_narrow,
-            )
+            cell.alignment = _data_cell_alignment(col_name)
             if (data_idx - header_row) % 2 == 0:
                 cell.fill = PatternFill(start_color=ALT_ROW, end_color=ALT_ROW, fill_type="solid")
-            if is_narrow:
-                lines = math.ceil((len(str(val)) + 1) / max(1.0, widths[col_idx - 1] - 1))
+            if col_name in NARROW_COLUMNS or col_name in WRAP_SHRINK_COLUMNS:
+                lines = _wrapped_lines(col_name, val, widths[col_idx - 1])
                 max_lines = max(max_lines, lines)
         ws.row_dimensions[data_idx].height = 15 if max_lines == 1 else 15 + (max_lines - 1) * 13.5
 
@@ -342,15 +357,11 @@ def _write_section_table(
             cell = ws.cell(row=data_idx, column=col, value=val)
             cell.border = _thin_border()
             cell.font = Font(size=10, color="444B54")
-            is_narrow = col_name in NARROW_COLUMNS
-            cell.alignment = Alignment(
-                horizontal="center", vertical="center",
-                wrap_text=is_narrow, shrink_to_fit=not is_narrow,
-            )
+            cell.alignment = _data_cell_alignment(col_name)
             if (data_idx - header_row) % 2 == 0:
                 cell.fill = PatternFill(start_color=ALT_ROW, end_color=ALT_ROW, fill_type="solid")
-            if is_narrow:
-                lines = math.ceil((len(str(val)) + 1) / max(1.0, widths[col_idx - 1] - 1))
+            if col_name in NARROW_COLUMNS or col_name in WRAP_SHRINK_COLUMNS:
+                lines = _wrapped_lines(col_name, val, widths[col_idx - 1])
                 max_lines = max(max_lines, lines)
         ws.row_dimensions[data_idx].height = 15 if max_lines == 1 else 15 + (max_lines - 1) * 13.5
     row = data_idx + 1
@@ -410,11 +421,7 @@ def export_to_excel_stream(
         ws.append([
             styled(
                 record.get(col, ""),
-                align=Alignment(
-                    horizontal="center", vertical="center",
-                    wrap_text=col in NARROW_COLUMNS,
-                    shrink_to_fit=col not in NARROW_COLUMNS,
-                ),
+                align=_data_cell_alignment(col),
             )
             for col in columns
         ])
