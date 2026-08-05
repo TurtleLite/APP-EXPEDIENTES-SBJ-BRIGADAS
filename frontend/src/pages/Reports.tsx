@@ -439,8 +439,8 @@ export function Reports() {
               <table className="w-full text-sm">
                 <thead className="sticky top-0 z-10">
                   <tr className="bg-[#6E7B91] text-white">
-                    {preview.columns.map((col) => (
-                      <th key={col} className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider whitespace-nowrap">
+                    {preview.columns.map((col, ci) => (
+                      <th key={col} className={`text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider whitespace-nowrap ${ci === 0 ? 'sticky left-0 z-20 bg-[#6E7B91] border-r border-white/30' : ''}`}>
                         {col}
                       </th>
                     ))}
@@ -463,11 +463,11 @@ export function Reports() {
                       onDragEnd={() => { setDragIdx(null); setDragOverIdx(null) }}
                       className={`border-b border-[#E3E6EB] transition-colors ${dragOverIdx === idx && dragIdx !== null && dragIdx !== idx ? 'bg-sky-50 ring-1 ring-inset ring-sky-200' : ''} ${dragIdx === idx ? 'opacity-50' : ''} ${idx % 2 === 0 ? 'bg-white' : 'bg-[#F8F9FA]'} ${canReorder() ? 'cursor-grab active:cursor-grabbing' : ''}`}
                     >
-                      {preview.columns.map((col) => (
+                      {preview.columns.map((col, ci) => (
                         <td
                           key={col}
                           title={record[col] ? String(record[col]) : undefined}
-                          className={`px-4 py-2.5 text-slate-700 ${['Nombre/Name', 'Diagnostic/Procedure', 'Origin', 'Referred by', 'Observación'].includes(col) ? 'max-w-[220px] truncate' : 'whitespace-nowrap'}`}
+                          className={`px-4 py-2.5 text-slate-700 ${ci === 0 ? 'sticky left-0 z-10 bg-inherit border-r border-[#E3E6EB] font-medium' : ''} ${['Nombre/Name', 'Diagnostic/Procedure', 'Origin', 'Referred by', 'Observación'].includes(col) ? 'max-w-[220px] truncate' : 'whitespace-nowrap'}`}
                         >
                           {record[col] || <span className="text-slate-300">-</span>}
                         </td>
