@@ -49,11 +49,18 @@ def _records_for_report(db: Session, report: Report):
         params["estat"] = estatus
 
     if not conds:
-        return db.query(ListRecord).filter(ListRecord.list_definition_id == report.list_definition_id).all()
-    from sqlalchemy import text
-    sql = text(f"SELECT id FROM list_records WHERE list_definition_id = :lid AND {' AND '.join(conds)}")
-    ids = db.execute(sql, params).scalars().all()
-    return db.query(ListRecord).filter(ListRecord.id.in_(ids)).all()
+        records = db.query(ListRecord).filter(ListRecord.list_definition_id == report.list_definition_id).all()
+    else:
+        from sqlalchemy import text
+        sql = text(f"SELECT id FROM list_records WHERE list_definition_id = :lid AND {' AND '.join(conds)}")
+        ids = db.execute(sql, params).scalars().all()
+        records = db.query(ListRecord).filter(ListRecord.id.in_(ids)).all()
+
+    order = report.record_order or []
+    if order:
+        order_map = {str(rid): idx for idx, rid in enumerate(order)}
+        records.sort(key=lambda r: order_map.get(str(r.id), len(order_map)))
+    return records
 
 
 REPORT_COLUMNS = [
@@ -67,6 +74,7 @@ REPORT_COLUMNS = [
     ("Housing", "albergue"),
     ("Chart", "expediente"),
     ("Referred by", "nombre_medico"),
+    ("Observación", "observacion_estatus"),
 ]
 
 
@@ -89,6 +97,7 @@ def _report_rows(records: list[ListRecord]) -> list[dict]:
         nombre = " ".join(x for x in [d.get("nombre", ""), d.get("apellido", "")] if x).strip()
         telefono = " / ".join(x for x in [d.get("telefono"), d.get("telefono2"), d.get("telefono3")] if x)
         rows.append({
+            "_id": str(rec.id),
             "No": idx,
             "Nombre/Name": nombre,
             "Age": d.get("edad", ""),
@@ -99,6 +108,7 @@ def _report_rows(records: list[ListRecord]) -> list[dict]:
             "Housing": d.get("albergue", ""),
             "Chart": d.get("expediente", ""),
             "Referred by": d.get("nombre_medico", ""),
+            "Observación": d.get("observacion_estatus", ""),
         })
     return rows
 
@@ -175,6 +185,24 @@ def get_report(
     }
 
 
+@router.put("/{report_id}/order")
+def save_report_order(
+    report_id: int,
+    data: dict,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
+):
+    report = db.query(Report).filter(Report.id == report_id).first()
+    if not report:
+        raise HTTPException(status_code=404, detail="Reporte no encontrado")
+    record_ids = data.get("record_ids") or []
+    if not isinstance(record_ids, list):
+        raise HTTPException(status_code=400, detail="record_ids debe ser una lista")
+    report.record_order = [str(x) for x in record_ids]
+    db.commit()
+    return {"message": "Orden del reporte guardado", "count": len(record_ids)}
+
+
 @router.post("/{report_id}/generate-excel")
 def generate_excel_report(
     report_id: int,
@@ -221,6 +249,7 @@ def preview_report(
         "columns": columns,
         "count": len(rows),
         "records": rows[:200],
+        "record_ids": [str(r.id) for r in records],
     }
 
 

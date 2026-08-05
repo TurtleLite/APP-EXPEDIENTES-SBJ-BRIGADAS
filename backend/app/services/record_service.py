@@ -78,9 +78,30 @@ def _apply_search(query, search: Optional[str], search_field: Optional[str]):
     return query.filter(or_(*clauses))
 
 
+def _compose_domicilio(data: dict) -> dict:
+    """Componer el campo 'domicilio' a partir de departamento/municipio/localidad."""
+    dept = str(data.get("departamento", "") or "").strip()
+    mun = str(data.get("municipio", "") or "").strip()
+    loc = str(data.get("localidad", "") or "").strip()
+    tipo = str(data.get("tipo_localidad", "") or "").strip()
+    if not any([dept, mun, loc]):
+        return data
+    parts = []
+    if loc:
+        parts.append(f"{loc} ({tipo})" if tipo else loc)
+    if mun:
+        parts.append(mun)
+    if dept:
+        parts.append(dept)
+    if parts:
+        data["domicilio"] = ", ".join(parts)
+    return data
+
+
 def add_record(db: Session, list_id: int, data: dict, user_id: int = None) -> ListRecord:
     if _is_expediente_list(db, list_id):
         data = dict(data)
+        data = _compose_domicilio(data)
         data["expediente"] = _next_expediente_number(db)
     record = ListRecord(list_definition_id=list_id, data=data, created_by=user_id)
     db.add(record)
@@ -143,10 +164,10 @@ def update_record(db: Session, record_id: int, data: dict, user_id: int = None, 
     if user_role == "admin":
         pass
     elif user_role == "direccion":
-        allowed = {"estatus_cirugia"}
+        allowed = {"estatus_cirugia", "observacion_estatus"}
         if not allowed.issuperset(data.keys()):
             from fastapi import HTTPException
-            raise HTTPException(status_code=403, detail="Dirección solo puede cambiar el estatus de cirugía")
+            raise HTTPException(status_code=403, detail="Dirección solo puede cambiar el estatus de cirugía y su observación")
     elif user_role == "direccion_medica":
         if "estatus_cirugia" in data:
             from fastapi import HTTPException
@@ -163,6 +184,7 @@ def update_record(db: Session, record_id: int, data: dict, user_id: int = None, 
         raise HTTPException(status_code=403, detail="Acción no permitida")
     if _is_expediente_list(db, record.list_definition_id):
         data = dict(data)
+        data = _compose_domicilio(data)
         data["expediente"] = record.data.get("expediente")
     record.data = data
     db.commit()

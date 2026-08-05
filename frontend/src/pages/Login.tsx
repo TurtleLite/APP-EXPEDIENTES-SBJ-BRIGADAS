@@ -20,7 +20,13 @@ export function Login() {
       await login(username, password)
       navigate('/dashboard')
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Error al iniciar sesión')
+      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+        setError('El servidor tardó demasiado en responder. Intente de nuevo en unos segundos.')
+      } else if (!err.response) {
+        setError('No se pudo conectar con el servidor. Verifique su conexión a internet e intente de nuevo.')
+      } else {
+        setError(err.response?.data?.detail || 'Error al iniciar sesión')
+      }
       setLoading(false)
     }
   }

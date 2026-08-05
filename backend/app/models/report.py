@@ -13,6 +13,7 @@ class Report(Base):
     list_definition_id = Column(Integer, ForeignKey("list_definitions.id"), nullable=True)
     filters = Column(JSON, nullable=True)
     columns_selected = Column(JSON, nullable=True)
+    record_order = Column(JSON, nullable=True)
     created_by = Column(Integer, ForeignKey("users.id"), nullable=False)
     file_path_excel = Column(String(500), nullable=True)
     file_path_pdf = Column(String(500), nullable=True)

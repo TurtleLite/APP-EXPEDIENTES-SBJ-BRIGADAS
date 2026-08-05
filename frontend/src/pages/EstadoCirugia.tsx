@@ -4,12 +4,13 @@ import { ListRecord, ListDefinition } from '../types'
 import { useNotification } from '../contexts/NotificationContext'
 import { Search, ChevronDown } from 'lucide-react'
 
-const STATUS_OPTIONS = ['En espera', 'Reprogramar', 'Cancelado', 'Fuera de perfil San Benito', 'Operado', 'No se presentó']
+const STATUS_OPTIONS = ['En espera', 'Reprogramar', 'Cancelado', 'Fuera de perfil San Benito', 'Operado', 'No apto para cirugía', 'No se presentó']
 const PAGE_SIZE = 50
 
 const statusStyles: Record<string, string> = {
   'Operado': 'bg-emerald-100 text-emerald-600 border-emerald-200',
   'Fuera de perfil San Benito': 'bg-red-100 text-red-600 border-red-200',
+  'No apto para cirugía': 'bg-rose-100 text-rose-700 border-rose-200',
   'En espera': 'bg-yellow-100 text-yellow-600 border-yellow-200',
   'Reprogramar': 'bg-orange-100 text-orange-600 border-orange-200',
   'Cancelado': 'bg-slate-100 text-slate-500 border-slate-200',
@@ -26,6 +27,8 @@ export function EstadoCirugia() {
   const [filter, setFilter] = useState('')
   const [search, setSearch] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [statusDraft, setStatusDraft] = useState('')
+  const [comment, setComment] = useState('')
   const [listId, setListId] = useState<string | null>(null)
   const { toast } = useNotification()
   const pageRef = useRef(1)
@@ -104,9 +107,15 @@ export function EstadoCirugia() {
       const record = records.find((r) => r.id === recordId)
       if (!record) return
       await listsApi.updateRecord(listId, recordId, {
-        data: { ...record.data, estatus_cirugia: status },
+        data: {
+          ...record.data,
+          estatus_cirugia: status,
+          observacion_estatus: comment.trim(),
+        },
       })
       setEditingId(null)
+      setStatusDraft('')
+      setComment('')
       toast('Estatus actualizado', 'success')
       loadPage(true)
     } catch {
@@ -178,34 +187,67 @@ export function EstadoCirugia() {
                 <tr><td colSpan={4} className="px-4 py-12 text-center text-slate-400 text-sm">Sin registros</td></tr>
               ) : records.map((r, idx) => (
                 <tr key={r.id} className={`border-b border-slate-100 transition-all duration-150 hover:bg-slate-100/50 ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-100/20'}`}>
-                  <td className="px-6 py-4 font-medium text-slate-900">
+                  <td className="px-6 py-4 font-medium text-slate-900 max-w-[240px] truncate" title={`${r.data?.nombre || ''} ${r.data?.apellido || ''}`}>
                     {`${r.data?.nombre || ''} ${r.data?.apellido || ''}`}
                   </td>
-                  <td className="px-6 py-4 text-slate-600">{r.data?.especialidad || <span className="text-slate-300">-</span>}</td>
+                  <td className="px-6 py-4 text-slate-600 max-w-[200px] truncate" title={r.data?.especialidad || ''}>{r.data?.especialidad || <span className="text-slate-300">-</span>}</td>
                   <td className="px-6 py-4 text-slate-600">{r.data?.perfil || <span className="text-slate-300">-</span>}</td>
                   <td className="px-6 py-4">
                     {editingId === r.id ? (
-                      <select
-                        autoFocus
-                        value={r.data?.estatus_cirugia || ''}
-                        onChange={(e) => updateStatus(r.id, e.target.value)}
-                        onBlur={() => setEditingId(null)}
-                        className="px-2 py-1.5 border border-[#E3E6EB] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
-                      >
-                        <option value="">Sin estatus</option>
-                        {STATUS_OPTIONS.map((s) => (
-                          <option key={s} value={s}>{s}</option>
-                        ))}
-                      </select>
+                      <div className="space-y-1.5">
+                        <select
+                          autoFocus
+                          value={statusDraft}
+                          onChange={(e) => setStatusDraft(e.target.value)}
+                          className="px-2 py-1.5 border border-[#E3E6EB] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                        >
+                          <option value="">Sin estatus</option>
+                          {STATUS_OPTIONS.map((s) => (
+                            <option key={s} value={s}>{s}</option>
+                          ))}
+                        </select>
+                        <input
+                          type="text"
+                          value={comment}
+                          onChange={(e) => setComment(e.target.value)}
+                          placeholder="Observación (opcional)"
+                          className="w-64 px-2.5 py-1.5 border border-[#E3E6EB] rounded-xl text-xs bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                        />
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => updateStatus(r.id, statusDraft)}
+                            className="px-2.5 py-1 text-xs font-medium bg-[#6E7B91] text-white rounded-lg hover:bg-[#5F6B80] transition-colors"
+                          >
+                            Guardar
+                          </button>
+                          <button
+                            onClick={() => { setEditingId(null); setStatusDraft(''); setComment('') }}
+                            className="px-2.5 py-1 text-xs font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
+                          >
+                            Cancelar
+                          </button>
+                        </div>
+                      </div>
                     ) : (
-                      <button
-                        onClick={() => setEditingId(r.id)}
-                        className={`px-3 py-1 rounded-full text-xs font-medium border transition-all duration-200 hover:scale-105 active:scale-95 ${
-                          statusStyles[r.data?.estatus_cirugia] || 'bg-white text-slate-400 border-[#E3E6EB] hover:border-[#E3E6EB]'
-                        }`}
-                      >
-                        {r.data?.estatus_cirugia || 'Asignar'}
-                      </button>
+                      <div className="space-y-1">
+                        <button
+                          onClick={() => {
+                            setEditingId(r.id)
+                            setStatusDraft(r.data?.estatus_cirugia || '')
+                            setComment(r.data?.observacion_estatus || '')
+                          }}
+                          className={`px-3 py-1 rounded-full text-xs font-medium border transition-all duration-200 hover:scale-105 active:scale-95 ${
+                            statusStyles[r.data?.estatus_cirugia] || 'bg-white text-slate-400 border-[#E3E6EB] hover:border-[#E3E6EB]'
+                          }`}
+                        >
+                          {r.data?.estatus_cirugia || 'Asignar'}
+                        </button>
+                        {r.data?.observacion_estatus && (
+                          <p className="max-w-[260px] truncate text-xs text-slate-500" title={r.data.observacion_estatus}>
+                            {r.data.observacion_estatus}
+                          </p>
+                        )}
+                      </div>
                     )}
                   </td>
                 </tr>

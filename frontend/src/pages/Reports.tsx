@@ -5,13 +5,14 @@ import { useAuth } from '../contexts/AuthContext'
 import { useNotification } from '../contexts/NotificationContext'
 import { Plus, FileSpreadsheet, Download, Trash2, Eye, X } from 'lucide-react'
 
-const STATUS_OPTIONS = ['En espera', 'Reprogramar', 'Cancelado', 'Fuera de perfil San Benito', 'Operado', 'No se presentó']
+const STATUS_OPTIONS = ['En espera', 'Reprogramar', 'Cancelado', 'Fuera de perfil San Benito', 'Operado', 'No apto para cirugía', 'No se presentó']
 
 interface PreviewData {
   name: string
   columns: string[]
   records: Record<string, any>[]
   count: number
+  record_ids?: string[]
 }
 
 export function Reports() {
@@ -23,7 +24,12 @@ export function Reports() {
   const [showModal, setShowModal] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [preview, setPreview] = useState<PreviewData | null>(null)
+  const [previewReportId, setPreviewReportId] = useState<string | number | null>(null)
   const [loadingPreview, setLoadingPreview] = useState(false)
+  const [dragIdx, setDragIdx] = useState<number | null>(null)
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null)
+  const [savingOrder, setSavingOrder] = useState(false)
+  const [orderSaved, setOrderSaved] = useState(false)
   const [form, setForm] = useState({
     name: '', description: '', list_definition_id: '', especialidad: '', perfil: '',
     criticidad: '', estatus_cirugia: '', columns_selected: [] as string[],
@@ -108,13 +114,52 @@ export function Reports() {
 
   const handlePreview = async (reportId: string | number) => {
     setLoadingPreview(true)
+    setPreviewReportId(reportId)
     try {
       const res = await reportsApi.preview(reportId)
       setPreview(res.data)
+      setOrderSaved(false)
     } catch (err: any) {
       toast(err.response?.data?.detail || 'Error al cargar vista previa', 'error')
     } finally {
       setLoadingPreview(false)
+    }
+  }
+
+  const canReorder = (): boolean =>
+    user?.role === 'admin' || user?.role === 'direccion' || user?.role === 'direccion_medica'
+
+  const handleDragStart = (e: React.DragEvent, idx: number) => {
+    setDragIdx(idx)
+    e.dataTransfer.effectAllowed = 'move'
+  }
+
+  const handleDrop = async (targetIdx: number) => {
+    setDragOverIdx(null)
+    if (!preview || previewReportId === null || dragIdx === null || dragIdx === targetIdx || !canReorder()) {
+      setDragIdx(null)
+      return
+    }
+    const from = dragIdx
+    const to = targetIdx
+    const nextRecords = [...preview.records]
+    const [moved] = nextRecords.splice(from, 1)
+    const adjustedTo = nextRecords.findIndex((r) => r._id === preview.records[to]._id)
+    if (adjustedTo < 0) { setDragIdx(null); return }
+    nextRecords.splice(adjustedTo, 0, moved)
+    const nextIds = nextRecords.map((r) => r._id).filter(Boolean)
+    setPreview({ ...preview, records: nextRecords, record_ids: nextIds })
+    setOrderSaved(false)
+    setDragIdx(null)
+    setSavingOrder(true)
+    try {
+      await reportsApi.saveOrder(previewReportId, nextIds)
+      setOrderSaved(true)
+      toast('Orden del reporte guardado', 'success')
+    } catch (err: any) {
+      toast(err.response?.data?.detail || 'Error al guardar el orden', 'error')
+    } finally {
+      setSavingOrder(false)
     }
   }
 
@@ -373,6 +418,13 @@ export function Reports() {
               </button>
             </div>
             <div className="flex-1 overflow-auto min-h-0">
+              {canReorder() && preview.records.length > 1 && (
+                <div className="flex items-center gap-2 px-8 py-2 bg-sky-50 border-b border-sky-100 text-xs text-sky-700 shrink-0">
+                  <span>Arrastre las filas para acomodar la posición antes de generar el Excel.</span>
+                  {savingOrder && <span className="text-sky-500">Guardando orden…</span>}
+                  {orderSaved && !savingOrder && <span className="text-emerald-600 font-medium">✓ Orden guardado</span>}
+                </div>
+              )}
               <table className="w-full text-sm">
                 <thead className="sticky top-0 z-10">
                   <tr className="bg-[#6E7B91] text-white">
@@ -391,9 +443,21 @@ export function Reports() {
                       </td>
                     </tr>
                   ) : preview.records.map((record, idx) => (
-                    <tr key={idx} className={`border-b border-[#E3E6EB] ${idx % 2 === 0 ? 'bg-white' : 'bg-[#F8F9FA]'}`}>
+                    <tr
+                      key={record._id || idx}
+                      draggable={canReorder()}
+                      onDragStart={(e) => handleDragStart(e, idx)}
+                      onDragOver={(e) => { if (canReorder()) { e.preventDefault(); setDragOverIdx(idx) } }}
+                      onDrop={(e) => { e.preventDefault(); handleDrop(idx) }}
+                      onDragEnd={() => { setDragIdx(null); setDragOverIdx(null) }}
+                      className={`border-b border-[#E3E6EB] transition-colors ${dragOverIdx === idx && dragIdx !== null && dragIdx !== idx ? 'bg-sky-50 ring-1 ring-inset ring-sky-200' : ''} ${dragIdx === idx ? 'opacity-50' : ''} ${idx % 2 === 0 ? 'bg-white' : 'bg-[#F8F9FA]'} ${canReorder() ? 'cursor-grab active:cursor-grabbing' : ''}`}
+                    >
                       {preview.columns.map((col) => (
-                        <td key={col} className="px-4 py-2.5 text-slate-700 whitespace-nowrap">
+                        <td
+                          key={col}
+                          title={record[col] ? String(record[col]) : undefined}
+                          className={`px-4 py-2.5 text-slate-700 ${['Nombre/Name', 'Diagnostic/Procedure', 'Origin', 'Referred by', 'Observación'].includes(col) ? 'max-w-[220px] truncate' : 'whitespace-nowrap'}`}
+                        >
                           {record[col] || <span className="text-slate-300">-</span>}
                         </td>
                       ))}
@@ -403,7 +467,7 @@ export function Reports() {
               </table>
             </div>
             <div className="flex justify-end px-8 py-3 border-t border-[#E3E6EB] bg-white shrink-0">
-              <button onClick={() => setPreview(null)} className="px-4 py-2 text-sm bg-[#6E7B91] text-white rounded-xl hover:bg-[#5F6B80] shadow-sm transition-all duration-200 font-medium">
+              <button onClick={() => { setPreview(null); setPreviewReportId(null) }} className="px-4 py-2 text-sm bg-[#6E7B91] text-white rounded-xl hover:bg-[#5F6B80] shadow-sm transition-all duration-200 font-medium">
                 Cerrar
               </button>
             </div>

@@ -19,7 +19,7 @@ function patientName(r: ListRecord): string {
   return [d.nombre, d.apellido].filter(Boolean).join(' ').trim() || 'Sin nombre'
 }
 
-const EXCLUDED_STATUSES = ['Operado', 'Fuera de perfil San Benito']
+const EXCLUDED_STATUSES = ['Operado', 'Fuera de perfil San Benito', 'No apto para cirugía']
 const PAGE_SIZE = 50
 
 export function DayList() {

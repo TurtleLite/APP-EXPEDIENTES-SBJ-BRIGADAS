@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import JSONResponse
-from app.api import auth, users, lists, reports, day_lists, specialties
+from app.api import auth, users, lists, reports, day_lists, specialties, localities
 from app.core.database import engine, Base, SessionLocal
 from sqlalchemy import inspect, text
 import logging
@@ -68,6 +68,13 @@ async def lifespan(app: FastAPI):
                     """))
                     conn.commit()
                 logger.info("Renamed users.email to users.telefono")
+        if "reports" in inspector.get_table_names():
+            columns = [c["name"] for c in inspector.get_columns("reports")]
+            if "record_order" not in columns:
+                with engine.connect() as conn:
+                    conn.execute(text("ALTER TABLE reports ADD COLUMN record_order JSON"))
+                    conn.commit()
+                logger.info("Added record_order column to reports")
     except Exception as e:
         logger.warning(f"Could not add column: {e}")
 
@@ -140,6 +147,7 @@ app.include_router(lists.router)
 app.include_router(reports.router)
 app.include_router(day_lists.router)
 app.include_router(specialties.router)
+app.include_router(localities.router)
 
 
 @app.get("/")

@@ -5,6 +5,7 @@ const API_URL = import.meta.env.VITE_API_URL || '/api'
 const api = axios.create({
   baseURL: API_URL,
   headers: { 'Content-Type': 'application/json' },
+  timeout: 30000,
 })
 
 api.interceptors.request.use((config) => {
@@ -29,7 +30,7 @@ api.interceptors.response.use(
 
 export const authApi = {
   login: (username: string, password: string) =>
-    api.post('/auth/login', { username, password }),
+    api.post('/auth/login', { username, password }, { timeout: 20000 }),
 }
 
 export const usersApi = {
@@ -70,6 +71,8 @@ export const listsApi = {
     api.get(`/lists/${listId}/export-expediente`, { responseType: 'blob' }),
   getEspecialidades: (listId: string | number) =>
     api.get(`/lists/${listId}/especialidades`),
+  getLocalidades: (listId: string | number) =>
+    api.get(`/lists/${listId}/localidades`),
   getDuplicates: (listId: string | number) =>
     api.get(`/lists/${listId}/records/duplicates`),
   getFieldValues: (listId: string | number, field: string) =>
@@ -93,11 +96,19 @@ export const specialtiesApi = {
   remove: (name: string) => api.delete('/specialties/', { params: { name } }),
 }
 
+export const localitiesApi = {
+  list: () => api.get('/localities/'),
+  rename: (oldName: string, newName: string) => api.put('/localities/rename', { old: oldName, new: newName }),
+  remove: (name: string) => api.delete('/localities/', { params: { name } }),
+}
+
 export const reportsApi = {
   create: (data: any) => api.post('/reports/', data),
   list: () => api.get('/reports/'),
   get: (id: string | number) => api.get(`/reports/${id}`),
   preview: (id: string | number) => api.get(`/reports/${id}/preview`),
+  saveOrder: (id: string | number, recordIds: (string | number)[]) =>
+    api.put(`/reports/${id}/order`, { record_ids: recordIds }),
   generateExcel: (id: string | number) => api.post(`/reports/${id}/generate-excel`),
   download: (id: string | number) =>
     api.get(`/reports/${id}/download`, { responseType: 'blob' }),

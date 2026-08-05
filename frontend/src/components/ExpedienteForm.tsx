@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { listsApi } from '../services/api'
 import { useNotification } from '../contexts/NotificationContext'
 import { ListRecord } from '../types'
+import { HONDURAS_DEPARTAMENTOS, TIPO_LOCALIDAD_OPTIONS } from '../constants'
+import { normalizeText, titleCase } from '../utils/format'
 import { CheckCircle2, Circle, ChevronDown, ChevronRight, Stethoscope, User, Home, FileText, Activity, ClipboardList, FlaskConical, Syringe, UserCircle } from 'lucide-react'
 
 interface ColumnDef {
@@ -17,13 +19,12 @@ interface Section {
   fields: ColumnDef[]
 }
 
-const SECTIONS: Section[] = [
+export const SECTIONS: Section[] = [
   {
     title: 'Datos Personales',
     icon: <User size={18} />,
     fields: [
       { key: 'especialidad', label: 'Especialidad', type: 'text' },
-      { key: 'criticidad', label: 'Criticidad', type: 'text' },
       { key: 'nombre', label: 'Nombre / First Name', type: 'text' },
       { key: 'apellido', label: 'Apellido / Last Name', type: 'text' },
       { key: 'sexo', label: 'Sexo / Sex', type: 'text' },
@@ -42,14 +43,17 @@ const SECTIONS: Section[] = [
     title: 'Domicilio',
     icon: <Home size={18} />,
     fields: [
-      { key: 'domicilio', label: 'Domicilio del Paciente', type: 'text' },
+      { key: 'departamento', label: 'Departamento', type: 'text' },
+      { key: 'municipio', label: 'Municipio', type: 'text' },
+      { key: 'tipo_localidad', label: 'Tipo de Localidad', type: 'text' },
+      { key: 'localidad', label: 'Localidad', type: 'text' },
     ],
   },
   {
     title: 'Historia de Enfermedad Actual',
     icon: <FileText size={18} />,
     fields: [
-      { key: 'historia_enfermedad', label: 'Historia de Enfermedad Actual', type: 'text' },
+      { key: 'historia_enfermedad', label: 'Historia de Enfermedad Actual (mín. 5 caracteres)', type: 'text' },
     ],
   },
   {
@@ -66,14 +70,14 @@ const SECTIONS: Section[] = [
     title: 'Signos Vitales',
     icon: <Activity size={18} />,
     fields: [
-      { key: 'presion_arterial', label: 'P.A. / B.P.', type: 'text' },
-      { key: 'fc', label: 'F.C.', type: 'text' },
-      { key: 'pulso', label: 'Pulso', type: 'text' },
-      { key: 'temperatura', label: 'T°', type: 'text' },
-      { key: 'fr', label: 'F.R.', type: 'text' },
-      { key: 'peso', label: 'Peso / Weight', type: 'text' },
-      { key: 'talla', label: 'Talla', type: 'text' },
-      { key: 'bmi', label: 'B.M.I.', type: 'text' },
+      { key: 'presion_arterial', label: 'P.A. / B.P. (mmHg)', type: 'text' },
+      { key: 'fc', label: 'F.C. (lpm)', type: 'text' },
+      { key: 'pulso', label: 'Pulso (lpm)', type: 'text' },
+      { key: 'temperatura', label: 'T° (°C)', type: 'text' },
+      { key: 'fr', label: 'F.R. (rpm)', type: 'text' },
+      { key: 'peso', label: 'Peso / Weight (kg)', type: 'text' },
+      { key: 'talla', label: 'Talla (mts)', type: 'text' },
+      { key: 'bmi', label: 'B.M.I. (kg/mts²)', type: 'text' },
     ],
   },
   {
@@ -87,7 +91,8 @@ const SECTIONS: Section[] = [
     title: 'Diagnóstico',
     icon: <Syringe size={18} />,
     fields: [
-      { key: 'diagnostico', label: 'Diagnóstico', type: 'text' },
+      { key: 'diagnostico', label: 'Diagnóstico (mín. 5 caracteres)', type: 'text' },
+      { key: 'criticidad', label: 'Criticidad Clínica', type: 'text' },
     ],
   },
   {
@@ -99,9 +104,24 @@ const SECTIONS: Section[] = [
   },
 ]
 
+const FIELD_UNITS: Record<string, string> = {
+  presion_arterial: 'mmHg',
+  fc: 'lpm',
+  fr: 'rpm',
+  pulso: 'lpm',
+  temperatura: '°C',
+  bmi: 'kg/mts²',
+}
+
+const MIN_TEXT_LENGTH = 5
+
+const criticidadEnabled = (data: Record<string, any>): boolean =>
+  String(data.diagnostico || '').trim().length >= MIN_TEXT_LENGTH
+
 function isSectionComplete(section: Section, data: Record<string, any>): boolean {
   return section.fields.every((f) => {
     if (f.optional) return true
+    if (f.key === 'criticidad' && !criticidadEnabled(data)) return true
     const val = data[f.key]
     return val !== undefined && val !== null && String(val).trim() !== ''
   })
@@ -118,6 +138,7 @@ function filledFields(data: Record<string, any>): number {
 interface Props {
   listId: string
   role?: string
+  medicoName?: string
   onClose: () => void
   onSaved: () => void
   editingRecord?: ListRecord
@@ -135,15 +156,27 @@ function filterSections(role?: string): Section[] {
   return SECTIONS
 }
 
-const FULL_WIDTH_KEYS = new Set(['domicilio', 'historia_enfermedad', 'examen_fisico', 'diagnostico'])
+const FULL_WIDTH_KEYS = new Set(['historia_enfermedad', 'examen_fisico', 'diagnostico'])
 
-export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }: Props) {
+interface LocalidadOption {
+  localidad: string
+  tipo: string
+  count: number
+}
+
+export function ExpedienteForm({ listId, role, medicoName, onClose, onSaved, editingRecord }: Props) {
   const sections = filterSections(role)
-  const [data, setData] = useState<Record<string, any>>(editingRecord?.data || {})
+  const [data, setData] = useState<Record<string, any>>(() => {
+    const base = editingRecord?.data ? { ...editingRecord.data } : {}
+    if (!base.nombre_medico && medicoName) base.nombre_medico = medicoName
+    return base
+  })
   const [expanded, setExpanded] = useState<string>(sections.length > 0 ? sections[0].title : '')
   const [saving, setSaving] = useState(false)
   const [especialidades, setEspecialidades] = useState<string[]>([])
   const [customEspecialidad, setCustomEspecialidad] = useState(false)
+  const [localidades, setLocalidades] = useState<LocalidadOption[]>([])
+  const [localidadMatch, setLocalidadMatch] = useState<LocalidadOption | null>(null)
   const { toast } = useNotification()
 
   useEffect(() => {
@@ -153,6 +186,12 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
         const v = editingRecord?.data?.especialidad
         if (v && !res.data.includes(v)) setCustomEspecialidad(true)
       }
+    }).catch(() => {})
+  }, [listId])
+
+  useEffect(() => {
+    listsApi.getLocalidades(listId).then((res) => {
+      if (Array.isArray(res.data)) setLocalidades(res.data)
     }).catch(() => {})
   }, [listId])
 
@@ -170,14 +209,39 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
     setExpanded((prev) => (prev === title ? '' : title))
   }
 
+  const handleLocalidadChange = (value: string) => {
+    const titled = titleCase(value)
+    setValue('localidad', titled)
+    const normalized = normalizeText(titled)
+    if (!normalized) {
+      setLocalidadMatch(null)
+      return
+    }
+    const match = localidades.find((l) => normalizeText(l.localidad) === normalized) || null
+    setLocalidadMatch(match)
+    if (match) setValue('tipo_localidad', match.tipo)
+  }
+
   const handleSubmit = async () => {
     if (!allComplete) return
+    const diag = String(data.diagnostico || '').trim()
+    const hist = String(data.historia_enfermedad || '').trim()
+    if (diag.length < MIN_TEXT_LENGTH) {
+      toast(`El diagnóstico debe tener al menos ${MIN_TEXT_LENGTH} caracteres`, 'error')
+      return
+    }
+    if (hist.length < MIN_TEXT_LENGTH) {
+      toast(`La historia de enfermedad actual debe tener al menos ${MIN_TEXT_LENGTH} caracteres`, 'error')
+      return
+    }
     setSaving(true)
     try {
+      const payload = { ...data }
+      if (!payload.nombre_medico && medicoName) payload.nombre_medico = medicoName
       if (editingRecord) {
-        await listsApi.updateRecord(listId, editingRecord.id, { data })
+        await listsApi.updateRecord(listId, editingRecord.id, { data: payload })
       } else {
-        await listsApi.createRecord(listId, { data })
+        await listsApi.createRecord(listId, { data: payload })
       }
       onSaved()
       onClose()
@@ -257,9 +321,10 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
                   </span>
                   <span className="text-xs text-slate-400">
                     {section.fields.filter((f) => {
+                      if (f.key === 'criticidad' && !criticidadEnabled(data)) return false
                       const v = data[f.key]
                       return v !== undefined && v !== null && String(v).trim() !== ''
-                    }).length}/{section.fields.length}
+                    }).length}/{section.fields.filter((f) => !(f.key === 'criticidad' && !criticidadEnabled(data))).length}
                   </span>
                   {isOpen ? <ChevronDown size={16} className="text-slate-400" /> : <ChevronRight size={16} className="text-slate-400" />}
                 </button>
@@ -316,16 +381,22 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
                             </select>
                           )
                         ) : field.key === 'criticidad' ? (
-                          <select
-                            value={data[field.key] || ''}
-                            onChange={(e) => setValue(field.key, e.target.value)}
-                            className="w-full px-3 py-2 border border-[#E3E6EB] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
-                          >
-                            <option value="">Seleccione...</option>
-                            <option value="baja">Baja</option>
-                            <option value="media">Media</option>
-                            <option value="alta">Alta</option>
-                          </select>
+                          criticidadEnabled(data) ? (
+                            <select
+                              value={data[field.key] || ''}
+                              onChange={(e) => setValue(field.key, e.target.value)}
+                              className="w-full px-3 py-2 border border-[#E3E6EB] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
+                            >
+                              <option value="">Seleccione...</option>
+                              <option value="baja">Baja</option>
+                              <option value="media">Media</option>
+                              <option value="alta">Alta</option>
+                            </select>
+                          ) : (
+                            <div className="px-3 py-2 rounded-lg bg-slate-50 border border-dashed border-[#E3E6EB] text-xs text-slate-500">
+                              Complete primero el diagnóstico (mínimo 5 caracteres) para asignar la criticidad clínica.
+                            </div>
+                          )
                         ) : field.key === 'sexo' ? (
                           <select
                             value={data[field.key] || ''}
@@ -399,6 +470,7 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
                             <option value="Cancelado">Cancelado</option>
                             <option value="Fuera de perfil San Benito">Fuera de perfil San Benito</option>
                             <option value="Operado">Operado</option>
+                            <option value="No apto para cirugía">No apto para cirugía</option>
                           </select>
                         ) : field.key === 'identidad' ? (
                           <input
@@ -467,31 +539,105 @@ export function ExpedienteForm({ listId, role, onClose, onSaved, editingRecord }
                             />
                             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">mts</span>
                           </div>
-                        ) : field.key === 'nombre' || field.key === 'apellido' || field.key === 'persona_responsable' ? (
+                        ) : field.key === 'nombre' || field.key === 'apellido' || field.key === 'persona_responsable' || field.key === 'diagnostico' ? (
                           <textarea
-                            rows={1}
+                            rows={field.key === 'diagnostico' ? 3 : 1}
                             value={data[field.key] || ''}
                             onChange={(e) => {
                               const val = e.target.value
-                              const titleCased = val.replace(/\w\S*/g, (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+                              const titleCased = titleCase(val)
                               setValue(field.key, titleCased)
                             }}
                             className="w-full px-3 py-2 border border-[#E3E6EB] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400 resize-none"
                           />
-                        ) : field.key === 'domicilio' ? (
-                          <textarea
-                            rows={3}
+                        ) : field.key === 'departamento' ? (
+                          <select
                             value={data[field.key] || ''}
                             onChange={(e) => {
-                              const val = e.target.value
-                              const exceptions = new Set(['el','la','los','las','de','del','en','por','para','con','sin','a','y','e','o','u','un','una','unos','unas','que','como','entre','hasta','durante','sobre','tras','segun','ante','bajo','cabe','contra','desde','hacia','mediante','via','ni','mas','pero','sino','aunque'])
-                              const titleCased = val.toLowerCase().replace(/\w+/g, (w, i) => 
-                                i === 0 || !exceptions.has(w) ? w.charAt(0).toUpperCase() + w.slice(1) : w
-                              )
-                              setValue(field.key, titleCased)
+                              const v = e.target.value
+                              setValue('departamento', v)
+                              if (v && !(HONDURAS_DEPARTAMENTOS[v] || []).includes(data.municipio)) {
+                                setValue('municipio', '')
+                              }
                             }}
-                            className="w-full px-3 py-2 border border-[#E3E6EB] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400 resize-none"
+                            className="w-full px-3 py-2 border border-[#E3E6EB] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
+                          >
+                            <option value="">Seleccione el departamento...</option>
+                            {Object.keys(HONDURAS_DEPARTAMENTOS).map((d) => (
+                              <option key={d} value={d}>{d}</option>
+                            ))}
+                          </select>
+                        ) : field.key === 'municipio' ? (
+                          <select
+                            value={data[field.key] || ''}
+                            onChange={(e) => setValue('municipio', e.target.value)}
+                            disabled={!data.departamento}
+                            className="w-full px-3 py-2 border border-[#E3E6EB] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400 disabled:bg-slate-50 disabled:text-slate-400"
+                          >
+                            <option value="">{data.departamento ? 'Seleccione el municipio...' : 'Seleccione primero un departamento'}</option>
+                            {(HONDURAS_DEPARTAMENTOS[data.departamento] || []).map((m) => (
+                              <option key={m} value={m}>{m}</option>
+                            ))}
+                          </select>
+                        ) : field.key === 'tipo_localidad' ? (
+                          <select
+                            value={data[field.key] || ''}
+                            onChange={(e) => setValue('tipo_localidad', e.target.value)}
+                            className="w-full px-3 py-2 border border-[#E3E6EB] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
+                          >
+                            <option value="">Seleccione el tipo...</option>
+                            {TIPO_LOCALIDAD_OPTIONS.map((t) => (
+                              <option key={t} value={t}>{t}</option>
+                            ))}
+                          </select>
+                        ) : field.key === 'localidad' ? (
+                          <div>
+                            <input
+                              type="text"
+                              list="localidades-sugeridas"
+                              value={data[field.key] || ''}
+                              onChange={(e) => handleLocalidadChange(e.target.value)}
+                              placeholder="Escriba la localidad o seleccione una existente"
+                              className="w-full px-3 py-2 border border-[#E3E6EB] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
+                            />
+                            <datalist id="localidades-sugeridas">
+                              {localidades.map((l) => (
+                                <option key={`${l.localidad}-${l.tipo}`} value={l.localidad}>
+                                  {l.localidad}{l.tipo ? ` (${l.tipo})` : ''}
+                                </option>
+                              ))}
+                            </datalist>
+                            {localidadMatch && (
+                              <div className="mt-1.5 flex items-center gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5">
+                                <span>
+                                  Ya existe la localidad <b>"{localidadMatch.localidad}"</b>
+                                  {localidadMatch.tipo ? ` (${localidadMatch.tipo})` : ''}. Se usará la existente.
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        ) : field.key === 'nombre_medico' ? (
+                          <input
+                            type="text"
+                            value={data[field.key] || medicoName || ''}
+                            readOnly
+                            disabled
+                            title="El nombre del médico se asigna automáticamente según el usuario"
+                            className="w-full px-3 py-2 border border-[#E3E6EB] rounded-lg text-sm bg-slate-50 text-slate-600 disabled:cursor-not-allowed"
                           />
+                        ) : FIELD_UNITS[field.key] ? (
+                          <div className="relative">
+                            <input
+                              type="text"
+                              value={data[field.key] || ''}
+                              onChange={(e) => setValue(field.key, e.target.value)}
+                              placeholder="0"
+                              className="w-full px-3 py-2 pr-12 border border-[#E3E6EB] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
+                            />
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none whitespace-nowrap">
+                              {FIELD_UNITS[field.key]}
+                            </span>
+                          </div>
                         ) : field.type === 'date' ? (
                           <input
                             type="date"

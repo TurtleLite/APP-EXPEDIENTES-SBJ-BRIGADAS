@@ -4,9 +4,11 @@ import { listsApi, default as api } from '../services/api'
 import { ListDefinition, ListRecord } from '../types'
 import { useAuth } from '../contexts/AuthContext'
 import { useNotification } from '../contexts/NotificationContext'
-import { Plus, Upload, Search, Pencil, Trash2, Download, Stethoscope, CheckSquare, Square, Settings2, AlertTriangle } from 'lucide-react'
-import { ExpedienteForm } from '../components/ExpedienteForm'
-import { specialtiesApi } from '../services/api'
+import { Plus, Upload, Search, Pencil, Trash2, Download, Stethoscope, CheckSquare, Square, Settings2, AlertTriangle, Eye, MapPin, X } from 'lucide-react'
+import { ExpedienteForm, SECTIONS } from '../components/ExpedienteForm'
+import { specialtiesApi, localitiesApi } from '../services/api'
+import { areSimilarNames } from '../utils/format'
+import { TIPO_LOCALIDAD_OPTIONS } from '../constants'
 
 const RECORD_COLUMNS = ['nombre', 'edad', 'diagnostico', 'perfil', 'domicilio', 'telefono', 'albergue', 'nombre_medico']
 const PAGE_SIZE = 50
@@ -51,6 +53,12 @@ export function ListDetail() {
   const [espSaving, setEspSaving] = useState(false)
   const [showDupModal, setShowDupModal] = useState(false)
   const [duplicates, setDuplicates] = useState<DuplicateGroup[]>([])
+  const [previewRecord, setPreviewRecord] = useState<ListRecord | null>(null)
+  const [showLocModal, setShowLocModal] = useState(false)
+  const [localities, setLocalities] = useState<{ name: string; tipo: string; count: number }[]>([])
+  const [editingLoc, setEditingLoc] = useState<{ name: string; tipo: string; count: number } | null>(null)
+  const [newLocName, setNewLocName] = useState('')
+  const [locSaving, setLocSaving] = useState(false)
 
   const loadEspecialidades = async () => {
     try {
@@ -205,6 +213,10 @@ export function ListDetail() {
   const handleEditSelected = () => {
     const record = records.find(r => selectedIds.has(r.id))
     if (!record) return
+    if (user?.role === 'medico' && record.created_by && String(record.created_by) !== String(user.id)) {
+      toast('Solo puedes editar expedientes creados por ti', 'error')
+      return
+    }
     setSelectedIds(new Set())
     if (list?.is_system) {
       setEditingRecord(record)
@@ -274,6 +286,78 @@ export function ListDetail() {
     } catch (err: any) {
       toast(err.response?.data?.detail || 'Error al eliminar la especialidad', 'error')
     }
+  }
+
+  const loadLocalities = async () => {
+    try {
+      const res = await localitiesApi.list()
+      setLocalities(res.data)
+    } catch {
+      toast('Error al cargar localidades', 'error')
+    }
+  }
+
+  const openLocModal = () => {
+    setShowLocModal(true)
+    setEditingLoc(null)
+    setNewLocName('')
+    loadLocalities()
+  }
+
+  const handleRenameLoc = async () => {
+    if (!editingLoc || !newLocName.trim()) {
+      toast('El nombre nuevo es obligatorio', 'error')
+      return
+    }
+    try {
+      setLocSaving(true)
+      const res = await localitiesApi.rename(editingLoc.name, newLocName.trim())
+      toast(res.data?.message || 'Localidad editada', 'success')
+      setEditingLoc(null)
+      await loadLocalities()
+    } catch (err: any) {
+      toast(err.response?.data?.detail || 'Error al editar la localidad', 'error')
+    } finally {
+      setLocSaving(false)
+    }
+  }
+
+  const handleDeleteLoc = async (l: { name: string; tipo: string; count: number }) => {
+    if (!await confirm(`¿Eliminar la localidad "${l.name}"? Se quitará de ${l.count} expediente(s).`)) return
+    try {
+      const res = await localitiesApi.remove(l.name)
+      toast(res.data?.message || 'Localidad eliminada', 'success')
+      await loadLocalities()
+    } catch (err: any) {
+      toast(err.response?.data?.detail || 'Error al eliminar la localidad', 'error')
+    }
+  }
+
+  const similarLocalities = (): { names: string[] }[] => {
+    const groups: { names: string[] }[] = []
+    const used = new Set<number>()
+    for (let i = 0; i < localities.length; i++) {
+      if (used.has(i)) continue
+      const group = [localities[i]]
+      used.add(i)
+      for (let j = i + 1; j < localities.length; j++) {
+        if (used.has(j)) continue
+        if (areSimilarNames(localities[i].name, localities[j].name)) {
+          group.push(localities[j])
+          used.add(j)
+        }
+      }
+      if (group.length > 1) groups.push({ names: group.map((g) => g.name) })
+    }
+    return groups
+  }
+
+  const domicilioPreview = (d: Record<string, any>): string => {
+    const parts: string[] = []
+    if (d.localidad) parts.push(d.tipo_localidad ? `${d.localidad} (${d.tipo_localidad})` : d.localidad)
+    if (d.municipio) parts.push(d.municipio)
+    if (d.departamento) parts.push(d.departamento)
+    return parts.filter(Boolean).join(', ') || d.domicilio || ''
   }
 
   const openDupModal = () => {
@@ -370,14 +454,24 @@ export function ListDetail() {
                 ))}
               </select>
               {user?.role === 'admin' && (
-                <button
-                  onClick={openEspModal}
-                  className="flex items-center gap-1.5 px-3 py-2 text-sm text-slate-600 bg-white border border-[#E3E6EB] rounded-xl hover:bg-[#F8F9FA] transition-all duration-200"
-                  title="Administrar especialidades"
-                >
-                  <Settings2 size={15} />
-                  Especialidades
-                </button>
+                <>
+                  <button
+                    onClick={openEspModal}
+                    className="flex items-center gap-1.5 px-3 py-2 text-sm text-slate-600 bg-white border border-[#E3E6EB] rounded-xl hover:bg-[#F8F9FA] transition-all duration-200"
+                    title="Administrar especialidades"
+                  >
+                    <Settings2 size={15} />
+                    Especialidades
+                  </button>
+                  <button
+                    onClick={openLocModal}
+                    className="flex items-center gap-1.5 px-3 py-2 text-sm text-slate-600 bg-white border border-[#E3E6EB] rounded-xl hover:bg-[#F8F9FA] transition-all duration-200"
+                    title="Administrar localidades"
+                  >
+                    <MapPin size={15} />
+                    Localidades
+                  </button>
+                </>
               )}
               {duplicates.length > 0 && (
                 <button
@@ -456,15 +550,33 @@ export function ListDetail() {
                     </td>
                   )}
                   {list?.columns_config.filter(c => RECORD_COLUMNS.includes(c.key)).map((col) => (
-                    <td key={col.key} className="px-6 py-4 text-sm text-slate-700">
+                    <td
+                      key={col.key}
+                      title={String(col.key === 'domicilio' ? domicilioPreview(record.data) : (record.data[col.key] ?? ''))}
+                      className={`px-6 py-4 text-sm text-slate-700 ${['nombre', 'diagnostico', 'domicilio', 'nombre_medico'].includes(col.key) ? 'max-w-[220px] truncate' : ''}`}
+                    >
                       {col.key === 'telefono'
                         ? [record.data.telefono, record.data.telefono2, record.data.telefono3]
                             .filter(Boolean)
                             .join(' / ') || <span className="text-slate-300">-</span>
-                        : record.data[col.key] || <span className="text-slate-300">-</span>
+                        : col.key === 'domicilio'
+                          ? domicilioPreview(record.data) || <span className="text-slate-300">-</span>
+                          : record.data[col.key] || <span className="text-slate-300">-</span>
                       }
                     </td>
                   ))}
+                  {list?.is_system && (
+                    <td className="px-6 py-4 text-sm text-slate-700">
+                      <button
+                        onClick={() => setPreviewRecord(record)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#5F6B80] bg-white border border-[#E3E6EB] rounded-xl hover:bg-[#F8F9FA] transition-all duration-200"
+                        title="Vista previa del expediente"
+                      >
+                        <Eye size={14} />
+                        Ver
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
               {records.length === 0 && (
@@ -497,6 +609,7 @@ export function ListDetail() {
         <ExpedienteForm
           listId={id}
           role={user?.role}
+          medicoName={user?.full_name}
           editingRecord={editingRecord || undefined}
           onClose={() => { setShowExpedienteForm(false); setEditingRecord(null) }}
           onSaved={() => loadRecords(true)}
@@ -612,40 +725,176 @@ export function ListDetail() {
         </div>
       )}
 
-      {showDupModal && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setShowDupModal(false)}>
-          <div className="bg-white rounded-2xl w-[95vw] max-w-2xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-5 py-4 border-b border-[#E3E6EB] shrink-0">
-              <h2 className="font-serif text-lg font-bold text-[#3F4650]">Expedientes duplicados por identidad</h2>
-              <button onClick={() => setShowDupModal(false)} className="text-slate-400 hover:text-slate-600 text-xl leading-none p-1 rounded-full hover:bg-slate-100">×</button>
-            </div>
-            <div className="flex-1 overflow-y-auto min-h-0 p-5 space-y-2">
-              {duplicates.length === 0 ? (
-                <p className="text-sm text-[#8A919C] text-center py-8">No hay expedientes con la misma identidad</p>
-              ) : (
-                duplicates.map((d) => (
-                  <button
-                    key={d.identidad}
-                    onClick={() => goToDuplicates(d.identidad)}
-                    className="w-full text-left px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100 transition-all duration-200"
-                    title="Ver estos expedientes"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-sm font-medium text-[#3F4650]">
-                        {d.identidad}
-                        <span className="ml-2 text-xs font-semibold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">{d.count} copias</span>
-                      </p>
-                    </div>
-                    <p className="text-xs text-[#8A919C] mt-1 truncate">{d.nombres.join(' · ')}</p>
-                  </button>
-                ))
+{showDupModal && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setShowDupModal(false)}>
+            <div className="bg-white rounded-2xl w-[95vw] max-w-2xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between px-5 py-4 border-b border-[#E3E6EB] shrink-0">
+                <h2 className="font-serif text-lg font-bold text-[#3F4650]">Expedientes duplicados por identidad</h2>
+                <button onClick={() => setShowDupModal(false)} className="text-slate-400 hover:text-slate-600 text-xl leading-none p-1 rounded-full hover:bg-slate-100">×</button>
+              </div>
+              <div className="flex-1 overflow-y-auto min-h-0 p-5 space-y-2">
+                {duplicates.length === 0 ? (
+                  <p className="text-sm text-[#8A919C] text-center py-8">No hay expedientes con la misma identidad</p>
+                ) : (
+                  duplicates.map((d) => (
+                    <button
+                      key={d.identidad}
+                      onClick={() => goToDuplicates(d.identidad)}
+                      className="w-full text-left px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100 transition-all duration-200"
+                      title="Ver estos expedientes"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-medium text-[#3F4650]">
+                          {d.identidad}
+                          <span className="ml-2 text-xs font-semibold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">{d.count} copias</span>
+                        </p>
+                      </div>
+                      <p className="text-xs text-[#8A919C] mt-1 truncate">{d.nombres.join(' · ')}</p>
+                    </button>
+                  ))
+                )}
+              </div>
+              {duplicates.length > 0 && (
+                <p className="px-5 py-3 text-xs text-[#8A919C] border-t border-[#E3E6EB] shrink-0">
+                  Toca un grupo para buscar esa identidad en la lista.
+                </p>
               )}
             </div>
-            {duplicates.length > 0 && (
-              <p className="px-5 py-3 text-xs text-[#8A919C] border-t border-[#E3E6EB] shrink-0">
-                Toca un grupo para buscar esa identidad en la lista.
-              </p>
-            )}
+          </div>
+        )}
+
+      {showLocModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setShowLocModal(false)}>
+          <div className="bg-white rounded-2xl w-[95vw] max-w-xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[#E3E6EB] shrink-0">
+              <h2 className="font-serif text-lg font-bold text-[#3F4650]">Administrar localidades</h2>
+              <button onClick={() => setShowLocModal(false)} className="text-slate-400 hover:text-slate-600 text-xl leading-none p-1 rounded-full hover:bg-slate-100">×</button>
+            </div>
+            <div className="flex-1 overflow-y-auto min-h-0 p-5 space-y-2">
+              {similarLocalities().length > 0 && (
+                <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-2">
+                  <p className="text-xs font-semibold text-amber-800 uppercase tracking-wider">Advertencia</p>
+                  <p className="text-xs text-amber-700 mt-1">
+                    Se detectaron {similarLocalities().length} grupo(s) de localidades con nombres similares:
+                  </p>
+                  <ul className="mt-2 space-y-1">
+                    {similarLocalities().map((g, gi) => (
+                      <li key={gi} className="text-xs text-amber-800">
+                        • {g.names.join('  /  ')}
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="text-xs text-amber-600 mt-2">
+                    Considere unificarlas renombrando para evitar duplicados.
+                  </p>
+                </div>
+              )}
+              {editingLoc ? (
+                <div className="flex items-center gap-2 mb-4">
+                  <input
+                    type="text"
+                    value={newLocName}
+                    onChange={(e) => setNewLocName(e.target.value)}
+                    autoFocus
+                    placeholder={`Nuevo nombre para "${editingLoc.name}"`}
+                    className="flex-1 px-3 py-2 border border-[#E3E6EB] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                  />
+                  <button
+                    onClick={handleRenameLoc}
+                    disabled={locSaving}
+                    className="px-4 py-2 text-sm bg-[#6E7B91] text-white rounded-xl hover:bg-[#5F6B80] transition-all duration-200 font-medium disabled:opacity-50"
+                  >
+                    {locSaving ? 'Guardando...' : 'Guardar'}
+                  </button>
+                  <button onClick={() => setEditingLoc(null)} className="px-3 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-xl transition-all duration-200">
+                    Cancelar
+                  </button>
+                </div>
+              ) : (
+                localities.map((l) => (
+                  <div key={`${l.name}-${l.tipo}`} className="flex items-center justify-between gap-3 px-4 py-3 bg-[#F8F9FA] border border-[#E3E6EB] rounded-xl">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-[#3F4650] truncate">{l.name}</p>
+                      <p className="text-xs text-[#8A919C]">
+                        {l.tipo ? `${l.tipo} · ` : ''}{l.count} expediente(s)
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        onClick={() => { setEditingLoc(l); setNewLocName(l.name) }}
+                        className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors duration-200"
+                        title="Renombrar"
+                      >
+                        <Pencil size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteLoc(l)}
+                        className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                        title="Eliminar"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+              {localities.length === 0 && !editingLoc && (
+                <p className="text-sm text-[#8A919C] text-center py-8">No hay localidades registradas</p>
+              )}
+            </div>
+            <p className="px-5 py-3 text-xs text-[#8A919C] border-t border-[#E3E6EB] shrink-0">
+              Las localidades se crean al escribir una nueva en el formulario del expediente. Tipos: {TIPO_LOCALIDAD_OPTIONS.join(' · ')}.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {previewRecord && (
+        <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white w-[95vw] max-w-2xl max-h-[90vh] flex flex-col overflow-hidden rounded-2xl shadow-2xl">
+            <div className="px-5 py-4 border-b border-[#E3E6EB] flex items-center justify-between shrink-0">
+              <div>
+                <h2 className="font-serif text-lg font-bold text-[#3F4650]">
+                  {`${previewRecord.data?.nombre || ''} ${previewRecord.data?.apellido || ''}`.trim() || 'Expediente'}
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Expediente Nº {previewRecord.data?.expediente || '—'} · {previewRecord.data?.especialidad || 'Sin especialidad'}
+                </p>
+              </div>
+              <button onClick={() => setPreviewRecord(null)} className="text-slate-400 hover:text-slate-600 transition-colors duration-200">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto min-h-0 px-5 py-4 space-y-3">
+              {SECTIONS.map((section) => (
+                <div key={section.title} className="border border-[#E3E6EB] rounded-xl overflow-hidden">
+                  <div className="px-4 py-2.5 bg-slate-50 border-b border-[#E3E6EB]">
+                    <h3 className="text-sm font-semibold text-[#3F4650]">{section.title}</h3>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2.5 px-4 py-3">
+                    {section.fields.map((f) => {
+                      let value = previewRecord.data?.[f.key] || ''
+                      if (f.key === 'telefono') {
+                        value = [previewRecord.data?.telefono, previewRecord.data?.telefono2, previewRecord.data?.telefono3].filter(Boolean).join(' / ')
+                      }
+                      return (
+                        <div key={f.key} className={['localidad', 'diagnostico', 'historia_enfermedad', 'examen_fisico', 'domicilio'].includes(f.key) ? 'sm:col-span-2' : ''}>
+                          <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wider">{f.label}</p>
+                          <p className="text-sm text-slate-800 mt-0.5 break-words whitespace-pre-wrap">
+                            {value || <span className="text-slate-300">—</span>}
+                          </p>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-end px-5 py-3 border-t border-[#E3E6EB] bg-white shrink-0">
+              <button onClick={() => setPreviewRecord(null)} className="px-4 py-2 text-sm bg-[#6E7B91] text-white rounded-xl hover:bg-[#5F6B80] shadow-sm transition-all duration-200 font-medium">
+                Cerrar
+              </button>
+            </div>
           </div>
         </div>
       )}

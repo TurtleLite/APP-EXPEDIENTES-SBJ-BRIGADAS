@@ -130,6 +130,22 @@ def list_especialidades(
     return get_distinct_field_values(db, list_id, "especialidad")
 
 
+@router.get("/{list_id}/localidades")
+def list_localidades(
+    list_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    from sqlalchemy import text
+    rows = db.execute(text(
+        "SELECT data->>'localidad' AS loc, data->>'tipo_localidad' AS tipo, COUNT(*) AS n "
+        "FROM list_records "
+        "WHERE list_definition_id = :lid AND data->>'localidad' IS NOT NULL AND data->>'localidad' != '' "
+        "GROUP BY loc, tipo ORDER BY loc"
+    ), {"lid": list_id}).all()
+    return [{"localidad": r[0], "tipo": r[1] or "", "count": r[2]} for r in rows]
+
+
 @router.get("/{list_id}/field-values")
 def list_field_values(
     list_id: int,
