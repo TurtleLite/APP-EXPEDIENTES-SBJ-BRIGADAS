@@ -66,12 +66,8 @@ def _units_to_px(units: float) -> int:
 
 
 def _data_cell_alignment(col_name: str):
-    # Todo el texto se envuelve; la fila crece si hace falta. Nunca se minimiza la fuente.
-    return Alignment(horizontal="center", vertical="center", wrap_text=True, shrink_to_fit=False)
-
-
-def _wrapped_lines(col_name: str, val, width: float) -> int:
-    return math.ceil((len(str(val)) + 1) / max(1.0, width - 1))
+    # Si el texto no cabe en la celda, la fuente se encoge hasta que quepa (shrink to fit).
+    return Alignment(horizontal="center", vertical="center", wrap_text=False, shrink_to_fit=True)
 
 
 def _apply_fixed_widths(ws, columns: List[str], widths: List[float], data_col0: int):
@@ -283,7 +279,6 @@ def export_to_excel(
     ws.row_dimensions[header_row].height = 17
 
     for data_idx, record in enumerate(records, header_row + 1):
-        max_lines = 1
         for col_idx, col_name in enumerate(columns, 1):
             col = col_idx + (1 if title else 0)
             val = record.get(col_name, "")
@@ -293,9 +288,7 @@ def export_to_excel(
             cell.alignment = _data_cell_alignment(col_name)
             if (data_idx - header_row) % 2 == 0:
                 cell.fill = PatternFill(start_color=ALT_ROW, end_color=ALT_ROW, fill_type="solid")
-            lines = _wrapped_lines(col_name, val, widths[col_idx - 1])
-            max_lines = max(max_lines, lines)
-        ws.row_dimensions[data_idx].height = 15 if max_lines == 1 else 15 + (max_lines - 1) * 13.5
+        ws.row_dimensions[data_idx].height = 15
 
     first_col = get_column_letter(data_col0)
     ws.auto_filter.ref = f"{first_col}{header_row}:{last_col}{header_row + len(records)}"
@@ -357,7 +350,6 @@ def _write_section_table(
     row += 1
 
     for data_idx, record in enumerate(records, row):
-        max_lines = 1
         for col_idx, col_name in enumerate(columns, 1):
             col = col_idx + data_col0 - 1
             val = record.get(col_name, "")
@@ -367,9 +359,7 @@ def _write_section_table(
             cell.alignment = _data_cell_alignment(col_name)
             if (data_idx - header_row) % 2 == 0:
                 cell.fill = PatternFill(start_color=ALT_ROW, end_color=ALT_ROW, fill_type="solid")
-            lines = _wrapped_lines(col_name, val, widths[col_idx - 1])
-            max_lines = max(max_lines, lines)
-        ws.row_dimensions[data_idx].height = 15 if max_lines == 1 else 15 + (max_lines - 1) * 13.5
+        ws.row_dimensions[data_idx].height = 15
     row = data_idx + 1
 
     ws.row_dimensions[row].height = 6
