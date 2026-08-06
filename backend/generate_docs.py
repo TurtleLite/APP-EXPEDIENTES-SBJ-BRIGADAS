@@ -252,7 +252,7 @@ RECOMMEND = [
 # ---------------------------------------------------------------------------
 # Manuales por rol
 # ---------------------------------------------------------------------------
-def manual_direccion(out_dir, version="1.2"):
+def manual_direccion(out_dir, version="1.0"):
     b = DocBuilder(os.path.join(out_dir, "Manual_Usuario_Direccion.pdf"),
                    "Centro Médico San Benito José - Sistema Web de Gestión de Expedientes",
                    "Manual de Usuario - Dirección", version)
@@ -363,7 +363,7 @@ def manual_direccion(out_dir, version="1.2"):
     b.build()
 
 
-def manual_direccion_medica(out_dir, version="1.2"):
+def manual_direccion_medica(out_dir, version="1.0"):
     b = DocBuilder(os.path.join(out_dir, "Manual_Usuario_Direccion_Medica.pdf"),
                    "Centro Médico San Benito José - Sistema Web de Gestión de Expedientes",
                    "Manual de Usuario - Dirección Médica", version)
@@ -460,7 +460,7 @@ def manual_direccion_medica(out_dir, version="1.2"):
     b.build()
 
 
-def manual_medico(out_dir, version="1.2"):
+def manual_medico(out_dir, version="1.0"):
     b = DocBuilder(os.path.join(out_dir, "Manual_Usuario_Medico.pdf"),
                    "Centro Médico San Benito José - Sistema Web de Gestión de Expedientes",
                    "Manual de Usuario - Médico", version)
@@ -558,7 +558,7 @@ def emit(b, items, **fmt):
 # ---------------------------------------------------------------------------
 # Acuerdo Marco
 # ---------------------------------------------------------------------------
-def acuerdo_marco(out_dir, version="1.2"):
+def acuerdo_marco(out_dir, version="1.0"):
     b = DocBuilder(os.path.join(out_dir, "Acuerdo_Marco_Sistema_Expedientes_SBJ.pdf"),
                    "Centro Médico San Benito José",
                    "Documento legal - Sistema de Expedientes", version)
