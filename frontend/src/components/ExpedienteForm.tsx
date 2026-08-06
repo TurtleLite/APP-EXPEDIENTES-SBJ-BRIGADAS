@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { listsApi } from '../services/api'
 import { useNotification } from '../contexts/NotificationContext'
 import { ListRecord } from '../types'
@@ -30,6 +30,7 @@ export const SECTIONS: Section[] = [
       { key: 'sexo', label: 'Sexo / Sex', type: 'text' },
       { key: 'edad', label: 'Age / Edad', type: 'number' },
       { key: 'identidad', label: 'Nº Identidad', type: 'text' },
+      { key: 'expediente', label: 'Nº Expediente', type: 'text', optional: true },
       { key: 'persona_responsable', label: 'Persona Responsable', type: 'text' },
       { key: 'albergue', label: 'Albergue', type: 'text' },
       { key: 'perfil', label: 'Perfil', type: 'text' },
@@ -201,6 +202,35 @@ export function ExpedienteForm({ listId, role, medicoName, onClose, onSaved, edi
       if (Array.isArray(res.data)) setLocalidades(res.data)
     }).catch(() => {})
   }, [listId])
+
+  const lastSuggestion = useRef('')
+
+  useEffect(() => {
+    if (editingRecord) return
+    const identidad = String(data.identidad || '').trim()
+    if (identidad.replace(/\D/g, '').length < 8) {
+      if (lastSuggestion.current) {
+        setData((prev) => (prev.expediente === lastSuggestion.current ? { ...prev, expediente: '' } : prev))
+        lastSuggestion.current = ''
+      }
+      return
+    }
+    const t = setTimeout(() => {
+      listsApi.suggestNumber(listId, identidad)
+        .then((res) => {
+          const num = String(res.data?.expediente || '').trim()
+          if (num) {
+            lastSuggestion.current = num
+            setData((prev) => (prev.expediente !== num ? { ...prev, expediente: num } : prev))
+          } else {
+            setData((prev) => (prev.expediente === lastSuggestion.current ? { ...prev, expediente: '' } : prev))
+            lastSuggestion.current = ''
+          }
+        })
+        .catch(() => {})
+    }, 350)
+    return () => clearTimeout(t)
+  }, [data.identidad, listId, editingRecord])
 
   const allComplete = sections.every((s) => isSectionComplete(s, data))
 
@@ -482,6 +512,21 @@ export function ExpedienteForm({ listId, role, medicoName, onClose, onSaved, edi
                             <option value="Operado">Operado</option>
                             <option value="No apto para cirugía">No apto para cirugía</option>
                           </select>
+                        ) : field.key === 'expediente' ? (
+                          <div>
+                            <input
+                              type="text"
+                              value={data[field.key] || ''}
+                              onChange={(e) => setValue(field.key, e.target.value)}
+                              placeholder="Se asigna automáticamente"
+                              className="w-full px-3 py-2 border border-[#E3E6EB] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
+                            />
+                            <p className="mt-1 text-[11px] text-slate-400">
+                              {editingRecord
+                                ? 'No se puede modificar al editar.'
+                                : 'Se sugiere automáticamente según la identidad (ej.: 23455 (1) si el paciente ya tiene expediente).'}
+                            </p>
+                          </div>
                         ) : field.key === 'identidad' ? (
                           <input
                             type="text"

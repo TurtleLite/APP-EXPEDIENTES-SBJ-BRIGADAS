@@ -58,6 +58,8 @@ export const listsApi = {
   getRecordsByIds: (id: string | number, ids: string[]) =>
     api.get(`/lists/${id}/records/by-ids`, { params: { ids: ids.join(',') } }),
   getRecordsCount: (id: string | number) => api.get(`/lists/${id}/records/count`),
+  suggestNumber: (id: string | number, identidad: string) =>
+    api.get(`/lists/${id}/records/suggest-number`, { params: { identidad } }),
   createRecord: (id: string | number, data: any) => api.post(`/lists/${id}/records`, data),
   updateRecord: (listId: string | number, recordId: string | number, data: any) =>
     api.put(`/lists/${listId}/records/${recordId}`, data),

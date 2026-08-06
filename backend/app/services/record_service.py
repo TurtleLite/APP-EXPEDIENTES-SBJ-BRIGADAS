@@ -29,6 +29,50 @@ def _next_expediente_number(db: Session) -> str:
     raise RuntimeError("No se pudo generar un número de expediente único")
 
 
+def _expediente_base(value: str) -> str:
+    """Devuelve el número base (sin el sufijo de copia entre paréntesis)."""
+    v = str(value or "").strip()
+    if "(" in v:
+        v = v.split("(", 1)[0].strip()
+    return v
+
+
+def _expedientes_misma_identidad(db: Session, identidad: str) -> list[ListRecord]:
+    ld = db.query(ListDefinition).filter(ListDefinition.name == _EXPEDIENTE_LIST_NAME).first()
+    if not ld:
+        return []
+    return (
+        db.query(ListRecord)
+        .filter(
+            ListRecord.list_definition_id == ld.id,
+            ListRecord.data.op("->>")("identidad") == identidad,
+        )
+        .all()
+    )
+
+
+def _sugerir_expediente(db: Session, identidad: str) -> str:
+    """Sugiere el número para un paciente que ya tiene expediente: base N (c)."""
+    identidad = str(identidad or "").strip()
+    if not identidad:
+        return ""
+    records = _expedientes_misma_identidad(db, identidad)
+    values = [str(r.data.get("expediente") or "").strip() for r in records]
+    values = [v for v in values if v]
+    if not values:
+        return ""
+    bases = [(_expediente_base(v), int(_expediente_base(v)) if _expediente_base(v).isdigit() else 10 ** 18) for v in values]
+    base = min(bases, key=lambda x: x[1])[0]
+    count = sum(1 for v in values if _expediente_base(v) == base)
+    return f"{base} ({count})"
+
+
+def suggest_expediente(db: Session, list_id: int, identidad: str) -> str:
+    if not _is_expediente_list(db, list_id):
+        return ""
+    return _sugerir_expediente(db, identidad)
+
+
 def renumber_expedientes(db: Session):
     ld = db.query(ListDefinition).filter(ListDefinition.name == _EXPEDIENTE_LIST_NAME).first()
     if not ld:
@@ -113,7 +157,13 @@ def add_record(db: Session, list_id: int, data: dict, user_id: int = None) -> Li
     if _is_expediente_list(db, list_id):
         data = dict(data)
         data = _compose_domicilio(data)
-        data["expediente"] = _next_expediente_number(db)
+        provided = str(data.get("expediente", "") or "").strip()
+        if provided:
+            data["expediente"] = provided
+        else:
+            identidad = str(data.get("identidad", "") or "").strip()
+            sugerido = _sugerir_expediente(db, identidad)
+            data["expediente"] = sugerido or _next_expediente_number(db)
         data.setdefault("estatus_cirugia", "En espera")
     record = ListRecord(list_definition_id=list_id, data=data, created_by=user_id)
     db.add(record)
