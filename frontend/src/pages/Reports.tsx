@@ -143,6 +143,18 @@ export function Reports() {
   const handleDragStart = (e: React.DragEvent, idx: number) => {
     setDragIdx(idx)
     e.dataTransfer.effectAllowed = 'move'
+    const tr = e.currentTarget as HTMLTableRowElement
+    const clone = tr.cloneNode(true) as HTMLTableRowElement
+    const noCell = clone.querySelector('td')
+    if (noCell) noCell.style.visibility = 'hidden'
+    clone.style.position = 'absolute'
+    clone.style.left = '-9999px'
+    clone.style.width = `${tr.offsetWidth}px`
+    clone.style.background = '#fff'
+    clone.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+    document.body.appendChild(clone)
+    e.dataTransfer.setDragImage(clone, 16, 10)
+    setTimeout(() => clone.remove(), 0)
   }
 
   const handleDrop = async (targetIdx: number) => {
