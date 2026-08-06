@@ -471,8 +471,6 @@ def manual_direccion_medica(out_dir, version="1.0"):
     b.body("Sí. Su rol puede asignar y cambiar el estatus de cirugía desde la sección Estatus Cirugía.")
     b.quote("¿Puedo editar un expediente creado por un médico?")
     b.body("Sí. La Dirección Médica puede editar y eliminar cualquier expediente.")
-    b.quote("¿Qué significan los avisos de \"Duplicados\"?")
-    b.body("Indican que existe más de un expediente con la misma identidad. Conviene revisarlos para evitar expedientes repetidos.")
     b.quote("¿Puedo guardar el listado de un día sin completarlo?")
     b.body("Sí, puede guardarlo en cualquier momento y continuar más tarde; al volver a la fecha, el listado se recupera tal como lo dejó.")
     b.quote("¿El reporte se actualiza solo?")
@@ -517,9 +515,6 @@ def manual_medico(out_dir, version="1.0"):
     b.body("Exportar expedientes")
     b.numbered("1. <b>Exportar:</b> descarga todos los expedientes en Excel.")
     b.numbered("2. <b>Exportar [n] seleccionados:</b> descarga solo los expedientes marcados.")
-    b.body("Revisar duplicados")
-    b.numbered("1. Si existen identidades repetidas, aparece el botón <b>Duplicados</b>.")
-    b.numbered("2. Tóquelo para ver los grupos y luego cada grupo para localizar las copias.")
     b.pagebreak()
 
     emit(b, PROFILE)
