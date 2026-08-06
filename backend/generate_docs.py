@@ -267,7 +267,7 @@ RECOMMEND = [
     ("h2", "Buenas prácticas"),
     ("bullet", "Registre los expedientes con datos completos y verificados: identidad, nombre, diagnóstico y especialidad."),
     ("bullet", "Revise los datos antes de guardar: los cambios se aplican de forma inmediata."),
-    ("bullet", "Si detecta identidades repetidas, regularícelas para mantener la base de datos limpia."),
+    ("bullet", "Verifique antes de guardar que no exista otro expediente con la misma identidad; de ser así, unifique o corrija los registros para mantener la base limpia."),
     ("bullet", "Cierre sesión al terminar, especialmente si comparte el equipo."),
     ("h2", "Soporte"),
     ("bullet", "Ante cualquier error o duda, comuníquese con el administrador del sistema."),
@@ -283,9 +283,7 @@ def manual_direccion(out_dir, version="1.0"):
                    "Manual de Usuario - Dirección", version)
     b.cover("CENTRO MÉDICO SAN BENITO JOSÉ", "Sistema Web de Gestión de Expedientes Médicos", version, "Dirección")
     emit(b, INTRO, rol="Dirección")
-    b.pagebreak()
     emit(b, INTERFACE, menus="Inicio, Mi Perfil, Expedientes, Reportes, Listados y Estatus Cirugía")
-    b.pagebreak()
 
     b.h1("3. Funciones a las que SÍ tiene acceso, en detalle")
     b.h2("3.1. Inicio (panel principal)")
@@ -318,7 +316,6 @@ def manual_direccion(out_dir, version="1.0"):
     b.h2("Vista previa del expediente")
     b.numbered("1. Marque la casilla del expediente que desea consultar.")
     b.numbered("2. Presione <b>Vista previa</b> (aparece en la barra de selección junto a Editar/Eliminar) para consultar el expediente completo sin abrirlo en edición.")
-    b.pagebreak()
 
     b.h2("3.3. Reportes")
     b.body("Los reportes son archivos Excel con información de los expedientes, útiles para estadísticas y seguimientos.")
@@ -356,10 +353,8 @@ def manual_direccion(out_dir, version="1.0"):
     b.numbered("2. En la columna de estatus, seleccione el nuevo estado: En espera, Reprogramar, Cancelado, Fuera de perfil San Benito, Operado, No apto para cirugía o No se presentó.")
     b.numbered("3. Puede escribir una observación que quedará registrada en el expediente.")
     b.numbered("4. Presione <b>Guardar</b>. El cambio queda registrado en el expediente.")
-    b.pagebreak()
 
     emit(b, PROFILE)
-    b.pagebreak()
 
     b.h1("Funciones a las que NO tiene acceso")
     b.body("Su rol no incluye las funciones de la siguiente tabla. Si intenta ingresar a esas secciones, el sistema mostrará el mensaje \"No tienes acceso\" y no abrirá la página:")
@@ -382,7 +377,6 @@ def manual_direccion(out_dir, version="1.0"):
     b.body("No. Primero debe presionar \"Generar Excel\"; luego aparece disponible el botón \"Descargar\".")
     b.quote("¿Se mueve la columna No al reordenar el reporte?")
     b.body("No. Los números (1, 2, 3...) indican la posición del registro en el reporte y permanecen en su lugar; al arrastrar solo se desplazan los datos del paciente.")
-    b.pagebreak()
 
     emit(b, RECOMMEND)
     b.build()
@@ -394,9 +388,7 @@ def manual_direccion_medica(out_dir, version="1.0"):
                    "Manual de Usuario - Dirección Médica", version)
     b.cover("CENTRO MÉDICO SAN BENITO JOSÉ", "Sistema Web de Gestión de Expedientes Médicos", version, "Dirección Médica")
     emit(b, INTRO, rol="Dirección Médica")
-    b.pagebreak()
     emit(b, INTERFACE, menus="Inicio, Mi Perfil, Expedientes, Reportes, Listados y Estatus Cirugía")
-    b.pagebreak()
 
     b.h1("3. Funciones a las que SÍ tiene acceso, en detalle")
     b.h2("3.1. Inicio (panel principal)")
@@ -422,7 +414,6 @@ def manual_direccion_medica(out_dir, version="1.0"):
     b.body("Exportar a Excel")
     b.numbered("1. <b>Exportar:</b> descarga todos los expedientes de la lista.")
     b.numbered("2. <b>Exportar [n] seleccionados:</b> descarga solo los marcados.")
-    b.pagebreak()
 
     b.h2("3.3. Reportes")
     b.body("Crear un reporte")
@@ -451,10 +442,8 @@ def manual_direccion_medica(out_dir, version="1.0"):
     b.numbered("2. Use el filtro de estatus si desea ver solo un grupo.")
     b.numbered("3. En la columna de estatus, seleccione el nuevo estado y escriba una observación si lo desea.")
     b.numbered("4. Presione <b>Guardar</b>. El cambio queda registrado en el expediente.")
-    b.pagebreak()
 
     emit(b, PROFILE)
-    b.pagebreak()
 
     b.h1("Funciones a las que NO tiene acceso")
     b.body("Su rol no incluye las funciones de la siguiente tabla. Si intenta ingresar a esas secciones, el sistema mostrará el mensaje \"No tienes acceso\" y no abrirá la página:")
@@ -477,7 +466,6 @@ def manual_direccion_medica(out_dir, version="1.0"):
     b.body("No. Si cambian los expedientes, debe presionar \"Generar Excel\" de nuevo para actualizar el archivo.")
     b.quote("¿Se mueve la columna No al reordenar el reporte?")
     b.body("No. Los números (1, 2, 3...) indican la posición del registro en el reporte y permanecen en su lugar; al arrastrar solo se desplazan los datos del paciente.")
-    b.pagebreak()
 
     emit(b, RECOMMEND)
     b.build()
@@ -489,9 +477,7 @@ def manual_medico(out_dir, version="1.0"):
                    "Manual de Usuario - Médico", version)
     b.cover("CENTRO MÉDICO SAN BENITO JOSÉ", "Sistema Web de Gestión de Expedientes Médicos", version, "Médico")
     emit(b, INTRO, rol="Médico")
-    b.pagebreak()
     emit(b, INTERFACE, menus="Inicio, Mi Perfil y Expedientes")
-    b.pagebreak()
 
     b.h1("3. Funciones a las que SÍ tiene acceso, en detalle")
     b.h2("3.1. Inicio (panel principal)")
@@ -515,10 +501,8 @@ def manual_medico(out_dir, version="1.0"):
     b.body("Exportar expedientes")
     b.numbered("1. <b>Exportar:</b> descarga todos los expedientes en Excel.")
     b.numbered("2. <b>Exportar [n] seleccionados:</b> descarga solo los expedientes marcados.")
-    b.pagebreak()
 
     emit(b, PROFILE)
-    b.pagebreak()
 
     b.h1("Funciones a las que NO tiene acceso")
     b.body("Su rol no incluye las funciones de la siguiente tabla. Si intenta ingresar a esas secciones, el sistema mostrará el mensaje \"No tienes acceso\" y no abrirá la página:")
@@ -548,7 +532,6 @@ def manual_medico(out_dir, version="1.0"):
     b.body("Si el expediente es suyo, puede editarlo. Si necesita eliminarlo o corregir un expediente de otro médico, solicite la ayuda a la Dirección Médica o al Administrador.")
     b.quote("¿El teléfono es obligatorio en el perfil?")
     b.body("Sí, junto con el nombre completo. El formato es 0000-0000 y el sistema valida que lo cumpla.")
-    b.pagebreak()
 
     emit(b, RECOMMEND)
     b.build()
