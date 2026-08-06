@@ -11,10 +11,11 @@ export const ROLE_META: Record<string, RoleMeta> = {
     badge: 'bg-slate-100 text-slate-700 border-slate-200',
     gradient: 'from-[#6E7B91] to-[#5F6B80]',
     permissions: [
-      'Acceso total al sistema',
-      'Gestionar usuarios y roles',
-      'Crear, editar y eliminar listas y expedientes',
+      'Usuarios',
+      'Expedientes',
       'Reportes',
+      'Listados',
+      'Estatus Cirugía',
     ],
   },
   direccion: {
@@ -22,9 +23,10 @@ export const ROLE_META: Record<string, RoleMeta> = {
     badge: 'bg-slate-100 text-slate-700 border-slate-200',
     gradient: 'from-[#6E7B91] to-[#5F6B80]',
     permissions: [
-      'Ver expedientes y listas (solo lectura)',
-      'Asignar y editar el estatus de cirugía',
+      'Expedientes',
       'Reportes',
+      'Listados',
+      'Estatus Cirugía',
     ],
   },
   direccion_medica: {
@@ -32,8 +34,10 @@ export const ROLE_META: Record<string, RoleMeta> = {
     badge: 'bg-slate-100 text-slate-700 border-slate-200',
     gradient: 'from-[#6E7B91] to-[#5F6B80]',
     permissions: [
-      'Crear, editar y eliminar expedientes',
+      'Expedientes',
       'Reportes',
+      'Listados',
+      'Estatus Cirugía',
     ],
   },
   medico: {
@@ -41,8 +45,7 @@ export const ROLE_META: Record<string, RoleMeta> = {
     badge: 'bg-slate-100 text-slate-700 border-slate-200',
     gradient: 'from-[#6E7B91] to-[#5F6B80]',
     permissions: [
-      'Crear y editar sus propios expedientes',
-      'Exportar listas a Excel',
+      'Expedientes',
     ],
   },
 }
