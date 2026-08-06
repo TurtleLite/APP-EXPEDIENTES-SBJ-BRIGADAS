@@ -29,7 +29,6 @@ export const SECTIONS: Section[] = [
       { key: 'apellido', label: 'Apellido / Last Name', type: 'text' },
       { key: 'sexo', label: 'Sexo / Sex', type: 'text' },
       { key: 'edad', label: 'Age / Edad', type: 'number' },
-      { key: 'fecha_elaboracion', label: 'Fecha de Elaboración', type: 'date' },
       { key: 'identidad', label: 'Nº Identidad', type: 'text' },
       { key: 'persona_responsable', label: 'Persona Responsable', type: 'text' },
       { key: 'albergue', label: 'Albergue', type: 'text' },
@@ -114,6 +113,9 @@ const FIELD_UNITS: Record<string, string> = {
 }
 
 const MIN_TEXT_LENGTH = 5
+
+const todayHonduras = (): string =>
+  new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Tegucigalpa' }).format(new Date())
 
 const criticidadEnabled = (data: Record<string, any>): boolean =>
   String(data.diagnostico || '').trim().length >= MIN_TEXT_LENGTH
@@ -237,6 +239,7 @@ export function ExpedienteForm({ listId, role, medicoName, onClose, onSaved, edi
     setSaving(true)
     try {
       const payload = { ...data }
+      if (!editingRecord) payload.fecha_elaboracion = todayHonduras()
       if (!payload.nombre_medico && medicoName) payload.nombre_medico = medicoName
       if (editingRecord) {
         await listsApi.updateRecord(listId, editingRecord.id, { data: payload })
