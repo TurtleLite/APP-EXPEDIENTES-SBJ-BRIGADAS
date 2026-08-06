@@ -65,6 +65,30 @@ def _units_to_px(units: float) -> int:
     return int(round(units * 7 + 5))
 
 
+def _wrapped_row_height(
+    record: Dict,
+    columns: List[str],
+    widths: List[float],
+    line_height: float = 12.75,
+) -> float:
+    """Calcula la altura que necesita la fila para que el texto envuelto (wrap) quepa
+    dentro de la celda, evitando que Excel corte el contenido al imprimir."""
+    max_lines = 1
+    for col_name, w in zip(columns, widths):
+        text = record.get(col_name, None)
+        if text is None:
+            continue
+        text = str(text)
+        if not text:
+            continue
+        capacity = max(1, int(w))
+        lines = 0
+        for segment in text.split("\n"):
+            lines += max(1, math.ceil(len(segment) / capacity))
+        max_lines = max(max_lines, lines)
+    return round(max_lines * line_height, 2)
+
+
 def _data_cell_alignment(col_name: str):
     # Si el texto no cabe en la celda, se escribe en otra línea dentro de la celda (wrap text).
     return Alignment(horizontal="center", vertical="center", wrap_text=True, shrink_to_fit=False)
@@ -299,6 +323,7 @@ def export_to_excel(
             cell.alignment = _data_cell_alignment(col_name)
             if (data_idx - header_row) % 2 == 0:
                 cell.fill = PatternFill(start_color=ALT_ROW, end_color=ALT_ROW, fill_type="solid")
+        ws.row_dimensions[data_idx].height = _wrapped_row_height(record, columns, widths)
 
     first_col = get_column_letter(data_col0)
     ws.auto_filter.ref = f"{first_col}{header_row}:{last_col}{header_row + len(records)}"
@@ -369,6 +394,7 @@ def _write_section_table(
             cell.alignment = _data_cell_alignment(col_name)
             if (data_idx - header_row) % 2 == 0:
                 cell.fill = PatternFill(start_color=ALT_ROW, end_color=ALT_ROW, fill_type="solid")
+        ws.row_dimensions[data_idx].height = _wrapped_row_height(record, columns, widths)
     row = data_idx + 1
 
     ws.row_dimensions[row].height = 6
