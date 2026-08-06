@@ -3,6 +3,7 @@ from sqlalchemy import or_, func, text
 from app.models.list_definition import ListRecord, ListDefinition
 from typing import Optional
 import unicodedata
+import re
 
 _EXPEDIENTE_LIST_NAME = "Expediente Médico"
 _EXPEDIENTE_SEQUENCE = "expediente_seq"
@@ -37,40 +38,31 @@ def _expediente_base(value: str) -> str:
     return v
 
 
-def _expedientes_misma_identidad(db: Session, identidad: str) -> list[ListRecord]:
+def _numeros_expediente(db: Session) -> list[str]:
     ld = db.query(ListDefinition).filter(ListDefinition.name == _EXPEDIENTE_LIST_NAME).first()
     if not ld:
         return []
-    return (
-        db.query(ListRecord)
-        .filter(
-            ListRecord.list_definition_id == ld.id,
-            ListRecord.data.op("->>")("identidad") == identidad,
-        )
-        .all()
-    )
+    rows = db.query(ListRecord.data.op("->>")("expediente")).filter(
+        ListRecord.list_definition_id == ld.id,
+    ).all()
+    return [str(r[0] or "").strip() for r in rows]
 
 
-def _sugerir_expediente(db: Session, identidad: str) -> str:
-    """Sugiere el número para un paciente que ya tiene expediente: base N (c)."""
-    identidad = str(identidad or "").strip()
-    if not identidad:
+def copias_de_numero(db: Session, numero: str) -> int:
+    """Cuenta cuántos expedientes existen con el mismo número base."""
+    numero = str(numero or "").strip()
+    if not numero:
+        return 0
+    return sum(1 for v in _numeros_expediente(db) if _expediente_base(v) == numero)
+
+
+def numero_expediente_final(db: Session, numero: str) -> str:
+    """Devuelve el número tal como se guarda: base si es el primero, base (n) si ya existe."""
+    numero = str(numero or "").strip()
+    if not numero:
         return ""
-    records = _expedientes_misma_identidad(db, identidad)
-    values = [str(r.data.get("expediente") or "").strip() for r in records]
-    values = [v for v in values if v]
-    if not values:
-        return ""
-    bases = [(_expediente_base(v), int(_expediente_base(v)) if _expediente_base(v).isdigit() else 10 ** 18) for v in values]
-    base = min(bases, key=lambda x: x[1])[0]
-    count = sum(1 for v in values if _expediente_base(v) == base)
-    return f"{base} ({count})"
-
-
-def suggest_expediente(db: Session, list_id: int, identidad: str) -> str:
-    if not _is_expediente_list(db, list_id):
-        return ""
-    return _sugerir_expediente(db, identidad)
+    count = copias_de_numero(db, numero)
+    return f"{numero} ({count})" if count else numero
 
 
 def renumber_expedientes(db: Session):
@@ -157,13 +149,11 @@ def add_record(db: Session, list_id: int, data: dict, user_id: int = None) -> Li
     if _is_expediente_list(db, list_id):
         data = dict(data)
         data = _compose_domicilio(data)
-        provided = str(data.get("expediente", "") or "").strip()
-        if provided:
-            data["expediente"] = provided
+        numero = re.sub(r"\D", "", str(data.get("expediente", "") or ""))
+        if numero:
+            data["expediente"] = numero_expediente_final(db, numero)
         else:
-            identidad = str(data.get("identidad", "") or "").strip()
-            sugerido = _sugerir_expediente(db, identidad)
-            data["expediente"] = sugerido or _next_expediente_number(db)
+            data["expediente"] = _next_expediente_number(db)
         data.setdefault("estatus_cirugia", "En espera")
     record = ListRecord(list_definition_id=list_id, data=data, created_by=user_id)
     db.add(record)

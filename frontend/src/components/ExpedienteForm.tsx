@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { listsApi } from '../services/api'
 import { useNotification } from '../contexts/NotificationContext'
 import { ListRecord } from '../types'
@@ -185,7 +185,7 @@ export function ExpedienteForm({ listId, role, medicoName, onClose, onSaved, edi
   const [customEspecialidad, setCustomEspecialidad] = useState(false)
   const [localidades, setLocalidades] = useState<LocalidadOption[]>([])
   const [localidadMatch, setLocalidadMatch] = useState<LocalidadOption | null>(null)
-  const [confirmCopy, setConfirmCopy] = useState<{ identidad: string; expediente: string } | null>(null)
+  const [confirmCopy, setConfirmCopy] = useState<{ numero: string; propuesta: string } | null>(null)
   const { toast } = useNotification()
 
   useEffect(() => {
@@ -203,35 +203,6 @@ export function ExpedienteForm({ listId, role, medicoName, onClose, onSaved, edi
       if (Array.isArray(res.data)) setLocalidades(res.data)
     }).catch(() => {})
   }, [listId])
-
-  const lastSuggestion = useRef('')
-
-  useEffect(() => {
-    if (editingRecord) return
-    const identidad = String(data.identidad || '').trim()
-    if (identidad.replace(/\D/g, '').length < 8) {
-      if (lastSuggestion.current) {
-        setData((prev) => (prev.expediente === lastSuggestion.current ? { ...prev, expediente: '' } : prev))
-        lastSuggestion.current = ''
-      }
-      return
-    }
-    const t = setTimeout(() => {
-      listsApi.suggestNumber(listId, identidad)
-        .then((res) => {
-          const num = String(res.data?.expediente || '').trim()
-          if (num) {
-            lastSuggestion.current = num
-            setData((prev) => (prev.expediente !== num ? { ...prev, expediente: num } : prev))
-          } else {
-            setData((prev) => (prev.expediente === lastSuggestion.current ? { ...prev, expediente: '' } : prev))
-            lastSuggestion.current = ''
-          }
-        })
-        .catch(() => {})
-    }, 350)
-    return () => clearTimeout(t)
-  }, [data.identidad, listId, editingRecord])
 
   const allComplete = sections.every((s) => isSectionComplete(s, data))
 
@@ -273,11 +244,14 @@ export function ExpedienteForm({ listId, role, medicoName, onClose, onSaved, edi
       return
     }
     const numero = String(data.expediente || '').trim()
-    const identidad = String(data.identidad || '').trim()
-    const esCopia = numero.includes('(') && identidad.replace(/\D/g, '').length >= 8
-    if (!editingRecord && esCopia) {
-      setConfirmCopy({ identidad, expediente: numero })
-      return
+    if (!editingRecord && numero) {
+      try {
+        const res = await listsApi.copyNumber(listId, numero)
+        if (Number(res.data?.count || 0) > 0) {
+          setConfirmCopy({ numero, propuesta: String(res.data?.expediente || '') })
+          return
+        }
+      } catch { /* si falla la consulta, se guarda sin confirmación */ }
     }
     await performSave()
   }
@@ -528,15 +502,16 @@ export function ExpedienteForm({ listId, role, medicoName, onClose, onSaved, edi
                           <div>
                             <input
                               type="text"
+                              inputMode="numeric"
                               value={data[field.key] || ''}
-                              onChange={(e) => setValue(field.key, e.target.value)}
-                              placeholder="Se asigna automáticamente"
+                              onChange={(e) => setValue(field.key, e.target.value.replace(/\D/g, '').slice(0, 10))}
+                              placeholder="Solo números"
                               className="w-full px-3 py-2 border border-[#E3E6EB] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400"
                             />
                             <p className="mt-1 text-[11px] text-slate-400">
                               {editingRecord
                                 ? 'No se puede modificar al editar.'
-                                : 'Se sugiere automáticamente según la identidad (ej.: 23455 (1) si el paciente ya tiene expediente).'}
+                                : 'Llene el número manualmente (solo números). Si ya existe, el sistema agrega la copia (1), (2)... como nueva intervención.'}
                             </p>
                           </div>
                         ) : field.key === 'identidad' ? (
@@ -762,10 +737,10 @@ export function ExpedienteForm({ listId, role, medicoName, onClose, onSaved, edi
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6">
             <h3 className="font-serif text-lg font-bold text-[#3F4650] mb-3">Confirmación de expediente existente</h3>
             <p className="text-sm text-slate-600 leading-relaxed">
-              El paciente con la identidad <b>{confirmCopy.identidad}</b> ya tiene un expediente en el sistema:
+              El número de expediente <b>{confirmCopy.numero}</b> ya existe en el sistema:
             </p>
             <div className="mt-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-800">
-              Nº de expediente a crear: <b>{confirmCopy.expediente}</b>
+              Se guardará como copia: <b>{confirmCopy.propuesta}</b>
             </div>
             <p className="mt-3 text-sm text-slate-600 leading-relaxed">
               ¿Esta atención será una nueva intervención del mismo paciente? Si es así, el expediente se creará como copia del expediente original.

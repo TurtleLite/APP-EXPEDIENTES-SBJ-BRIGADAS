@@ -253,16 +253,18 @@ def count_records(
     return {"count": count_records(db, list_id)}
 
 
-@router.get("/{list_id}/records/suggest-number")
-def suggest_number(
+@router.get("/{list_id}/records/copy-number")
+def copy_number(
     list_id: int,
-    identidad: str = "",
+    numero: str = "",
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    from app.services.record_service import suggest_expediente
-    number = suggest_expediente(db, list_id, identidad.strip())
-    return {"identidad": identidad.strip(), "expediente": number or ""}
+    from app.services.record_service import copias_de_numero, numero_expediente_final
+    import re
+    numero = re.sub(r"\D", "", numero)
+    count = copias_de_numero(db, numero) if numero else 0
+    return {"numero": numero, "count": count, "expediente": numero_expediente_final(db, numero)}
 
 
 @router.get("/{list_id}/records/duplicates")
