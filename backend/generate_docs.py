@@ -41,8 +41,8 @@ def _mk(name, font, size, leading, align=TA_LEFT, space_before=0, space_after=6,
 st_title = _mk("title", SERIF_B, 22, 28, TA_CENTER, 0, 6)
 st_subtitle = _mk("subtitle", SERIF, 13, 18, TA_CENTER, 0, 6)
 st_ver = _mk("ver", SANS, 10, 14, TA_CENTER, 0, 2, colors.HexColor("#6B7280"))
-st_h1 = _mk("h1", SERIF_B, 14, 18, TA_LEFT, 10, 4, colors.HexColor("#374151"))
-st_h2 = _mk("h2", SERIF_B, 11.5, 15, TA_LEFT, 5, 2, colors.HexColor("#4B5563"))
+st_h1 = _mk("h1", SERIF_B, 14, 18, TA_LEFT, 10, 4, colors.HexColor("#374151"), keepWithNext=1)
+st_h2 = _mk("h2", SERIF_B, 11.5, 15, TA_LEFT, 5, 2, colors.HexColor("#4B5563"), keepWithNext=1)
 st_body = _mk("body", SANS, 10, 14.5, TA_JUSTIFY, 0, 3)
 st_bullet = _mk("bullet", SANS, 10, 14.5, TA_JUSTIFY, 0, 2, colors.HexColor("#1F2937"),
                 bulletFontName=SANS, bulletFontSize=10)
@@ -589,88 +589,82 @@ def acuerdo_marco(out_dir, version="1.0"):
     ], version)
 
     b.h1("Introducción")
-    b.body("El presente documento formaliza la relación entre el Centro Médico San Benito José (en adelante, \"el Centro\") y TurtleLite (en adelante, \"el Desarrollador\") respecto del Sistema Web de Gestión de Expedientes Médicos, y regula el tratamiento de los datos personales de salud que dicho sistema administra.")
-    b.pagebreak()
+    b.body("El presente documento formaliza la relación entre el Centro Médico San Benito José (en adelante, \"el Centro\") y TurtleLite (en adelante, \"el Desarrollador\") respecto del Sistema Web de Gestión de Expedientes Médicos y del tratamiento de los datos personales de salud que el sistema administra.")
 
     b.h1("PARTE I - Contrato de desarrollo y cesión de derechos")
     b.h2("Artículo 1. Partes")
-    b.body("1.1 Contratante: Centro Médico San Benito José, con domicilio en Comayagua, Comayagua, frente al Convento de las Hermanas Clarisas, representado legalmente por Alexander James Scheibner, ciudadano(a) estadounidense, portador(a) de carnet de residencia en Honduras número 01-1812-2019-02366.")
+    b.body("1.1 Contratante: Centro Médico San Benito José, con domicilio en Comayagua, Honduras, frente al Convento de las Hermanas Clarisas, representado legalmente por Alexander James Scheibner, portador(a) de carnet de residencia en Honduras número 01-1812-2019-02366.")
     b.body("1.2 Desarrollador: TurtleLite, persona natural, representado por Amed Enmanuel Canales Mejía, portador(a) de identidad 0318-2008-01133.")
 
     b.h2("Artículo 2. Objeto")
-    b.body("2.1 El Desarrollador ha construido y entregado el Sistema Web de Gestión de Expedientes Médicos (sitio web, aplicación de backend, base de datos y documentación), cuya función es registrar y administrar expedientes de pacientes, generar reportes, gestionar listados diarios de cirugías, controlar el estatus quirúrgico y administrar usuarios con roles de acceso.")
-    b.body("2.2 El sistema incluye, entre otras funcionalidades: registro de expedientes con número único automático en formato numérico; asignación de criticidad clínica (Baja, Media o Alta); domicilio desglosado por departamento, municipio y localidad; búsqueda de expedientes sin distinción de mayúsculas ni tildes; reportes exportables a Excel con filtros por especialidad, perfil, criticidad y estatus de cirugía; reordenamiento de reportes con la columna No fija (los números 1, 2, 3... indican la posición del registro y no se mueven al reordenar); listados diarios de cirugías por fecha; y control del estatus de cirugía con observaciones.")
+    b.body("2.1 El Desarrollador ha construido y entregado el Sistema Web de Gestión de Expedientes Médicos (sitio web, aplicación de backend, base de datos y documentación), que registra y administra expedientes de pacientes con número único automático en formato numérico; asigna criticidad clínica (Baja, Media o Alta); desglosa el domicilio por departamento, municipio y localidad; busca sin distinción de mayúsculas ni tildes; genera reportes exportables a Excel con reordenamiento de la columna No fija; y controla los listados diarios de cirugías y el estatus quirúrgico con observaciones.")
+    b.body("2.2 El sistema administra usuarios con roles de acceso (Administrador, Dirección, Dirección Médica y Médico).")
 
     b.h2("Artículo 3. Titularidad del software")
-    b.body("3.1 El Desarrollador cede al Centro el uso pleno, permanente e irrevocable del sistema y de su código fuente, incluyendo el derecho a modificarlo, adaptarlo y desplegarlo en la infraestructura que el Centro elija.")
-    b.body("3.2 El Desarrollador conserva el crédito de autoría (\"© TurtleLite\") en la interfaz y en la documentación, sin que ello limite los derechos de uso del Centro.")
-    b.body("3.3 El Centro es el único responsable del uso del sistema y de las decisiones que se tomen con base en la información que este administra.")
+    b.body("3.1 El Desarrollador cede al Centro el uso pleno, permanente e irrevocable del sistema y de su código fuente, con derecho a modificarlo, adaptarlo y desplegarlo en la infraestructura que el Centro elija.")
+    b.body("3.2 El Desarrollador conserva el crédito de autoría (\"© TurtleLite\") en la interfaz y la documentación, sin limitar los derechos del Centro.")
+    b.body("3.3 El Centro es el único responsable del uso del sistema y de las decisiones tomadas con base en la información que este administra.")
 
     b.h2("Artículo 4. Titularidad de los datos")
-    b.body("4.1 Toda la información ingresada al sistema (expedientes, identidades, diagnósticos, listados y reportes) es propiedad exclusiva del Centro.")
-    b.body("4.2 El Desarrollador no utilizará, reproducirá ni divulgará dicha información, ni durante la vigencia de este acuerdo ni con posterioridad a su terminación.")
+    b.body("4.1 Toda la información ingresada al sistema (expedientes, identidades, diagnósticos, listados y reportes) es propiedad exclusiva del Centro. El Desarrollador no la utilizará, reproducirá ni divulgará durante la vigencia del acuerdo ni con posterioridad a su terminación.")
 
     b.h2("Artículo 5. Confidencialidad (NDA)")
-    b.body("5.1 El Desarrollador se obliga a mantener bajo estricta confidencialidad toda la información clínica de los pacientes, las credenciales de acceso, las contraseñas y los detalles técnicos de la infraestructura a los que tenga acceso en razón del presente acuerdo.")
-    b.body("5.2 Dicha información solo podrá utilizarse para cumplir el objeto del contrato y no podrá divulgarse a terceros, salvo requerimiento de autoridad competente debidamente notificado o autorización escrita del Centro.")
-    b.body("5.3 La obligación de confidencialidad subsiste de forma indefinida después de la terminación del acuerdo y se extiende a cualquier persona que preste servicios al Desarrollador.")
-    b.pagebreak()
+    b.body("5.1 El Desarrollador mantiene en estricta confidencialidad la información clínica de los pacientes, las credenciales y los detalles técnicos de la infraestructura, usándolos solo para cumplir el objeto del contrato, sin divulgación a terceros, salvo requerimiento de autoridad competente debidamente notificado o autorización escrita del Centro.")
+    b.body("5.2 La obligación de confidencialidad subsiste de forma indefinida después de la terminación del acuerdo y se extiende a quienes presten servicios al Desarrollador.")
 
     b.h2("Artículo 6. Mantenimiento y soporte")
-    b.body("6.1 El Desarrollador prestará servicio de corrección de errores y actualizaciones por el período que las partes acuerden por escrito (el alcance y la duración del soporte se definirán en un anexo posterior).")
-    b.body("6.2 El Desarrollador realizará cualquier edición al sistema, ya sea por corrección de errores o nuevas funcionalidades.")
+    b.body("6.1 El Desarrollador corregirá errores y aplicará actualizaciones mientras las partes lo pacten por escrito, y realizará toda edición del sistema, ya sea por corrección de errores o por nuevas funcionalidades.")
 
     b.h2("Artículo 7. Responsabilidades")
-    b.body("7.1 El Desarrollador responderá únicamente por errores de programación imputables al código entregado.")
-    b.body("7.2 El Centro es responsable de la veracidad y licitud de los datos ingresados y de mantener las credenciales de acceso seguras y confidenciales.")
+    b.body("7.1 El Desarrollador responde únicamente por errores de programación imputables al código entregado. El Centro es responsable de la veracidad y licitud de los datos ingresados y de mantener sus credenciales de acceso seguras y confidenciales.")
 
     b.h2("Artículo 8. Terminación y entrega")
     b.body("8.1 Al terminar la relación por cualquier causa, el Desarrollador entregará al Centro el código fuente actualizado y las cuentas donde funciona el sistema.")
 
-    b.h2("Artículo 9. Vigencia y firma")
+    b.h2("Artículo 9. Vigencia")
     b.body("9.1 El presente acuerdo entra en vigencia a partir de la firma de ambas partes y permanece vigente mientras el Centro utilice el sistema.")
+
+    b.h1("PARTE II - Anexo de protección de datos personales de salud")
+    b.h2("Artículo 10. Base legal")
+    b.body("10.1 El tratamiento de los expedientes se realiza conforme al derecho a la intimidad y al hábeas data (artículos 76 y 182 numeral 2 de la Constitución de la República de Honduras), al deber de secreto profesional del Código de Salud y a la Ley de Transparencia y Acceso a la Información Pública (Decreto 170-2006). Honduras está en proceso de adoptar una ley integral de protección de datos; las partes adoptan estándares internacionales equivalentes y se obligan a ajustar el tratamiento a dicha ley cuando sea aprobada.")
+
+    b.h2("Artículo 11. Responsable del tratamiento")
+    b.body("11.1 El responsable del tratamiento de los datos es el Centro. El Desarrollador actúa únicamente como encargado (administración técnica), con acceso restringido a la información.")
+
+    b.h2("Artículo 12. Finalidad del tratamiento")
+    b.body("12.1 Los datos de salud se recolectan exclusivamente para: el registro médico de los pacientes, la elaboración de expedientes y reportes estadísticos, los listados diarios de cirugías, la asignación de criticidad clínica y el seguimiento del estatus quirúrgico.")
+
+    b.h2("Artículo 13. Principios aplicables")
+    b.bullet("<b>Consentimiento:</b> los pacientes autorizan el registro de sus datos al momento de su atención.")
+    b.bullet("<b>Finalidad:</b> los datos se usan únicamente para los fines declarados.")
+    b.bullet("<b>Proporcionalidad:</b> solo se registran los datos estrictamente necesarios.")
+    b.bullet("<b>Seguridad:</b> el acceso está limitado por roles con permisos específicos.")
+    b.bullet("<b>Confidencialidad:</b> el personal del Centro guarda secreto sobre la información de los pacientes, incluso después de dejar de laborar.")
+
+    b.h2("Artículo 14. Derechos de los pacientes")
+    b.body("Todo paciente o su representante legal podrá ejercer los derechos de acceso, rectificación, cancelación y oposición (ARCO) mediante solicitud escrita presentada al Centro.")
+
+    b.h2("Artículo 15. Medidas de seguridad técnicas")
+    b.bullet("Autenticación con usuario y contraseña para todos los usuarios.")
+    b.bullet("Roles de acceso que limitan qué puede ver, crear, editar o eliminar cada usuario.")
+    b.bullet("Respaldos periódicos de la base de datos realizados por el Centro.")
+    b.bullet("Número de expediente único, automático y en formato numérico.")
+    b.bullet("El sistema no recopila información fuera de la finalidad declarada.")
+
+    b.h2("Artículo 16. Conservación y eliminación")
+    b.body("16.1 Los expedientes se conservarán conforme a la normativa de archivos médicos; la eliminación de datos solo podrá realizarla personal autorizado y bajo procedimiento documentado.")
+
+    b.h2("Artículo 17. Modificaciones a este anexo")
+    b.body("17.1 Las funcionalidades del sistema pueden evolucionar mediante actualizaciones periódicas, sin modificar las garantías de confidencialidad, seguridad y finalidad establecidas en este anexo.")
+
+    b.spacer(0.5)
+    b.body("En constancia de conformidad, ambas partes firman el presente Acuerdo Marco y su Anexo de Protección de Datos Personales de Salud:")
     b.spacer(0.8)
     b.table([
         ["Firma y fecha: ____________________", "Firma y fecha: ____________________"],
         ["Alexander James Scheibner", "Amed Enmanuel Canales Mejía"],
         ["Representante legal", "Desarrollador"],
     ], [8.3 * cm, 8.3 * cm], header=False)
-    b.pagebreak()
-
-    b.h1("PARTE II - Anexo de protección de datos personales de salud")
-    b.h2("Artículo 10. Base legal")
-    b.body("10.1 El tratamiento de los expedientes médicos se realiza conforme al derecho a la intimidad y al hábeas data reconocidos en los artículos 76 y 182 numeral 2 de la Constitución de la República de Honduras, al deber de secreto profesional establecido en el Código de Salud y a las disposiciones sobre datos personales de la Ley de Transparencia y Acceso a la Información Pública (Decreto 170-2006). Honduras se encuentra en proceso de discusión de una ley integral de protección de datos personales, por lo que las partes adoptan en este documento estándares de protección equivalentes a los internacionales, y se obligan a ajustar el tratamiento de los datos a dicha ley cuando sea aprobada. La divulgación de secretos profesionales o de datos de salud está sancionada en los artículos 274 y 276 del Código Penal (Decreto 130-2017). El artículo 18 del Código de Ética del Colegio Médico de Honduras prohíbe que los sistemas de informática médica comprometan la intimidad del paciente sin su consentimiento.")
-
-    b.h2("Artículo 11. Responsable del tratamiento")
-    b.body("11.1 El responsable del tratamiento de los datos es el Centro Médico San Benito José.")
-    b.body("11.2 El Desarrollador actúa únicamente como encargado del tratamiento (administración técnica del sistema), con acceso restringido a los datos.")
-
-    b.h2("Artículo 12. Finalidad del tratamiento")
-    b.body("12.1 Los datos personales de salud se recolectan exclusivamente para: atención y registro médico de los pacientes; elaboración de expedientes, reportes estadísticos y listados diarios de cirugías; asignación de criticidad clínica; y seguimiento del estatus quirúrgico.")
-
-    b.h2("Artículo 13. Principios aplicables")
-    b.bullet("<b>Consentimiento:</b> los pacientes autorizan el registro de sus datos al momento de su atención.")
-    b.bullet("<b>Finalidad:</b> los datos se usan únicamente para los fines declarados.")
-    b.bullet("<b>Proporcionalidad:</b> solo se registran los datos estrictamente necesarios.")
-    b.bullet("<b>Seguridad:</b> el acceso está limitado por roles (Administrador, Dirección, Dirección Médica y Médico), cada uno con permisos específicos, incluidas reglas sobre creación, edición y eliminación de expedientes.")
-    b.bullet("<b>Confidencialidad:</b> el personal del Centro está obligado a guardar secreto sobre la información de los pacientes, incluso después de dejar de laborar en el Centro.")
-
-    b.h2("Artículo 14. Derechos de los pacientes")
-    b.body("Todo paciente o su representante legal podrá ejercer los derechos de acceso, rectificación, cancelación y oposición (ARCO) sobre sus datos, mediante solicitud escrita presentada al Centro.")
-
-    b.h2("Artículo 15. Medidas de seguridad técnicas")
-    b.bullet("Autenticación con usuario y contraseña para todos los usuarios.")
-    b.bullet("Roles de acceso que limitan qué puede ver, crear, editar o eliminar cada usuario.")
-    b.bullet("Respaldos periódicos de la base de datos realizados por el Centro.")
-    b.bullet("Registro y control de usuarios activos e inactivos.")
-    b.bullet("Número de expediente único, automático y en formato numérico, asignado por el sistema.")
-    b.bullet("El sistema no recopila información fuera de la finalidad declarada.")
-
-    b.h2("Artículo 16. Conservación y eliminación")
-    b.body("16.1 Los expedientes se conservarán conforme a la normativa aplicable a archivos médicos. La eliminación de datos solo podrá realizarla personal autorizado y bajo procedimiento documentado.")
-
-    b.h2("Artículo 17. Modificaciones a este anexo")
-    b.body("17.1 Las funcionalidades del sistema pueden evolucionar mediante actualizaciones periódicas; dichas actualizaciones no modificarán las garantías de confidencialidad, seguridad y finalidad establecidas en el presente anexo.")
 
     b.build()
 
