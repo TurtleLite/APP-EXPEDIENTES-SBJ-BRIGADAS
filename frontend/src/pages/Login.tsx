@@ -21,7 +21,7 @@ export function Login() {
       navigate('/dashboard')
     } catch (err: any) {
       if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
-        setError('El servidor tardó demasiado en responder. Intente de nuevo en unos segundos.')
+        setError('El servidor tardó demasiado en responder (puede estar arrancando). Espere unos segundos e intente de nuevo.')
       } else if (!err.response) {
         setError('No se pudo conectar con el servidor. Verifique su conexión a internet e intente de nuevo.')
       } else {

@@ -5,7 +5,7 @@ const API_URL = import.meta.env.VITE_API_URL || '/api'
 const api = axios.create({
   baseURL: API_URL,
   headers: { 'Content-Type': 'application/json' },
-  timeout: 30000,
+  timeout: 60000,
 })
 
 api.interceptors.request.use((config) => {
@@ -24,13 +24,18 @@ api.interceptors.response.use(
       sessionStorage.removeItem('user')
       window.location.hash = '#/login'
     }
+    if ((error.code === 'ECONNABORTED' || error.message?.includes('timeout')) &&
+        error.config?.method?.toLowerCase() === 'get' && !error.config?._retried) {
+      error.config._retried = true
+      return api.request(error.config)
+    }
     return Promise.reject(error)
   }
 )
 
 export const authApi = {
   login: (username: string, password: string) =>
-    api.post('/auth/login', { username, password }, { timeout: 20000 }),
+    api.post('/auth/login', { username, password }, { timeout: 90000 }),
 }
 
 export const usersApi = {
