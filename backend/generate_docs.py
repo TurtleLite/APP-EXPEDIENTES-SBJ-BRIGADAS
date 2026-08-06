@@ -48,9 +48,9 @@ st_bullet = _mk("bullet", SANS, 10, 14.5, TA_JUSTIFY, 0, 2, colors.HexColor("#1F
                 bulletFontName=SANS, bulletFontSize=10)
 st_num = _mk("num", SANS, 10, 14.5, TA_JUSTIFY, 0, 2)
 st_note = _mk("note", SANS_O, 9.5, 13.5, TA_LEFT, 0, 3, colors.HexColor("#6B7280"))
-st_table_head = _mk("thead", SANS_B, 9, 11, TA_LEFT, 0, 0, colors.white)
-st_table_cell = _mk("tcell", SANS, 9, 11.5, TA_LEFT, 0, 0)
-st_table_cell_c = _mk("tcellc", SANS, 9, 11.5, TA_CENTER, 0, 0)
+st_table_head = _mk("thead", SANS_B, 9, 11, TA_LEFT, 0, 0, colors.white, wordWrap="CJK")
+st_table_cell = _mk("tcell", SANS, 9, 11.5, TA_LEFT, 0, 0, wordWrap="CJK")
+st_table_cell_c = _mk("tcellc", SANS, 9, 11.5, TA_CENTER, 0, 0, wordWrap="CJK")
 st_quote = _mk("quote", SERIF_I, 10, 14.5, TA_JUSTIFY, 0, 3)
 
 # ---------------------------------------------------------------------------
@@ -145,30 +145,30 @@ class DocBuilder:
         self.story.append(PageBreak())
 
     def table(self, rows, col_widths=None, header=True, center_cols=()):
-        data = [list(r) for r in rows]
+        data = []
+        for r in rows:
+            row = []
+            for j, c in enumerate(r):
+                if header and len(data) == 0:
+                    cell_style = st_table_head
+                elif j in center_cols:
+                    cell_style = st_table_cell_c
+                else:
+                    cell_style = st_table_cell
+                row.append(Paragraph(str(c), cell_style))
+            data.append(row)
         style = [
-            ("FONTNAME", (0, 0), (-1, -1), SANS),
-            ("FONTSIZE", (0, 0), (-1, -1), 9),
-            ("LEADING", (0, 0), (-1, -1), 11.5),
             ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-            ("TOPPADDING", (0, 0), (-1, -1), 2),
-            ("BOTTOMPADDING", (0, 0), (-1, -1), 2),
+            ("TOPPADDING", (0, 0), (-1, -1), 3),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
             ("LEFTPADDING", (0, 0), (-1, -1), 6),
             ("RIGHTPADDING", (0, 0), (-1, -1), 6),
             ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#E5E7EB")),
-            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#6E7B91")),
-            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-            ("FONTNAME", (0, 0), (-1, 0), SANS_B),
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#6E7B91")) if header else None,
             ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#F8F9FA")]),
         ]
-        if not header:
-            style.remove(("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#6E7B91")))
-            style.remove(("TEXTCOLOR", (0, 0), (-1, 0), colors.white))
-            style.remove(("FONTNAME", (0, 0), (-1, 0), SANS_B))
-        for c in center_cols:
-            style.append(("ALIGN", (c, 0), (c, -1), "CENTER"))
         t = Table(data, colWidths=col_widths, repeatRows=1 if header else 0)
-        t.setStyle(TableStyle(style))
+        t.setStyle(TableStyle([s for s in style if s]))
         self.story.append(t)
         self.spacer(0.2)
 
