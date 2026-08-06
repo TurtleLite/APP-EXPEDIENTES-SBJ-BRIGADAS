@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Genera los manuales de usuario y el Acuerdo Marco del sistema en PDF (Versión 1.1).
+"""Genera los manuales de usuario y el Acuerdo Marco del sistema en PDF (Versión 1.0).
 
 Replica el formato original: hoja carta (letter), encabezado en cada página,
 títulos en serif y cuerpo en sans-serif, pie de página con página y versión.
@@ -17,6 +17,8 @@ from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, KeepTogether
+from reportlab.pdfgen import canvas as _pdfcanvas
+from functools import partial
 
 # ---------------------------------------------------------------------------
 # Estilos
@@ -39,21 +41,48 @@ def _mk(name, font, size, leading, align=TA_LEFT, space_before=0, space_after=6,
 st_title = _mk("title", SERIF_B, 22, 28, TA_CENTER, 0, 6)
 st_subtitle = _mk("subtitle", SERIF, 13, 18, TA_CENTER, 0, 6)
 st_ver = _mk("ver", SANS, 10, 14, TA_CENTER, 0, 2, colors.HexColor("#6B7280"))
-st_h1 = _mk("h1", SERIF_B, 14, 18, TA_LEFT, 14, 6, colors.HexColor("#374151"))
-st_h2 = _mk("h2", SERIF_B, 11.5, 15, TA_LEFT, 10, 4, colors.HexColor("#4B5563"))
-st_body = _mk("body", SANS, 10, 14.5, TA_JUSTIFY, 0, 5)
-st_bullet = _mk("bullet", SANS, 10, 14.5, TA_JUSTIFY, 0, 3, colors.HexColor("#1F2937"),
+st_h1 = _mk("h1", SERIF_B, 14, 18, TA_LEFT, 10, 4, colors.HexColor("#374151"))
+st_h2 = _mk("h2", SERIF_B, 11.5, 15, TA_LEFT, 5, 2, colors.HexColor("#4B5563"))
+st_body = _mk("body", SANS, 10, 14.5, TA_JUSTIFY, 0, 3)
+st_bullet = _mk("bullet", SANS, 10, 14.5, TA_JUSTIFY, 0, 2, colors.HexColor("#1F2937"),
                 bulletFontName=SANS, bulletFontSize=10)
-st_num = _mk("num", SANS, 10, 14.5, TA_JUSTIFY, 0, 3)
-st_note = _mk("note", SANS_O, 9.5, 13.5, TA_LEFT, 0, 5, colors.HexColor("#6B7280"))
+st_num = _mk("num", SANS, 10, 14.5, TA_JUSTIFY, 0, 2)
+st_note = _mk("note", SANS_O, 9.5, 13.5, TA_LEFT, 0, 3, colors.HexColor("#6B7280"))
 st_table_head = _mk("thead", SANS_B, 9, 11, TA_LEFT, 0, 0, colors.white)
 st_table_cell = _mk("tcell", SANS, 9, 11.5, TA_LEFT, 0, 0)
 st_table_cell_c = _mk("tcellc", SANS, 9, 11.5, TA_CENTER, 0, 0)
-st_quote = _mk("quote", SERIF_I, 10, 14.5, TA_JUSTIFY, 0, 5)
+st_quote = _mk("quote", SERIF_I, 10, 14.5, TA_JUSTIFY, 0, 3)
 
 # ---------------------------------------------------------------------------
 # Encabezado y pie de página
 # ---------------------------------------------------------------------------
+class _PagedCanvas(_pdfcanvas.Canvas):
+    """Canvas que dibuja el pie con 'Página N de M' en una segunda pasada."""
+
+    def __init__(self, *args, **kwargs):
+        self._version = kwargs.pop("version", "")
+        super().__init__(*args, **kwargs)
+        self._saved = []
+
+    def showPage(self):
+        self._saved.append(dict(self.__dict__))
+        self._startPage()
+
+    def save(self):
+        total = len(self._saved)
+        for state in self._saved:
+            self.__dict__.update(state)
+            self._draw_footer(total)
+            _pdfcanvas.Canvas.showPage(self)
+        _pdfcanvas.Canvas.save(self)
+
+    def _draw_footer(self, total):
+        self.setFont(SANS, 8)
+        self.setFillColor(colors.HexColor("#9CA3AF"))
+        self.drawCentredString(letter[0] / 2, 1.4 * cm, f"Página {self._pageNumber} de {total}")
+        self.drawCentredString(letter[0] / 2, 1.1 * cm, f"Versión {self._version}")
+
+
 class DocBuilder:
     def __init__(self, path, header_left, header_right, version):
         self.path = path
@@ -67,7 +96,7 @@ class DocBuilder:
         doc = SimpleDocTemplate(
             self.path, pagesize=letter,
             leftMargin=2.2 * cm, rightMargin=2.2 * cm,
-            topMargin=3.0 * cm, bottomMargin=2.2 * cm,
+            topMargin=2.6 * cm, bottomMargin=1.9 * cm,
             title="Centro Médico San Benito José",
             author="TurtleLite",
         )
@@ -82,14 +111,10 @@ class DocBuilder:
             canvas.setStrokeColor(colors.HexColor("#D1D5DB"))
             canvas.setLineWidth(0.6)
             canvas.line(2.2 * cm, letter[1] - 1.65 * cm, letter[0] - 2.2 * cm, letter[1] - 1.65 * cm)
-            # pie
-            canvas.setFont(SANS, 8)
-            canvas.setFillColor(colors.HexColor("#9CA3AF"))
-            canvas.drawCentredString(letter[0] / 2, 1.4 * cm, f"Página {canvas.getPageNumber()}")
-            canvas.drawCentredString(letter[0] / 2, 1.1 * cm, f"Versión {self.version}")
             canvas.restoreState()
 
-        doc.build(self.story, onFirstPage=on_page, onLaterPages=on_page)
+        doc.build(self.story, onFirstPage=on_page, onLaterPages=on_page,
+                  canvasmaker=partial(_PagedCanvas, version=self.version))
 
     # -- ayudas de contenido --
     def h1(self, text):
@@ -126,8 +151,8 @@ class DocBuilder:
             ("FONTSIZE", (0, 0), (-1, -1), 9),
             ("LEADING", (0, 0), (-1, -1), 11.5),
             ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-            ("TOPPADDING", (0, 0), (-1, -1), 4),
-            ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+            ("TOPPADDING", (0, 0), (-1, -1), 2),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 2),
             ("LEFTPADDING", (0, 0), (-1, -1), 6),
             ("RIGHTPADDING", (0, 0), (-1, -1), 6),
             ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#E5E7EB")),
@@ -145,12 +170,12 @@ class DocBuilder:
         t = Table(data, colWidths=col_widths, repeatRows=1 if header else 0)
         t.setStyle(TableStyle(style))
         self.story.append(t)
-        self.spacer(0.3)
+        self.spacer(0.2)
 
     def cover(self, center_text, subtitle, version, elaborated):
         self.spacer(3.2)
         self.story.append(Paragraph(center_text, st_title))
-        self.spacer(0.3)
+        self.spacer(0.2)
         self.story.append(Paragraph(subtitle, st_subtitle))
         self.spacer(2.6)
         self.story.append(Paragraph("Manual de Usuario", st_title))
@@ -345,7 +370,7 @@ def manual_direccion(out_dir, version="1.0"):
         ["Importar expedientes desde Excel", "Solo Administrador", "Sin acceso."],
         ["Cambiar contraseñas de otros usuarios", "Solo Administrador", "Sin acceso a Usuarios."],
     ], [5.6 * cm, 4.4 * cm, 5.0 * cm])
-    b.spacer(0.6)
+    b.spacer(0.3)
     b.h1("Preguntas frecuentes")
     b.quote("¿Puedo crear un expediente nuevo?")
     b.body("Sí. Su rol puede crear, editar y eliminar expedientes.")
@@ -440,7 +465,7 @@ def manual_direccion_medica(out_dir, version="1.0"):
         ["Importar expedientes desde Excel", "Solo Administrador", "Sin acceso."],
         ["Cambiar contraseñas de otros usuarios", "Solo Administrador", "Sin acceso a Usuarios."],
     ], [5.6 * cm, 4.4 * cm, 5.0 * cm])
-    b.spacer(0.6)
+    b.spacer(0.3)
     b.h1("Preguntas frecuentes")
     b.quote("¿Puedo cambiar el estatus de cirugía de un paciente?")
     b.body("Sí. Su rol puede asignar y cambiar el estatus de cirugía desde la sección Estatus Cirugía.")
@@ -514,7 +539,7 @@ def manual_medico(out_dir, version="1.0"):
         ["Administrar especialidades y localidades", "Solo Administrador", "Botones no disponibles."],
         ["Cambiar contraseñas de otros usuarios", "Solo Administrador", "Sin acceso a Usuarios."],
     ], [5.6 * cm, 4.4 * cm, 5.0 * cm])
-    b.spacer(0.6)
+    b.spacer(0.3)
     b.h1("Preguntas frecuentes")
     b.quote("¿Puedo editar un expediente que creó otro médico?")
     b.body("No. Solo puede editar los expedientes que usted creó. Para corregir un expediente de otro médico, comuníquese con la Dirección Médica o el Administrador.")
@@ -609,7 +634,7 @@ def acuerdo_marco(out_dir, version="1.0"):
 
     b.h2("Artículo 9. Vigencia y firma")
     b.body("9.1 El presente acuerdo entra en vigencia a partir de la firma de ambas partes y permanece vigente mientras el Centro utilice el sistema.")
-    b.spacer(1.2)
+    b.spacer(0.8)
     b.table([
         ["Firma y fecha: ____________________", "Firma y fecha: ____________________"],
         ["Alexander James Scheibner", "Amed Enmanuel Canales Mejía"],
