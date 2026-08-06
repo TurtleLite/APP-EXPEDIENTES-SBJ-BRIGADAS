@@ -471,7 +471,7 @@ export function ListDetail() {
                       Editar
                     </button>
                   )}
-                  {(user?.role === 'admin' || user?.role === 'direccion' || user?.role === 'direccion_medica') && selectedIds.size === 1 && (
+                  {selectedIds.size === 1 && (
                     <button
                       onClick={handlePreviewSelected}
                       className="flex items-center gap-1.5 px-4 py-2 bg-[#6E7B91] text-white rounded-xl hover:bg-[#5F6B80] shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
