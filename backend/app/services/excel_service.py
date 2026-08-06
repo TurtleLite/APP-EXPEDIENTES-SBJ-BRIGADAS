@@ -160,12 +160,6 @@ def _write_header_block(
     row = 1
     if title:
         ws.column_dimensions["A"].width = 3
-        if os.path.exists(LOGO_PATH):
-            logo = XLImage(LOGO_PATH)
-            ratio = logo.height / logo.width
-            logo.width = 80
-            logo.height = round(logo.width * ratio)
-            ws.add_image(logo, "A1")
 
         ws.merge_cells(f"B{row}:{last_col}{row}")
         c = ws.cell(row=row, column=2, value=institution.upper())
@@ -180,6 +174,22 @@ def _write_header_block(
         c.alignment = Alignment(horizontal="center", vertical="center")
         ws.row_dimensions[row].height = 34
         row += 1
+
+        if os.path.exists(LOGO_PATH):
+            from openpyxl.drawing.spreadsheet_drawing import AnchorMarker, OneCellAnchor
+            from openpyxl.drawing.xdr import XDRPositiveSize2D
+            from openpyxl.utils.units import pixels_to_EMU
+            logo = XLImage(LOGO_PATH)
+            ratio = logo.height / logo.width
+            logo.width = 100
+            logo.height = round(logo.width * ratio)
+            header_px = (ws.row_dimensions[1].height + ws.row_dimensions[2].height) * 96 / 72
+            row_off = max(0, round((header_px - logo.height) / 2))
+            logo.anchor = OneCellAnchor(
+                _from=AnchorMarker(col=0, colOff=pixels_to_EMU(8), row=0, rowOff=pixels_to_EMU(row_off)),
+                ext=XDRPositiveSize2D(cx=pixels_to_EMU(logo.width), cy=pixels_to_EMU(logo.height)),
+            )
+            ws.add_image(logo)
 
         ws.merge_cells(f"B{row}:{last_col}{row}")
         c = ws.cell(
