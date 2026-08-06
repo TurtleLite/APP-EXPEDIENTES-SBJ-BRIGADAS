@@ -114,6 +114,11 @@ const FIELD_UNITS: Record<string, string> = {
 
 const MIN_TEXT_LENGTH = 5
 
+const CAPITALIZE_FIRST_KEYS = new Set(['historia_enfermedad', 'enfermedades_previas', 'cirugias_previas', 'alergias', 'otros_antecedentes'])
+
+const capitalizeFirst = (val: string): string =>
+  val ? val.charAt(0).toUpperCase() + val.slice(1) : val
+
 const todayHonduras = (): string =>
   new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Tegucigalpa' }).format(new Date())
 
@@ -659,7 +664,7 @@ export function ExpedienteForm({ listId, role, medicoName, onClose, onSaved, edi
                           <textarea
                             rows={field.key === 'domicilio' || field.key === 'historia_enfermedad' || field.key === 'examen_fisico' || field.key === 'diagnostico' ? 3 : 1}
                             value={data[field.key] || ''}
-                            onChange={(e) => setValue(field.key, e.target.value)}
+                            onChange={(e) => setValue(field.key, CAPITALIZE_FIRST_KEYS.has(field.key) ? capitalizeFirst(e.target.value) : e.target.value)}
                             className="w-full px-3 py-2 border border-[#E3E6EB] rounded-lg text-sm focus:ring-2 focus:ring-slate-300 focus:border-slate-400 resize-none"
                           />
                         )}
