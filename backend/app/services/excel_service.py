@@ -162,8 +162,9 @@ def _write_header_block(
         ws.column_dimensions["A"].width = 3
         if os.path.exists(LOGO_PATH):
             logo = XLImage(LOGO_PATH)
-            logo.width = 130
-            logo.height = 96
+            ratio = logo.height / logo.width
+            logo.width = 80
+            logo.height = round(logo.width * ratio)
             ws.add_image(logo, "A1")
 
         ws.merge_cells(f"B{row}:{last_col}{row}")
