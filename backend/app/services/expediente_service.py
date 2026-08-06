@@ -117,7 +117,6 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
     center_h_wrap = Alignment(horizontal="center", wrap_text=True)
     center_h = Alignment(horizontal="center")
     vtop = Alignment(vertical="top")
-    yellow_fill = PatternFill(start_color=Color(indexed=5), end_color=Color(indexed=5), fill_type="solid")
 
     thin = _thin_border()
     thin_top_bottom = _thin_border_top_bottom()
@@ -197,7 +196,7 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
             ws.add_image(img)
         r += 1
 
-        # === ROW 2: Especialidad (G-H, size 16) / Criticidad clínica (I, yellow) ===
+        # === ROW 2: Especialidad (G-H, size 16) ===
         ws.cell(r, 1).font = Font(name=arial, bold=True, size=11)
         ws.merge_cells(start_row=r, start_column=7, end_row=r, end_column=8)
         c = ws.cell(r, 7, d.get("especialidad", ""))
@@ -205,12 +204,6 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
         c.alignment = center_wrap
         cellb(r, 7, thin)
         cellb(r, 8, Border(right=Side(style='thin'), top=Side(style='thin'), bottom=Side(style='thin')))
-
-        c = ws.cell(r, 9, "Criticidad clínica")
-        c.font = Font(name=arial, bold=True, size=10)
-        c.fill = yellow_fill
-        c.alignment = center_vwrap
-        cellb(r, 9, thin)
         r += 1
 
         # === ROW 3: Labels ===
@@ -244,11 +237,6 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
         c.alignment = center_wrap
         cellb(r, 7, thin)
         cellb(r, 8, Border(right=Side(style='thin'), top=Side(style='thin'), bottom=Side(style='thin')))
-
-        c = ws.cell(r, 9, d.get("criticidad", ""))
-        c.font = Font(name=arial, bold=True, size=10)
-        c.alignment = center_wrap
-        cellb(r, 9, thin)
         r += 1
 
         # === ROW 4-5: Values ===
