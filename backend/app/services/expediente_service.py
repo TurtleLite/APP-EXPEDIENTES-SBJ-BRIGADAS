@@ -1,5 +1,6 @@
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side, Color
+from openpyxl.worksheet.properties import PageSetupProperties
 from sqlalchemy.orm import Session
 import datetime
 from app.models.list_definition import ListDefinition, ListRecord
@@ -161,10 +162,10 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
 
     def _write_record_sheet(ws, d, styles):
         ws.page_setup.orientation = 'portrait'
-        ws.page_setup.scale = 90
         ws.page_setup.paperSize = 1
         ws.page_setup.fitToWidth = 1
-        ws.page_setup.fitToHeight = 1
+        ws.page_setup.fitToHeight = 0
+        ws.sheet_properties.pageSetUpPr = PageSetupProperties(fitToPage=True)
         ws.page_margins.left = 0.7874015748031495
         ws.page_margins.right = 0.39370078740157477
         ws.page_margins.top = 0.39370078740157477
