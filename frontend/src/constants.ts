@@ -14,7 +14,7 @@ export const ROLE_META: Record<string, RoleMeta> = {
       'Acceso total al sistema',
       'Gestionar usuarios y roles',
       'Crear, editar y eliminar listas y expedientes',
-      'Reportes general, por especialidad y por estatus de cirugía',
+      'Reportes',
     ],
   },
   direccion: {
@@ -24,8 +24,7 @@ export const ROLE_META: Record<string, RoleMeta> = {
     permissions: [
       'Ver expedientes y listas (solo lectura)',
       'Asignar y editar el estatus de cirugía',
-      'Reporte por estatus de cirugía',
-      'Reporte general y reporte por especialidad',
+      'Reportes',
     ],
   },
   direccion_medica: {
@@ -34,8 +33,7 @@ export const ROLE_META: Record<string, RoleMeta> = {
     gradient: 'from-[#6E7B91] to-[#5F6B80]',
     permissions: [
       'Crear, editar y eliminar expedientes',
-      'Crear reportes generales y por especialidad',
-      'Generar reportes en Excel y PDF',
+      'Reportes',
     ],
   },
   medico: {
