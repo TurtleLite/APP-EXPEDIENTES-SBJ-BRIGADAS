@@ -196,6 +196,11 @@ export function ListDetail() {
     setShowModal(true)
   }
 
+  const handlePreviewSelected = () => {
+    const record = records.find(r => selectedIds.has(r.id))
+    if (record) setPreviewRecord(record)
+  }
+
   const handleEditSelected = () => {
     const record = records.find(r => selectedIds.has(r.id))
     if (!record) return
@@ -466,6 +471,15 @@ export function ListDetail() {
                       Editar
                     </button>
                   )}
+                  {(user?.role === 'admin' || user?.role === 'direccion' || user?.role === 'direccion_medica') && selectedIds.size === 1 && (
+                    <button
+                      onClick={handlePreviewSelected}
+                      className="flex items-center gap-1.5 px-4 py-2 bg-[#6E7B91] text-white rounded-xl hover:bg-[#5F6B80] shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
+                    >
+                      <Eye size={16} />
+                      Vista previa
+                    </button>
+                  )}
                   {user?.role === 'admin' || user?.role === 'direccion' || user?.role === 'direccion_medica' ? (
                     <button
                       onClick={handleDeleteSelected}
@@ -527,18 +541,6 @@ export function ListDetail() {
                       }
                     </td>
                   ))}
-                  {list?.is_system && (
-                    <td className="px-6 py-4 text-sm text-slate-700">
-                      <button
-                        onClick={() => setPreviewRecord(record)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#5F6B80] bg-white border border-[#E3E6EB] rounded-xl hover:bg-[#F8F9FA] transition-all duration-200"
-                        title="Vista previa del expediente"
-                      >
-                        <Eye size={14} />
-                        Ver
-                      </button>
-                    </td>
-                  )}
                 </tr>
               ))}
               {records.length === 0 && (
