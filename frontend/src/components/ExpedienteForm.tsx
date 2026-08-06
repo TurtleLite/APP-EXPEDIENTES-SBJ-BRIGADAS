@@ -114,7 +114,7 @@ const FIELD_UNITS: Record<string, string> = {
 
 const MIN_TEXT_LENGTH = 5
 
-const CAPITALIZE_FIRST_KEYS = new Set(['historia_enfermedad', 'enfermedades_previas', 'cirugias_previas', 'alergias', 'otros_antecedentes'])
+const CAPITALIZE_FIRST_KEYS = new Set(['historia_enfermedad', 'examen_fisico', 'enfermedades_previas', 'cirugias_previas', 'alergias', 'otros_antecedentes'])
 
 const capitalizeFirst = (val: string): string =>
   val ? val.charAt(0).toUpperCase() + val.slice(1) : val
