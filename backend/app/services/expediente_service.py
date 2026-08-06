@@ -138,7 +138,7 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
     }
 
     row_heights = {
-        1: 20.25, 2: 24.0, 3: 26.25, 5: 12.75, 6: 12.75,
+        1: 68.0, 2: 24.0, 3: 26.25, 5: 12.75, 6: 12.75,
         8: 12.75, 9: 12.75, 10: 12.75, 14: 13.5, 15: 12.75,
         16: 12.75, 21: 12.75, 25: 12.75, 26: 12.75, 27: 12.75,
         29: 12.75, 30: 12.75, 38: 12.75, 44: 16.5, 48: 13.5, 50: 13.5,
@@ -197,7 +197,7 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
             img.width = 120
             img.height = round(120 * ratio)
             img.anchor = OneCellAnchor(
-                _from=AnchorMarker(col=0, colOff=0, row=0, rowOff=-6),
+                _from=AnchorMarker(col=0, colOff=0, row=0, rowOff=0),
                 ext=XDRPositiveSize2D(cx=pixels_to_EMU(img.width), cy=pixels_to_EMU(img.height)),
             )
             ws.add_image(img)
