@@ -742,6 +742,18 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
             if actual_row <= ws.max_row:
                 ws.row_dimensions[actual_row].height = h
 
+        # Shrink to fit: si el texto no cabe en la celda, se minimiza hasta que quepa
+        for row_cells in ws.iter_rows():
+            for cell in row_cells:
+                if cell.value is not None and cell.font.bold is not True:
+                    a = cell.alignment
+                    cell.alignment = Alignment(
+                        horizontal=a.horizontal,
+                        vertical=a.vertical,
+                        wrap_text=True,
+                        shrink_to_fit=True,
+                    )
+
     for idx, record in enumerate(records):
         d = record.data if record.data else {}
         data_values = [str(v) for v in d.values() if v not in (None, '')]

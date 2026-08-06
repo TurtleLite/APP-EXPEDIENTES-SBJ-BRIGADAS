@@ -66,8 +66,8 @@ def _units_to_px(units: float) -> int:
 
 
 def _data_cell_alignment(col_name: str):
-    # Si el texto no cabe en la celda, la fuente se encoge hasta que quepa (shrink to fit).
-    return Alignment(horizontal="center", vertical="center", wrap_text=False, shrink_to_fit=True)
+    # Si el texto no cabe en la celda, se escribe en otra línea dentro de la celda (wrap text).
+    return Alignment(horizontal="center", vertical="center", wrap_text=True, shrink_to_fit=False)
 
 
 def _apply_fixed_widths(ws, columns: List[str], widths: List[float], data_col0: int):
@@ -288,7 +288,6 @@ def export_to_excel(
             cell.alignment = _data_cell_alignment(col_name)
             if (data_idx - header_row) % 2 == 0:
                 cell.fill = PatternFill(start_color=ALT_ROW, end_color=ALT_ROW, fill_type="solid")
-        ws.row_dimensions[data_idx].height = 15
 
     first_col = get_column_letter(data_col0)
     ws.auto_filter.ref = f"{first_col}{header_row}:{last_col}{header_row + len(records)}"
@@ -359,7 +358,6 @@ def _write_section_table(
             cell.alignment = _data_cell_alignment(col_name)
             if (data_idx - header_row) % 2 == 0:
                 cell.fill = PatternFill(start_color=ALT_ROW, end_color=ALT_ROW, fill_type="solid")
-        ws.row_dimensions[data_idx].height = 15
     row = data_idx + 1
 
     ws.row_dimensions[row].height = 6
@@ -417,6 +415,7 @@ def export_to_excel_stream(
         ws.append([
             styled(
                 record.get(col, ""),
+                font=Font(size=10, color="444B54"),
                 align=_data_cell_alignment(col),
             )
             for col in columns
