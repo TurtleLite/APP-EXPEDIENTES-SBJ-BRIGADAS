@@ -181,9 +181,8 @@ def update_record(db: Session, record_id: int, data: dict, user_id: int = None, 
         if record.created_by != user_id:
             from fastapi import HTTPException
             raise HTTPException(status_code=403, detail="No puedes editar un expediente creado por otro médico")
-        if "estatus_cirugia" in data:
-            from fastapi import HTTPException
-            raise HTTPException(status_code=403, detail="Solo Dirección puede cambiar el estatus de cirugía")
+        data = dict(data)
+        data["estatus_cirugia"] = record.data.get("estatus_cirugia", "En espera")
     else:
         from fastapi import HTTPException
         raise HTTPException(status_code=403, detail="Acción no permitida")
