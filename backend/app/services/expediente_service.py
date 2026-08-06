@@ -194,7 +194,7 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
             from openpyxl.utils.units import pixels_to_EMU
             img = Image(logo_path)
             ratio = img.height / img.width
-            img.width = 120
+            img.width = 150
             img.height = round(120 * ratio)
             img.anchor = OneCellAnchor(
                 _from=AnchorMarker(col=0, colOff=0, row=0, rowOff=0),
