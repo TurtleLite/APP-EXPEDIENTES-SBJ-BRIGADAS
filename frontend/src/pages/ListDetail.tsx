@@ -360,6 +360,10 @@ export function ListDetail() {
     ? localities.filter((l) => normalizeText(l.name).includes(normalizeText(locSearch.trim())))
     : localities
 
+  const selectedRecord = records.find((r) => selectedIds.has(r.id))
+  const canEditSelected = user?.role !== 'medico'
+    || (!!selectedRecord?.created_by && String(selectedRecord.created_by) === String(user.id))
+
   return (
     <div className="h-full flex flex-col gap-4">
       <div className="flex items-center justify-between shrink-0">
@@ -462,7 +466,7 @@ export function ListDetail() {
                     <Download size={16} />
                     Exportar {selectedIds.size} seleccionados
                   </button>
-                  {selectedIds.size === 1 && (
+                  {selectedIds.size === 1 && canEditSelected && (
                     <button
                       onClick={handleEditSelected}
                       className="flex items-center gap-1.5 px-4 py-2 bg-[#6E7B91] text-white rounded-xl hover:bg-[#5F6B80] shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
