@@ -252,7 +252,7 @@ RECOMMEND = [
 # ---------------------------------------------------------------------------
 # Manuales por rol
 # ---------------------------------------------------------------------------
-def manual_direccion(out_dir, version="1.1"):
+def manual_direccion(out_dir, version="1.2"):
     b = DocBuilder(os.path.join(out_dir, "Manual_Usuario_Direccion.pdf"),
                    "Centro Médico San Benito José - Sistema Web de Gestión de Expedientes",
                    "Manual de Usuario - Dirección", version)
@@ -291,7 +291,8 @@ def manual_direccion(out_dir, version="1.1"):
     b.numbered("1. Para exportar todo el listado: botón <b>Exportar</b> (arriba a la derecha).")
     b.numbered("2. Para exportar solo algunos: selecciónelos con las casillas y presione <b>Exportar [n] seleccionados</b>.")
     b.h2("Vista previa del expediente")
-    b.numbered("1. Use el botón <b>Ver</b> de la fila para consultar el expediente completo sin abrirlo en edición.")
+    b.numbered("1. Marque la casilla del expediente que desea consultar.")
+    b.numbered("2. Presione <b>Vista previa</b> (aparece en la barra de selección junto a Editar/Eliminar) para consultar el expediente completo sin abrirlo en edición.")
     b.pagebreak()
 
     b.h2("3.3. Reportes")
@@ -329,7 +330,7 @@ def manual_direccion(out_dir, version="1.1"):
     b.numbered("1. Localice el expediente en la tabla.")
     b.numbered("2. En la columna de estatus, seleccione el nuevo estado: En espera, Reprogramar, Cancelado, Fuera de perfil San Benito, Operado, No apto para cirugía o No se presentó.")
     b.numbered("3. Puede escribir una observación que quedará registrada en el expediente.")
-    b.numbered("4. El cambio se guarda de forma inmediata y queda registrado en el expediente.")
+    b.numbered("4. Presione <b>Guardar</b>. El cambio queda registrado en el expediente.")
     b.pagebreak()
 
     emit(b, PROFILE)
@@ -362,7 +363,7 @@ def manual_direccion(out_dir, version="1.1"):
     b.build()
 
 
-def manual_direccion_medica(out_dir, version="1.1"):
+def manual_direccion_medica(out_dir, version="1.2"):
     b = DocBuilder(os.path.join(out_dir, "Manual_Usuario_Direccion_Medica.pdf"),
                    "Centro Médico San Benito José - Sistema Web de Gestión de Expedientes",
                    "Manual de Usuario - Dirección Médica", version)
@@ -459,7 +460,7 @@ def manual_direccion_medica(out_dir, version="1.1"):
     b.build()
 
 
-def manual_medico(out_dir, version="1.1"):
+def manual_medico(out_dir, version="1.2"):
     b = DocBuilder(os.path.join(out_dir, "Manual_Usuario_Medico.pdf"),
                    "Centro Médico San Benito José - Sistema Web de Gestión de Expedientes",
                    "Manual de Usuario - Médico", version)
@@ -487,7 +488,7 @@ def manual_medico(out_dir, version="1.1"):
     b.body("Editar un expediente propio")
     b.numbered("1. Marque la casilla del expediente que usted creó.")
     b.numbered("2. Presione <b>Editar</b>, haga las correcciones y presione <b>Actualizar</b>.")
-    b.note("Nota: Solo puede editar los expedientes que usted mismo creó. Si intenta editar uno de otro médico, el sistema mostrará \"No puedes editar un expediente creado por otro médico\".")
+    b.note("Nota: Solo puede editar los expedientes que usted mismo creó. Para los expedientes de otros médicos, la opción <b>Editar</b> no está disponible.")
     b.body("Exportar expedientes")
     b.numbered("1. <b>Exportar:</b> descarga todos los expedientes en Excel.")
     b.numbered("2. <b>Exportar [n] seleccionados:</b> descarga solo los expedientes marcados.")
@@ -507,7 +508,7 @@ def manual_medico(out_dir, version="1.1"):
         ["Reportes (crear, generar, descargar, eliminar)", "Administrador, Dirección y Dirección Médica", "Menú oculto."],
         ["Listado Diario de Cirugías (armar y guardar)", "Administrador, Dirección y Dirección Médica", "Menú oculto."],
         ["Estatus Cirugía (asignar/cambiar estatus)", "Administrador, Dirección y Dirección Médica", "Menú oculto."],
-        ["Editar expedientes de otros médicos", "Solo su propio creador", "El sistema rechaza el cambio."],
+        ["Editar expedientes de otros médicos", "Solo su propio creador", "La opción Editar no está disponible."],
         ["Eliminar expedientes", "Administrador, Dirección y Dirección Médica", "El botón no está disponible."],
         ["Cambiar el estatus de cirugía de un expediente", "Administrador, Dirección y Dirección Médica", "El sistema rechaza el cambio."],
         ["Administrar especialidades y localidades", "Solo Administrador", "Botones no disponibles."],
@@ -557,7 +558,7 @@ def emit(b, items, **fmt):
 # ---------------------------------------------------------------------------
 # Acuerdo Marco
 # ---------------------------------------------------------------------------
-def acuerdo_marco(out_dir, version="1.1"):
+def acuerdo_marco(out_dir, version="1.2"):
     b = DocBuilder(os.path.join(out_dir, "Acuerdo_Marco_Sistema_Expedientes_SBJ.pdf"),
                    "Centro Médico San Benito José",
                    "Documento legal - Sistema de Expedientes", version)
