@@ -90,12 +90,7 @@ def _report_sequence_filename(db: Session, report: Report) -> str:
     return f"REPORTE_EXPEDIENTES_{seq}.xlsx"
 
 
-def _fixed_no_map(records: list[ListRecord]) -> dict:
-    """Número fijo de cada expediente según su orden de creación (id), sin que cambie al reordenar."""
-    return {str(r.id): i for i, r in enumerate(sorted(records, key=lambda x: x.id), 1)}
-
-
-def _report_rows(records: list[ListRecord], no_map: dict = None) -> list[dict]:
+def _report_rows(records: list[ListRecord]) -> list[dict]:
     rows = []
     for idx, rec in enumerate(records, 1):
         d = rec.data or {}
@@ -103,7 +98,7 @@ def _report_rows(records: list[ListRecord], no_map: dict = None) -> list[dict]:
         telefono = " / ".join(x for x in [d.get("telefono"), d.get("telefono2"), d.get("telefono3")] if x)
         rows.append({
             "_id": str(rec.id),
-            "No": (no_map or {}).get(str(rec.id), idx),
+            "No": idx,
             "Nombre/Name": nombre,
             "Age": d.get("edad", ""),
             "Diagnostic/Procedure": d.get("diagnostico", ""),
@@ -222,7 +217,7 @@ def generate_excel_report(
         raise HTTPException(status_code=404, detail="Lista no encontrada")
     columns = _report_columns()
     records = _records_for_report(db, report)
-    data = _report_rows(records, _fixed_no_map(records))
+    data = _report_rows(records)
     os.makedirs(settings.REPORTS_DIR, exist_ok=True)
     filepath = os.path.join(settings.REPORTS_DIR, f"reporte_{report.id}.xlsx")
     from app.services.excel_service import export_to_excel
@@ -246,7 +241,7 @@ def preview_report(
         raise HTTPException(status_code=404, detail="Lista no encontrada")
     columns = _report_columns()
     records = _records_for_report(db, report)
-    rows = _report_rows(records, _fixed_no_map(records))
+    rows = _report_rows(records)
     return {
         "name": report.name,
         "description": report.description,

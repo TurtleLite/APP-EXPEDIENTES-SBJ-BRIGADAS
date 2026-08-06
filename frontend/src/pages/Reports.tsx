@@ -469,7 +469,7 @@ export function Reports() {
                           title={record[col] ? String(record[col]) : undefined}
                           className={`px-4 py-2.5 text-slate-700 ${ci === 0 ? 'sticky left-0 z-10 bg-inherit border-r border-[#E3E6EB] font-medium' : ''} ${['Nombre/Name', 'Diagnostic/Procedure', 'Origin', 'Referred by', 'Observación'].includes(col) ? 'max-w-[220px] truncate' : 'whitespace-nowrap'}`}
                         >
-                          {record[col] || <span className="text-slate-300">-</span>}
+                          {col === 'No' ? idx + 1 : (record[col] || <span className="text-slate-300">-</span>)}
                         </td>
                       ))}
                     </tr>
