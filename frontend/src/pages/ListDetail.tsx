@@ -811,7 +811,7 @@ export function ListDetail() {
 
       {previewRecord && (
         <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white w-[95vw] max-w-2xl max-h-[90vh] flex flex-col overflow-hidden rounded-2xl shadow-2xl">
+          <div className="bg-white w-[95vw] max-w-4xl max-h-[90vh] flex flex-col overflow-hidden rounded-2xl shadow-2xl">
             <div className="px-5 py-4 border-b border-[#E3E6EB] flex items-center justify-between shrink-0">
               <div>
                 <h2 className="font-serif text-lg font-bold text-[#3F4650]">
@@ -831,7 +831,7 @@ export function ListDetail() {
                   <div className="px-4 py-2.5 bg-slate-50 border-b border-[#E3E6EB]">
                     <h3 className="text-sm font-semibold text-[#3F4650]">{section.title}</h3>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2.5 px-4 py-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-2.5 px-4 py-3">
                     {section.fields.map((f) => {
                       let value = previewRecord.data?.[f.key] || ''
                       if (f.key === 'telefono') {
