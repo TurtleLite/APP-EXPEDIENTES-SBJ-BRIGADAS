@@ -189,10 +189,17 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
         c.font = Font(name=arial, bold=True, size=16, u='single')
         c.alignment = center_wrap
         if logo_path and os.path.exists(logo_path):
+            from openpyxl.drawing.spreadsheet_drawing import AnchorMarker, OneCellAnchor
+            from openpyxl.drawing.xdr import XDRPositiveSize2D
+            from openpyxl.utils.units import EMU
             img = Image(logo_path)
-            img.anchor = 'A1'
-            img.width = 130
-            img.height = 71
+            ratio = img.height / img.width
+            img.width = 120
+            img.height = round(120 * ratio)
+            img.anchor = OneCellAnchor(
+                _from=AnchorMarker(col=0, colOff=0, row=0, rowOff=-6),
+                ext=XDRPositiveSize2D(cx=img.width * EMU, cy=img.height * EMU),
+            )
             ws.add_image(img)
         r += 1
 
