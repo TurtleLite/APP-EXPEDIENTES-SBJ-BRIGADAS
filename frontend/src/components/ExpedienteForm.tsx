@@ -248,8 +248,10 @@ export function ExpedienteForm({ listId, role, medicoName, onClose, onSaved, edi
       if (!payload.nombre_medico && medicoName) payload.nombre_medico = medicoName
       if (editingRecord) {
         await listsApi.updateRecord(listId, editingRecord.id, { data: payload })
+        toast('Expediente actualizado correctamente', 'success')
       } else {
         await listsApi.createRecord(listId, { data: payload })
+        toast('Expediente creado correctamente', 'success')
       }
       onSaved()
       onClose()
