@@ -7,7 +7,7 @@ import { useNotification } from '../contexts/NotificationContext'
 import { Plus, Upload, Search, Pencil, Trash2, Download, Stethoscope, CheckSquare, Square, Settings2, Eye, MapPin, X } from 'lucide-react'
 import { ExpedienteForm, SECTIONS } from '../components/ExpedienteForm'
 import { specialtiesApi, localitiesApi } from '../services/api'
-import { areSimilarNames, normalizeText } from '../utils/format'
+import { areSimilarNames, normalizeText, shortName } from '../utils/format'
 import { TIPO_LOCALIDAD_OPTIONS } from '../constants'
 
 const RECORD_COLUMNS = ['nombre', 'edad', 'diagnostico', 'perfil', 'domicilio', 'telefono', 'albergue', 'nombre_medico']
@@ -594,7 +594,9 @@ export function ListDetail() {
                             .join(' / ') || <span className="text-slate-300">-</span>
                         : col.key === 'domicilio'
                           ? domicilioPreview(record.data) || <span className="text-slate-300">-</span>
-                          : record.data[col.key] || <span className="text-slate-300">-</span>
+                          : col.key === 'nombre_medico'
+                            ? shortName(record.data.nombre_medico) || <span className="text-slate-300">-</span>
+                            : record.data[col.key] || <span className="text-slate-300">-</span>
                       }
                     </td>
                   ))}

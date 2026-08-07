@@ -39,6 +39,15 @@ export const levenshtein = (a: string, b: string): number => {
   return dp[n]
 }
 
+export const shortName = (value: string): string => {
+  const full = (value || '').trim()
+  if (!full) return ''
+  const m = full.match(/^(Dr|Dra|Lic)\.?\s+(.*)$/i)
+  const title = m ? `${m[1].charAt(0).toUpperCase()}${m[1].slice(1)}.` : ''
+  const rest = (m ? m[2] : full).trim().split(/\s+/).filter(Boolean).slice(0, 2)
+  return [title, ...rest].filter(Boolean).join(' ')
+}
+
 export const areSimilarNames = (a: string, b: string): boolean => {
   const na = normalizeText(a)
   const nb = normalizeText(b)
