@@ -27,6 +27,7 @@ export function Users() {
   const [showModal, setShowModal] = useState(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
   const [form, setForm] = useState(emptyForm)
+  const [saving, setSaving] = useState(false)
   const { user: currentUser } = useAuth()
   const { toast, confirm } = useNotification()
 
@@ -42,10 +43,12 @@ export function Users() {
   useEffect(() => { loadUsers() }, [])
 
   const handleSave = async () => {
+    if (saving) return
     if (!isValidPhone(form.telefono)) {
       toast('El teléfono debe tener el formato 0000-0000', 'error')
       return
     }
+    setSaving(true)
     try {
       const payload: any = { ...form }
       const fullName = [payload.nombres, payload.apellidos].map((p) => (p || '').trim()).filter(Boolean).join(' ')
@@ -62,6 +65,8 @@ export function Users() {
       loadUsers()
     } catch (err: any) {
       toast(err.response?.data?.detail || 'Error al guardar usuario', 'error')
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -258,8 +263,8 @@ export function Users() {
               <button onClick={() => setShowModal(false)} className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-xl transition-all duration-200">
                 Cancelar
               </button>
-              <button onClick={handleSave} className="px-4 py-2 text-sm bg-[#6E7B91] text-white rounded-xl hover:bg-[#5F6B80] shadow-sm hover:shadow-md transition-all duration-200 font-medium">
-                {editingUser ? 'Actualizar' : 'Crear'}
+              <button onClick={handleSave} disabled={saving} className="px-4 py-2 text-sm bg-[#6E7B91] text-white rounded-xl hover:bg-[#5F6B80] shadow-sm hover:shadow-md transition-all duration-200 font-medium disabled:opacity-50">
+                {saving ? 'Guardando...' : editingUser ? 'Actualizar' : 'Crear'}
               </button>
             </div>
           </div>

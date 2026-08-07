@@ -243,20 +243,26 @@ export function ExpedienteForm({ listId, role, medicoName, onClose, onSaved, edi
       toast(`La historia de enfermedad actual debe tener al menos ${MIN_TEXT_LENGTH} caracteres`, 'error')
       return
     }
-    const numero = String(data.expediente || '').trim()
-    if (!editingRecord && numero) {
-      try {
-        const res = await listsApi.copyNumber(listId, numero)
-        if (Number(res.data?.count || 0) > 0) {
-          setConfirmCopy({ numero, propuesta: String(res.data?.expediente || '') })
-          return
-        }
-      } catch { /* si falla la consulta, se guarda sin confirmación */ }
+    setSaving(true)
+    try {
+      const numero = String(data.expediente || '').trim()
+      if (!editingRecord && numero) {
+        try {
+          const res = await listsApi.copyNumber(listId, numero)
+          if (Number(res.data?.count || 0) > 0) {
+            setConfirmCopy({ numero, propuesta: String(res.data?.expediente || '') })
+            return
+          }
+        } catch { /* si falla la consulta, se guarda sin confirmación */ }
+      }
+      await performSave()
+    } finally {
+      setSaving(false)
     }
-    await performSave()
   }
 
   const performSave = async () => {
+    if (saving) return
     setSaving(true)
     try {
       const payload = { ...data }
