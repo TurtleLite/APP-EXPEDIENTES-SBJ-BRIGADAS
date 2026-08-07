@@ -82,7 +82,7 @@ export function Dashboard() {
       onClick: () => navigate('/listado-diario'),
     },
     {
-      label: 'Estatus Cirugía',
+      label: 'Estatus',
       icon: <Activity size={22} />,
       color: 'bg-rose-500',
       allowed: role === 'admin' || role === 'direccion',
