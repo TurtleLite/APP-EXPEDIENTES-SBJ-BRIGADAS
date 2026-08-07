@@ -107,13 +107,13 @@ export function Layout({ children }: { children: ReactNode }) {
         </div>
       )}
       <aside className="w-48 bg-white flex flex-col shrink-0 h-screen sticky top-0 shadow-lg">
-        <div className="p-5 border-b border-[#E3E6EB] flex items-center justify-center">
-          <img src="/logo_sbj.png" alt="Logo SBJ Cirugias" className="w-40 h-auto mx-auto" />
+        <div className="px-5 pt-3 pb-2 border-b border-[#E3E6EB] flex items-center justify-center">
+          <img src="/logo_sbj.png" alt="Logo SBJ Cirugias" className="w-36 h-auto mx-auto" />
         </div>
-        <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
+        <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
           {navSections.map((section) => (
-            <div key={section.title} className="mb-2">
-              <p className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-[#98A0AC]">
+            <div key={section.title} className="mb-1">
+              <p className="px-3 pt-1 pb-0.5 text-[10px] font-semibold uppercase tracking-widest text-[#98A0AC]">
                 {section.title}
               </p>
               {section.items.map((item) => {
@@ -123,7 +123,7 @@ export function Layout({ children }: { children: ReactNode }) {
                   <button
                     key={item.path}
                     onClick={() => handleNavClick(item)}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 relative ${
+                    className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-200 relative ${
                       isActive
                         ? 'bg-[#EDF0F4] text-[#3F4650]'
                         : 'text-[#6F7682] hover:text-[#3F4650] hover:bg-[#F8F9FA]'
@@ -140,10 +140,10 @@ export function Layout({ children }: { children: ReactNode }) {
             </div>
           ))}
         </nav>
-        <div className="p-4 border-t border-[#E3E6EB]">
+        <div className="p-3 border-t border-[#E3E6EB]">
           <button
             onClick={() => navigate('/perfil')}
-            className="w-full flex items-center gap-3 mb-3 text-left group"
+            className="w-full flex items-center gap-3 mb-2 text-left group"
           >
             <div className="transition-transform duration-200 group-hover:scale-110">
               <RoleAvatar role={user?.role} size="sm" />

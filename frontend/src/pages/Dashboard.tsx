@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { listsApi } from '../services/api'
 import {
   Users, FileText, Table2, Lock,
-  UserCircle2, Activity, ClipboardList,
+  UserCircle2, Activity, ClipboardList, ShieldCheck, ScrollText,
 } from 'lucide-react'
 
 const roleLabels: Record<string, string> = {
@@ -95,6 +95,20 @@ export function Dashboard() {
       allowed: role === 'admin' || role === 'direccion',
       onClick: () => navigate('/estado-cirugia'),
     },
+    {
+      label: 'Sesiones',
+      icon: <ShieldCheck size={22} />,
+      color: 'bg-teal-600',
+      allowed: role === 'admin' || role === 'direccion',
+      onClick: () => navigate('/seguridad'),
+    },
+    {
+      label: 'Auditoría',
+      icon: <ScrollText size={22} />,
+      color: 'bg-cyan-600',
+      allowed: role === 'admin' || role === 'direccion',
+      onClick: () => navigate('/auditoria'),
+    },
   ]
 
   const hoy = new Date().toLocaleDateString('es-HN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
@@ -136,7 +150,7 @@ export function Dashboard() {
             <button
               key={opt.label}
               onClick={() => (opt.allowed ? opt.onClick() : setDenied(opt.label))}
-              className="h-40 flex flex-col items-center justify-center gap-2.5 rounded-2xl bg-white border border-slate-100 hover:border-[#E3E6EB] hover:shadow-md transition-all duration-200 group"
+              className="h-36 flex flex-col items-center justify-center gap-2 rounded-2xl bg-white border border-slate-100 hover:border-[#E3E6EB] hover:shadow-md transition-all duration-200 group"
             >
               <div className={`w-11 h-11 rounded-xl ${opt.color} text-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-200`}>
                 {opt.icon}
