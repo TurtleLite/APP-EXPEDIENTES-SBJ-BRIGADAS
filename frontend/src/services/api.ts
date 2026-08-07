@@ -107,12 +107,14 @@ export const listsApi = {
 
 export const specialtiesApi = {
   list: () => api.get('/specialties/'),
+  create: (name: string) => api.post('/specialties/', { name }),
   rename: (oldName: string, newName: string) => api.put('/specialties/rename', { old: oldName, new: newName }),
   remove: (name: string) => api.delete('/specialties/', { params: { name } }),
 }
 
 export const localitiesApi = {
   list: () => api.get('/localities/'),
+  create: (name: string, tipo?: string) => api.post('/localities/', { name, tipo: tipo || '' }),
   rename: (oldName: string, newName: string) => api.put('/localities/rename', { old: oldName, new: newName }),
   remove: (name: string) => api.delete('/localities/', { params: { name } }),
 }

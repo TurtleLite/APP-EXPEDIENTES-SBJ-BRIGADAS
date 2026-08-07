@@ -52,6 +52,9 @@ export function ListDetail() {
   const [locSaving, setLocSaving] = useState(false)
   const [espSearch, setEspSearch] = useState('')
   const [locSearch, setLocSearch] = useState('')
+  const [creatingEsp, setCreatingEsp] = useState(false)
+  const [creatingLoc, setCreatingLoc] = useState(false)
+  const [newLocTipo, setNewLocTipo] = useState('')
 
   const loadEspecialidades = async () => {
     try {
@@ -243,9 +246,30 @@ export function ListDetail() {
   const openEspModal = () => {
     setShowEspModal(true)
     setEditingEsp(null)
+    setCreatingEsp(false)
     setNewEspName('')
     setEspSearch('')
     loadSpecialties()
+  }
+
+  const handleCreateEsp = async () => {
+    if (!newEspName.trim()) {
+      toast('El nombre de la especialidad es obligatorio', 'error')
+      return
+    }
+    try {
+      setEspSaving(true)
+      const res = await specialtiesApi.create(newEspName.trim())
+      toast(res.data?.message || 'Especialidad creada', 'success')
+      setCreatingEsp(false)
+      setNewEspName('')
+      await loadSpecialties()
+      await loadEspecialidades()
+    } catch (err: any) {
+      toast(err.response?.data?.detail || 'Error al crear la especialidad', 'error')
+    } finally {
+      setEspSaving(false)
+    }
   }
 
   const handleRenameEsp = async () => {
@@ -291,9 +315,31 @@ export function ListDetail() {
   const openLocModal = () => {
     setShowLocModal(true)
     setEditingLoc(null)
+    setCreatingLoc(false)
     setNewLocName('')
+    setNewLocTipo('')
     setLocSearch('')
     loadLocalities()
+  }
+
+  const handleCreateLoc = async () => {
+    if (!newLocName.trim()) {
+      toast('El nombre de la localidad es obligatorio', 'error')
+      return
+    }
+    try {
+      setLocSaving(true)
+      const res = await localitiesApi.create(newLocName.trim(), newLocTipo)
+      toast(res.data?.message || 'Localidad creada', 'success')
+      setCreatingLoc(false)
+      setNewLocName('')
+      setNewLocTipo('')
+      await loadLocalities()
+    } catch (err: any) {
+      toast(err.response?.data?.detail || 'Error al crear la localidad', 'error')
+    } finally {
+      setLocSaving(false)
+    }
   }
 
   const handleRenameLoc = async () => {
@@ -668,6 +714,39 @@ export function ListDetail() {
                 </div>
               ) : (
                 <>
+                  {creatingEsp ? (
+                    <div className="flex items-center gap-2 mb-3">
+                      <input
+                        type="text"
+                        value={newEspName}
+                        onChange={(e) => setNewEspName(e.target.value)}
+                        autoFocus
+                        placeholder="Nombre de la nueva especialidad"
+                        className="flex-1 px-3 py-2 border border-[#E3E6EB] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                      />
+                      <button
+                        onClick={handleCreateEsp}
+                        disabled={espSaving}
+                        className="px-4 py-2 text-sm bg-[#6E7B91] text-white rounded-xl hover:bg-[#5F6B80] transition-all duration-200 font-medium disabled:opacity-50"
+                      >
+                        {espSaving ? 'Guardando...' : 'Crear'}
+                      </button>
+                      <button
+                        onClick={() => { setCreatingEsp(false); setNewEspName('') }}
+                        className="px-3 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-xl transition-all duration-200"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => { setCreatingEsp(true); setNewEspName('') }}
+                      className="mb-3 flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-[#5F6B80] bg-slate-50 border border-[#E3E6EB] rounded-xl hover:bg-slate-100 transition-all duration-200"
+                    >
+                      <Plus size={15} />
+                      Nueva especialidad
+                    </button>
+                  )}
                   <div className="relative mb-3">
                     <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
@@ -724,16 +803,61 @@ export function ListDetail() {
             </div>
             <div className="flex-1 overflow-y-auto min-h-0 p-5 space-y-2">
               {!editingLoc && (
-                <div className="relative mb-3">
-                  <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="text"
-                    value={locSearch}
-                    onChange={(e) => setLocSearch(e.target.value)}
-                    placeholder="Buscar localidad..."
-                    className="w-full pl-9 pr-3 py-2 border border-[#E3E6EB] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
-                  />
-                </div>
+                creatingLoc ? (
+                  <div className="flex items-center gap-2 mb-3">
+                    <input
+                      type="text"
+                      value={newLocName}
+                      onChange={(e) => setNewLocName(e.target.value)}
+                      autoFocus
+                      placeholder="Nombre de la nueva localidad"
+                      className="flex-1 px-3 py-2 border border-[#E3E6EB] rounded-xl text-sm focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                    />
+                    <select
+                      value={newLocTipo}
+                      onChange={(e) => setNewLocTipo(e.target.value)}
+                      className="px-3 py-2 border border-[#E3E6EB] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                    >
+                      <option value="">Tipo</option>
+                      {TIPO_LOCALIDAD_OPTIONS.map((t) => (
+                        <option key={t} value={t}>{t}</option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={handleCreateLoc}
+                      disabled={locSaving}
+                      className="px-4 py-2 text-sm bg-[#6E7B91] text-white rounded-xl hover:bg-[#5F6B80] transition-all duration-200 font-medium disabled:opacity-50"
+                    >
+                      {locSaving ? 'Guardando...' : 'Crear'}
+                    </button>
+                    <button
+                      onClick={() => { setCreatingLoc(false); setNewLocName(''); setNewLocTipo('') }}
+                      className="px-3 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-xl transition-all duration-200"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => { setCreatingLoc(true); setNewLocName(''); setNewLocTipo('') }}
+                      className="mb-3 flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-[#5F6B80] bg-slate-50 border border-[#E3E6EB] rounded-xl hover:bg-slate-100 transition-all duration-200"
+                    >
+                      <Plus size={15} />
+                      Nueva localidad
+                    </button>
+                    <div className="relative mb-3">
+                      <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input
+                        type="text"
+                        value={locSearch}
+                        onChange={(e) => setLocSearch(e.target.value)}
+                        placeholder="Buscar localidad..."
+                        className="w-full pl-9 pr-3 py-2 border border-[#E3E6EB] rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200"
+                      />
+                    </div>
+                  </>
+                )
               )}
               {similarLocalities(filteredLocalities).length > 0 && (
                 <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-2">
@@ -810,7 +934,7 @@ export function ListDetail() {
               )}
             </div>
             <p className="px-5 py-3 text-xs text-[#8A919C] border-t border-[#E3E6EB] shrink-0">
-              Las localidades se crean al escribir una nueva en el formulario del expediente. Tipos: {TIPO_LOCALIDAD_OPTIONS.join(' · ')}.
+              Puede crear localidades aquí o escribirlas directamente en el formulario del expediente. Tipos: {TIPO_LOCALIDAD_OPTIONS.join(' · ')}.
             </p>
           </div>
         </div>

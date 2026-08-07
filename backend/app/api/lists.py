@@ -141,7 +141,10 @@ def list_especialidades(
     current_user: User = Depends(get_current_user),
 ):
     from app.services.record_service import get_distinct_field_values
-    return get_distinct_field_values(db, list_id, "especialidad")
+    from app.models.catalog_item import CatalogItem
+    values = get_distinct_field_values(db, list_id, "especialidad")
+    catalog = {i.name for i in db.query(CatalogItem).filter(CatalogItem.item_type == "especialidad")}
+    return sorted(set(values) | catalog)
 
 
 @router.get("/{list_id}/localidades")
@@ -151,13 +154,17 @@ def list_localidades(
     current_user: User = Depends(get_current_user),
 ):
     from sqlalchemy import text
+    from app.models.catalog_item import CatalogItem
     rows = db.execute(text(
         "SELECT data->>'localidad' AS loc, data->>'tipo_localidad' AS tipo, COUNT(*) AS n "
         "FROM list_records "
         "WHERE list_definition_id = :lid AND data->>'localidad' IS NOT NULL AND data->>'localidad' != '' "
         "GROUP BY loc, tipo ORDER BY loc"
     ), {"lid": list_id}).all()
-    return [{"localidad": r[0], "tipo": r[1] or "", "count": r[2]} for r in rows]
+    items = {r[0]: {"localidad": r[0], "tipo": r[1] or "", "count": r[2]} for r in rows}
+    for item in db.query(CatalogItem).filter(CatalogItem.item_type == "localidad"):
+        items.setdefault(item.name, {"localidad": item.name, "tipo": item.locality_type or "", "count": 0})
+    return [items[name] for name in sorted(items)]
 
 
 @router.get("/{list_id}/field-values")

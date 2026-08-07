@@ -77,22 +77,22 @@ export function Profile() {
   }
 
   return (
-    <div className="h-full flex flex-col items-center overflow-y-auto min-h-0">
-      <div className="w-full max-w-2xl flex flex-col gap-5 py-2">
-        <div className="flex items-center gap-4">
-          <RoleAvatar role={user.role} size="lg" />
-          <div className="min-w-0">
-            <h1 className="font-serif text-xl font-bold text-slate-900 truncate">{user.full_name}</h1>
-            <div className="mt-1.5 flex items-center gap-2.5">
-              <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${meta.badge}`}>
-                {meta.label}
-              </span>
-              <span className="text-xs text-slate-400">@{user.username}</span>
-            </div>
+    <div className="h-full flex flex-col gap-5 min-h-0">
+      <div className="flex items-center gap-4 shrink-0">
+        <RoleAvatar role={user.role} size="lg" />
+        <div className="min-w-0">
+          <h1 className="font-serif text-xl font-bold text-slate-900 truncate">{user.full_name}</h1>
+          <div className="mt-1.5 flex items-center gap-2.5">
+            <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${meta.badge}`}>
+              {meta.label}
+            </span>
+            <span className="text-xs text-slate-400">@{user.username}</span>
           </div>
         </div>
+      </div>
 
-        <section className="bg-white rounded-xl border border-[#E3E6EB] shadow-sm px-6 py-5">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 flex-1 min-h-0">
+        <section className="bg-white rounded-xl border border-[#E3E6EB] shadow-sm px-6 py-5 flex flex-col min-h-0">
           <h2 className="text-sm font-semibold text-slate-900">Datos personales</h2>
           <div className="mt-4 space-y-4">
             <div>
@@ -141,38 +141,37 @@ export function Profile() {
               </div>
             </div>
           </div>
+        </section>
 
-          <div className="mt-6 pt-5 border-t border-slate-100">
-            <div className="flex items-baseline justify-between">
-              <h2 className="text-sm font-semibold text-slate-900">Contraseña</h2>
-              <p className="text-xs text-slate-400">Opcional, solo si deseas cambiarla</p>
+        <section className="bg-white rounded-xl border border-[#E3E6EB] shadow-sm px-6 py-5 flex flex-col min-h-0">
+          <div className="flex items-baseline justify-between">
+            <h2 className="text-sm font-semibold text-slate-900">Contraseña</h2>
+            <p className="text-xs text-slate-400">Opcional, solo si deseas cambiarla</p>
+          </div>
+          <div className="mt-4 space-y-4">
+            <div>
+              <label className={labelClass}>Actual</label>
+              <PasswordInput
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                placeholder=""
+                className={inputClass}
+              />
             </div>
-            <div className="mt-4 grid grid-cols-2 gap-2.5">
-              <div>
-                <label className={labelClass}>Actual</label>
-                <PasswordInput
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  placeholder=""
-                  className={inputClass}
-                />
-              </div>
-              <div>
-                <label className={labelClass}>Nueva</label>
-                <PasswordInput
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder=""
-                  className={inputClass}
-                />
-              </div>
+            <div>
+              <label className={labelClass}>Nueva</label>
+              <PasswordInput
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder=""
+                className={inputClass}
+              />
             </div>
           </div>
-
           <button
             onClick={handleSave}
             disabled={saving}
-            className="mt-6 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-[#5F6B80] to-[#6E7B91] hover:shadow-md transition-all duration-200 active:scale-[0.99] disabled:opacity-50"
+            className="mt-auto pt-5 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-[#5F6B80] to-[#6E7B91] hover:shadow-md transition-all duration-200 active:scale-[0.99] disabled:opacity-50"
           >
             {saving ? 'Guardando...' : 'Guardar cambios'}
           </button>
