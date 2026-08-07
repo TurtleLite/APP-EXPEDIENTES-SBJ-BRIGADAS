@@ -14,22 +14,6 @@ def _is_expediente_list(db: Session, list_id: int) -> bool:
     return bool(ld and ld.name == _EXPEDIENTE_LIST_NAME)
 
 
-def _next_expediente_number(db: Session) -> str:
-    ld = db.query(ListDefinition).filter(ListDefinition.name == _EXPEDIENTE_LIST_NAME).first()
-    for _ in range(100):
-        n = int(db.execute(text(f"SELECT nextval('{_EXPEDIENTE_SEQUENCE}')")).scalar())
-        candidate = str(n)
-        exists = False
-        if ld:
-            exists = bool(db.query(ListRecord).filter(
-                ListRecord.list_definition_id == ld.id,
-                ListRecord.data.op("->>")("expediente") == candidate,
-            ).first())
-        if not exists:
-            return candidate
-    raise RuntimeError("No se pudo generar un número de expediente único")
-
-
 def _expediente_base(value: str) -> str:
     """Devuelve el número base (sin el sufijo de copia entre paréntesis)."""
     v = str(value or "").strip()
@@ -150,10 +134,10 @@ def add_record(db: Session, list_id: int, data: dict, user_id: int = None) -> Li
         data = dict(data)
         data = _compose_domicilio(data)
         numero = re.sub(r"\D", "", str(data.get("expediente", "") or ""))
-        if numero:
-            data["expediente"] = numero_expediente_final(db, numero)
-        else:
-            data["expediente"] = _next_expediente_number(db)
+        if not numero:
+            from fastapi import HTTPException
+            raise HTTPException(status_code=400, detail="El número de expediente es obligatorio: regístrelo manualmente")
+        data["expediente"] = numero_expediente_final(db, numero)
         data.setdefault("estatus_cirugia", "En espera")
     record = ListRecord(list_definition_id=list_id, data=data, created_by=user_id)
     db.add(record)

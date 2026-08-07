@@ -232,7 +232,10 @@ def import_excel(
     file_path = os.path.join(settings.UPLOAD_DIR, f"import_{list_id}_{safe_filename}")
     with open(file_path, "wb") as f:
         f.write(file.file.read())
-    count = import_records_from_excel(db, list_id, file_path)
+    try:
+        count = import_records_from_excel(db, list_id, file_path)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     log_audit(db, current_user, "list_import", entity_type="list", entity_id=list_id,
               detail=f"importó {count} registros desde {safe_filename}", ip_address=client_ip(request))
     return {"message": f"Se importaron {count} registros correctamente", "count": count}

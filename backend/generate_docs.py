@@ -248,7 +248,7 @@ INTERFACE = [
     ("h1", "2. La interfaz del sistema"),
     ("h2", "2.1. El menú lateral"),
     ("body", "Al iniciar sesión verá el menú lateral (lado izquierdo), el encabezado con el nombre del centro médico y su rol, y el área de trabajo donde se muestran las secciones."),
-    ("body", "El menú lateral es el mismo para todos los usuarios: Inicio, Mi Perfil, Expedientes, Reportes, Estadísticas, Estatus, Usuarios, Sesiones y Auditoría."),
+    ("body", "El menú lateral es el mismo para todos los usuarios: Inicio, Mi Perfil, Expedientes, Reportes, Listados, Estatus, Usuarios, Sesiones y Auditoría."),
     ("bullet", "Las secciones para las que su rol tiene permiso abren directamente al seleccionarlas."),
     ("bullet", "Las secciones restringidas se ven igual en el menú, pero el sistema valida su rol al seleccionarlas."),
     ("note", "Nota: Si usted no tiene permiso para una sección, al seleccionarla el sistema muestra el mensaje \"No tienes acceso a [sección]\" y no abrirá la página. Su rol determina qué funciones puede realizar."),
@@ -596,8 +596,8 @@ def acuerdo_marco(out_dir, version="1.0"):
     b.body("1.2 Desarrollador: TurtleLite, persona natural, representado por Amed Enmanuel Canales Mejía, portador(a) de identidad 0318-2008-01133.")
 
     b.h2("Artículo 2. Objeto")
-    b.body("2.1 El Desarrollador ha construido y entregado el Sistema Web de Gestión de Expedientes Médicos (sitio web, aplicación de backend, base de datos y documentación), que registra y administra expedientes de pacientes con número único automático en formato numérico; asigna criticidad clínica (Baja, Media o Alta); desglosa el domicilio por departamento, municipio y localidad; busca sin distinción de mayúsculas ni tildes; genera reportes exportables a Excel con reordenamiento de la columna No fija; y controla los listados diarios de cirugías y el estatus quirúrgico con observaciones.")
-    b.body("2.2 El sistema administra usuarios con roles de acceso (Administrador, Dirección, Dirección Médica y Médico): el Administrador gestiona usuarios, sesiones, auditoría, especialidades y localidades, y únicamente consulta expedientes; la Dirección y la Dirección Médica gestionan expedientes, reportes, listados diarios de cirugías y el estatus quirúrgico; el Médico registra expedientes, edita únicamente los que él mismo creó, y puede visualizar y exportar expedientes. El menú y las secciones del sistema se muestran de forma uniforme a todos los usuarios; la autorización para cada función está controlada por el rol del usuario, de modo que el sistema valida el permiso al momento de acceder y, si el usuario no lo tiene, muestra el aviso de acceso no autorizado e impide abrir la función o sección correspondiente.")
+    b.body("2.1 El Desarrollador ha construido y entregado el Sistema Web de Gestión de Expedientes Médicos (sitio web, aplicación de backend, base de datos y documentación), que registra y administra expedientes de pacientes con un número de expediente en formato numérico registrado manualmente por el personal; si se ingresa un número ya existente, el sistema lo conserva como copia identificada (ej.: 23455 (1)) previa confirmación; asigna criticidad clínica (Baja, Media o Alta); desglosa el domicilio por departamento, municipio y localidad (Aldea, Barrio, Colonia o Caserío); busca sin distinción de mayúsculas ni tildes; genera reportes exportables a Excel con reordenamiento de la columna No fija; y controla los listados diarios de cirugías y el estatus quirúrgico con observaciones.")
+    b.body("2.2 El sistema administra usuarios con roles de acceso (Administrador, Dirección, Dirección Médica y Médico): el Administrador gestiona usuarios, sesiones, auditoría, especialidades y localidades, incluida la creación de nuevas especialidades y localidades desde la gestión de los expedientes (botones \"Nueva especialidad\" y \"Nueva localidad\", con indicación del tipo de localidad), que quedan disponibles de inmediato en los formularios del sistema, y únicamente consulta expedientes; la Dirección y la Dirección Médica gestionan expedientes, reportes, listados diarios de cirugías y el estatus quirúrgico; el Médico registra expedientes, edita únicamente los que él mismo creó, y puede visualizar y exportar expedientes. El menú y las secciones del sistema se muestran de forma uniforme a todos los usuarios; la autorización para cada función está controlada por el rol del usuario, de modo que el sistema valida el permiso al momento de acceder y, si el usuario no lo tiene, muestra el aviso de acceso no autorizado e impide abrir la función o sección correspondiente.")
 
     b.h2("Artículo 3. Titularidad del software")
     b.body("3.1 El Desarrollador cede al Centro el uso pleno, permanente e irrevocable del sistema y de su código fuente, con derecho a modificarlo, adaptarlo y desplegarlo en la infraestructura que el Centro elija.")
@@ -648,7 +648,8 @@ def acuerdo_marco(out_dir, version="1.0"):
     b.bullet("Roles de acceso que limitan qué puede ver, crear, editar o eliminar cada usuario.")
     b.bullet("Validación de permisos en cada función: el sistema impide el acceso a las secciones no autorizadas para el rol del usuario y muestra el mensaje \"No tienes acceso\".")
     b.bullet("Respaldos periódicos de la base de datos realizados por el Centro.")
-    b.bullet("Número de expediente único, automático y en formato numérico.")
+    b.bullet("Número de expediente numérico registrado manualmente por el personal, con control de duplicados mediante copias identificadas (ej.: 23455 (1)).")
+    b.bullet("El catálogo de especialidades y localidades (incluida la creación de nuevos valores) solo puede ser modificado por el rol Administrador.")
     b.bullet("El sistema no recopila información fuera de la finalidad declarada.")
 
     b.h2("Artículo 16. Conservación y eliminación")
