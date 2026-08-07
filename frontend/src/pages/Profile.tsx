@@ -6,9 +6,6 @@ import { ROLE_META } from '../constants'
 import { RoleAvatar } from '../components/RoleAvatar'
 import { PasswordInput } from '../components/PasswordInput'
 import { formatPhone, isValidPhone } from '../utils/format'
-import {
-  KeyRound, ShieldCheck, CheckCircle2, User, Phone, AtSign, CircleUserRound, LayoutGrid,
-} from 'lucide-react'
 
 const capitalizeName = (value: string) =>
   value.replace(/\S+/g, (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
@@ -30,16 +27,6 @@ const inputClass =
   'w-full px-3.5 py-2 border border-[#E3E6EB] rounded-lg text-sm bg-white focus:ring-2 focus:ring-slate-300/30 focus:border-slate-400 transition-all duration-200'
 const labelClass =
   'block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1'
-
-const SectionTitle = ({ icon, title, hint }: { icon: React.ReactNode; title: string; hint?: string }) => (
-  <div className="flex items-center gap-2.5">
-    <span className="text-slate-400">{icon}</span>
-    <div className="leading-tight">
-      <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-900">{title}</h2>
-      {hint && <p className="text-[11px] text-slate-400 mt-0.5">{hint}</p>}
-    </div>
-  </div>
-)
 
 export function Profile() {
   const { user, updateUser } = useAuth()
@@ -89,37 +76,24 @@ export function Profile() {
     }
   }
 
-  const summary = [
-    { icon: <AtSign size={14} />, label: 'Usuario', value: user.username },
-    { icon: <ShieldCheck size={14} />, label: 'Rol', value: meta.label },
-    { icon: <Phone size={14} />, label: 'Teléfono', value: formatPhone(user.telefono || '') || '—' },
-    { icon: <CircleUserRound size={14} />, label: 'Estado', value: user.is_active ? 'Activo' : 'Inactivo' },
-  ]
-
   return (
-    <div className="h-full flex flex-col gap-4 min-h-0">
-      <div className={`rounded-xl overflow-hidden bg-gradient-to-r ${meta.gradient} shadow-sm shrink-0`}>
-        <div className="px-6 py-3.5 flex items-center gap-4">
-          <RoleAvatar role={user.role} size="md" />
-          <div className="flex-1 min-w-0">
-            <p className="text-[16px] font-semibold text-white truncate leading-tight">{user.full_name}</p>
-            <div className="mt-1 flex items-center gap-2.5 text-xs text-white/80">
-              <span className="font-medium">{meta.label}</span>
-              <span className="text-white/40">·</span>
-              <span>@{user.username}</span>
-              <span className="text-white/40">·</span>
-              <span className="flex items-center gap-1">
-                <span className={`inline-block w-1.5 h-1.5 rounded-full ${user.is_active ? 'bg-emerald-300' : 'bg-red-300'}`} />
-                {user.is_active ? 'Activo' : 'Inactivo'}
+    <div className="h-full flex flex-col items-center overflow-y-auto min-h-0">
+      <div className="w-full max-w-2xl flex flex-col gap-5 py-2">
+        <div className="flex items-center gap-4">
+          <RoleAvatar role={user.role} size="lg" />
+          <div className="min-w-0">
+            <h1 className="font-serif text-xl font-bold text-slate-900 truncate">{user.full_name}</h1>
+            <div className="mt-1.5 flex items-center gap-2.5">
+              <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${meta.badge}`}>
+                {meta.label}
               </span>
+              <span className="text-xs text-slate-400">@{user.username}</span>
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-0">
-        <section className="bg-white rounded-xl shadow-sm border border-[#E3E6EB] p-5 flex flex-col lg:min-h-0">
-          <SectionTitle icon={<User size={15} />} title="Datos personales" hint="Información de contacto" />
+        <section className="bg-white rounded-xl border border-[#E3E6EB] shadow-sm px-6 py-5">
+          <h2 className="text-sm font-semibold text-slate-900">Datos personales</h2>
           <div className="mt-4 space-y-4">
             <div>
               <label className={labelClass}>Nombre y apellidos</label>
@@ -148,8 +122,8 @@ export function Profile() {
                 />
               </div>
             </div>
-            <div className="flex gap-2.5">
-              <div className="flex-1">
+            <div className="grid grid-cols-2 gap-2.5">
+              <div>
                 <label className={labelClass}>Teléfono</label>
                 <input
                   type="tel"
@@ -159,19 +133,22 @@ export function Profile() {
                   className={inputClass}
                 />
               </div>
-              <div className="flex-1">
+              <div>
                 <label className={labelClass}>Usuario</label>
-                <div className="flex items-center gap-2 px-3.5 py-2 border border-slate-100 bg-slate-100 rounded-lg text-sm text-slate-500 truncate">
-                  <span className="truncate">{user.username}</span>
+                <div className="px-3.5 py-2 border border-slate-100 bg-slate-100 rounded-lg text-sm text-slate-500 truncate">
+                  {user.username}
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="mt-4 pt-3.5 border-t border-slate-100">
-            <SectionTitle icon={<KeyRound size={15} />} title="Contraseña" hint="Solo si deseas cambiarla" />
-            <div className="mt-2.5 flex gap-2.5">
-              <div className="flex-1">
+          <div className="mt-6 pt-5 border-t border-slate-100">
+            <div className="flex items-baseline justify-between">
+              <h2 className="text-sm font-semibold text-slate-900">Contraseña</h2>
+              <p className="text-xs text-slate-400">Opcional, solo si deseas cambiarla</p>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-2.5">
+              <div>
                 <label className={labelClass}>Actual</label>
                 <PasswordInput
                   value={currentPassword}
@@ -180,7 +157,7 @@ export function Profile() {
                   className={inputClass}
                 />
               </div>
-              <div className="flex-1">
+              <div>
                 <label className={labelClass}>Nueva</label>
                 <PasswordInput
                   value={password}
@@ -195,48 +172,11 @@ export function Profile() {
           <button
             onClick={handleSave}
             disabled={saving}
-            className={`mt-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-gradient-to-r ${meta.gradient} shadow-sm hover:shadow-md transition-all duration-200 active:scale-[0.99] disabled:opacity-50`}
+            className="mt-6 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-[#5F6B80] to-[#6E7B91] hover:shadow-md transition-all duration-200 active:scale-[0.99] disabled:opacity-50"
           >
-            <CheckCircle2 size={15} />
             {saving ? 'Guardando...' : 'Guardar cambios'}
           </button>
         </section>
-
-        <div className="flex flex-col gap-4 lg:min-h-0 min-h-0">
-          <section className="bg-white rounded-xl shadow-sm border border-[#E3E6EB] p-5">
-            <SectionTitle icon={<LayoutGrid size={15} />} title="Resumen de cuenta" />
-            <div className="mt-4 grid grid-cols-2 gap-2.5">
-              {summary.map((item) => (
-                <div key={item.label} className="rounded-lg border border-slate-100 bg-slate-50/70 px-3 py-2.5 min-w-0">
-                  <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                    {item.icon}
-                    {item.label}
-                  </div>
-                  <p className="text-sm font-medium text-slate-700 mt-1 truncate">{item.value}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="bg-white rounded-xl shadow-sm border border-[#E3E6EB] p-5 flex flex-col flex-1 lg:min-h-0">
-            <div className="flex items-center justify-between gap-3">
-              <SectionTitle icon={<ShieldCheck size={15} />} title="Accesos por rol" />
-              <span className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border ${meta.badge}`}>{meta.label}</span>
-            </div>
-            <ul className="mt-4 space-y-2 flex-1">
-              {meta.permissions.map((p) => (
-                <li key={p} className="flex items-center gap-2.5 text-sm text-slate-600">
-                  <CheckCircle2 size={15} className="text-emerald-500 shrink-0" />
-                  {p}
-                </li>
-              ))}
-            </ul>
-            <p className="mt-4 pt-3 border-t border-slate-100 flex items-center gap-2 text-[11px] text-slate-400">
-              <KeyRound size={12} className="shrink-0" />
-              El rol lo asigna el administrador del sistema.
-            </p>
-          </section>
-        </div>
       </div>
     </div>
   )
