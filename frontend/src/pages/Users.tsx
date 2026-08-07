@@ -3,7 +3,7 @@ import { usersApi } from '../services/api'
 import { User } from '../types'
 import { useAuth } from '../contexts/AuthContext'
 import { useNotification } from '../contexts/NotificationContext'
-import { Plus, Pencil, Trash2, UserPlus, Unlock } from 'lucide-react'
+import { Pencil, Trash2, UserPlus, Unlock, RefreshCw } from 'lucide-react'
 import { RoleAvatar } from '../components/RoleAvatar'
 import { PasswordInput } from '../components/PasswordInput'
 import { formatPhone, isValidPhone } from '../utils/format'
@@ -28,6 +28,7 @@ export function Users() {
   const [editingUser, setEditingUser] = useState<User | null>(null)
   const [form, setForm] = useState(emptyForm)
   const [saving, setSaving] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
   const { user: currentUser } = useAuth()
   const { toast, confirm } = useNotification()
 
@@ -40,7 +41,23 @@ export function Users() {
     }
   }
 
-  useEffect(() => { loadUsers() }, [])
+  const handleRefresh = async () => {
+    if (refreshing) return
+    setRefreshing(true)
+    await loadUsers()
+    setRefreshing(false)
+  }
+
+  useEffect(() => {
+    loadUsers()
+    const id = setInterval(loadUsers, 15000)
+    const onFocus = () => loadUsers()
+    window.addEventListener('focus', onFocus)
+    return () => {
+      clearInterval(id)
+      window.removeEventListener('focus', onFocus)
+    }
+  }, [])
 
   const handleSave = async () => {
     if (saving) return
@@ -117,19 +134,28 @@ export function Users() {
         <div>
           <h1 className="font-serif text-2xl font-bold text-[#3F4650]">Usuarios</h1>
         </div>
-        {currentUser?.role === 'admin' && (
+        <div className="flex items-center gap-2">
           <button
-            onClick={() => {
-              setEditingUser(null)
-              setForm(emptyForm())
-              setShowModal(true)
-            }}
-            className="flex items-center gap-1.5 bg-[#6E7B91] text-white px-4 py-2 rounded-xl hover:bg-[#5F6B80] shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
+            onClick={handleRefresh}
+            title="Actualizar lista"
+            className="flex items-center justify-center bg-white border border-[#E3E6EB] text-[#6E7B91] px-3 py-2 rounded-xl hover:bg-slate-50 hover:border-[#C7CDD6] shadow-sm transition-all duration-200"
           >
-            <UserPlus size={16} />
-            Nuevo Usuario
+            <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
           </button>
-        )}
+          {currentUser?.role === 'admin' && (
+            <button
+              onClick={() => {
+                setEditingUser(null)
+                setForm(emptyForm())
+                setShowModal(true)
+              }}
+              className="flex items-center gap-1.5 bg-[#6E7B91] text-white px-4 py-2 rounded-xl hover:bg-[#5F6B80] shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
+            >
+              <UserPlus size={16} />
+              Nuevo Usuario
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-[#E3E6EB] flex flex-col min-h-0 flex-1">
