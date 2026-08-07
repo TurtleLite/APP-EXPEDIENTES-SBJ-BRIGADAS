@@ -3,7 +3,7 @@ import { usersApi } from '../services/api'
 import { User } from '../types'
 import { useAuth } from '../contexts/AuthContext'
 import { useNotification } from '../contexts/NotificationContext'
-import { Plus, Pencil, Trash2, UserPlus } from 'lucide-react'
+import { Plus, Pencil, Trash2, UserPlus, Unlock } from 'lucide-react'
 import { RoleAvatar } from '../components/RoleAvatar'
 import { PasswordInput } from '../components/PasswordInput'
 import { formatPhone, isValidPhone } from '../utils/format'
@@ -73,6 +73,19 @@ export function Users() {
       toast('Usuario eliminado correctamente', 'success')
     } catch (err) {
       toast('Error al eliminar usuario', 'error')
+    }
+  }
+
+  const isLocked = (u: User) => !!u.locked_until && new Date(u.locked_until).getTime() > Date.now()
+
+  const handleUnlock = async (u: User) => {
+    if (!await confirm(`¿Desbloquear al usuario ${u.username}?`)) return
+    try {
+      await usersApi.unlock(u.id)
+      loadUsers()
+      toast('Usuario desbloqueado', 'success')
+    } catch (err) {
+      toast('Error al desbloquear usuario', 'error')
     }
   }
 
@@ -148,15 +161,22 @@ export function Users() {
                   </span>
                 </td>
                 <td className="px-6 py-4">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    u.is_active ? 'bg-slate-100 text-slate-600' : 'bg-slate-100 text-slate-600'
-                  }`}>
-                    {u.is_active ? 'Activo' : 'Inactivo'}
-                  </span>
+                  {!u.is_active ? (
+                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600">Inactivo</span>
+                  ) : isLocked(u) ? (
+                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-700">Bloqueado</span>
+                  ) : (
+                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600">Activo</span>
+                  )}
                 </td>
                 <td className="px-6 py-4 text-right">
                   {currentUser?.role === 'admin' && (
                     <>
+                      {isLocked(u) && (
+                        <button onClick={() => handleUnlock(u)} title="Desbloquear" className="p-1.5 hover:bg-amber-100 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95">
+                          <Unlock size={15} className="text-amber-500" />
+                        </button>
+                      )}
                       <button onClick={() => openEdit(u)} className="p-1.5 hover:bg-slate-100 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95">
                         <Pencil size={15} className="text-slate-500" />
                       </button>

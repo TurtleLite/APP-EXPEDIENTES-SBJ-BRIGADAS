@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, UploadFile, File, Response
+from fastapi import APIRouter, Depends, UploadFile, File, Response, Request
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.schemas.list_definition import (
@@ -12,6 +12,7 @@ from app.services.list_service import (
 from app.services.record_service import add_record, get_records, get_record, update_record, delete_record
 from app.services.excel_service import import_records_from_excel
 from app.services.auth_service import get_current_user, require_role
+from app.services.audit_service import log_audit, client_ip
 from app.models.list_definition import ListRecord
 from app.models.user import User
 import os
@@ -23,6 +24,7 @@ router = APIRouter(prefix="/lists", tags=["Listas"])
 @router.post("/", response_model=dict)
 def create_list(
     data: dict,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role("admin")),
 ):
@@ -31,6 +33,8 @@ def create_list(
     cols = [{"key": c["key"], "label": c["label"], "type": c.get("type", "text")} for c in data["columns_config"]]
     schema = ListDefinitionCreate(name=data["name"], description=data.get("description"), columns_config=cols)
     ld = create_list_definition(db, schema, current_user.id)
+    log_audit(db, current_user, "list_create", entity_type="list", entity_id=ld.id,
+              detail=f"creó la lista {data['name']}", ip_address=client_ip(request))
     return {"id": str(ld.id), "name": ld.name, "message": "Lista creada correctamente"}
 
 
@@ -78,6 +82,7 @@ def get_list(
 def update_list(
     list_id: int,
     data: dict,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role("admin")),
 ):
@@ -85,23 +90,30 @@ def update_list(
     from app.services.list_service import update_list_definition
     update_data = ListDefinitionUpdate(**data)
     ld = update_list_definition(db, list_id, update_data, current_user.role)
+    log_audit(db, current_user, "list_update", entity_type="list", entity_id=list_id,
+              detail=f"actualizó la lista {ld.name}", ip_address=client_ip(request))
     return {"message": "Lista actualizada correctamente"}
 
 
 @router.delete("/{list_id}")
 def delete_list(
     list_id: int,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role("admin")),
 ):
     from app.services.list_service import delete_list_definition
+    ld = get_list_definition(db, list_id)
     delete_list_definition(db, list_id, current_user.role)
+    log_audit(db, current_user, "list_delete", entity_type="list", entity_id=list_id,
+              detail=f"eliminó la lista {ld.name}", ip_address=client_ip(request))
     return {"message": "Lista eliminada correctamente"}
 
 
 @router.get("/{list_id}/export-expediente")
 def export_expediente(
     list_id: int,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -117,6 +129,8 @@ def export_expediente(
     filepath = os.path.join(settings.EXPORTS_DIR, f"expediente_{list_id}.xlsx")
     logo_path = os.path.join(os.path.dirname(__file__), '..', 'assets', 'logo_sbj.png')
     export_expediente_excel(records, filepath, logo_path)
+    log_audit(db, current_user, "record_export", entity_type="list", entity_id=list_id,
+              detail=f"exportó expedientes de {ld.name} ({len(records)} registros)", ip_address=client_ip(request))
     return FileResponse(filepath, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename=f"Expediente_{ld.name}.xlsx")
 
 
@@ -161,6 +175,7 @@ def list_field_values(
 def export_expediente_selected(
     list_id: int,
     data: dict,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -190,12 +205,15 @@ def export_expediente_selected(
     else:
         filename = f"Expedientes_Seleccionados.xlsx"
 
+    log_audit(db, current_user, "record_export", entity_type="list", entity_id=list_id,
+              detail=f"exportó {len(records)} expediente(s) seleccionado(s)", ip_address=client_ip(request))
     return FileResponse(filepath, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename=filename)
 
 
 @router.post("/{list_id}/import-excel")
 def import_excel(
     list_id: int,
+    request: Request,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role("admin")),
@@ -208,12 +226,15 @@ def import_excel(
     with open(file_path, "wb") as f:
         f.write(file.file.read())
     count = import_records_from_excel(db, list_id, file_path)
+    log_audit(db, current_user, "list_import", entity_type="list", entity_id=list_id,
+              detail=f"importó {count} registros desde {safe_filename}", ip_address=client_ip(request))
     return {"message": f"Se importaron {count} registros correctamente", "count": count}
 
 
 @router.get("/{list_id}/export-excel")
 def export_list_excel(
     list_id: int,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -240,6 +261,8 @@ def export_list_excel(
         records = get_records(db, list_id, 0, total)
         data = [r.data for r in records]
         export_to_excel(data, columns, filepath, title=ld.name, count=total)
+    log_audit(db, current_user, "list_export_excel", entity_type="list", entity_id=list_id,
+              detail=f"exportó la lista {ld.name} a Excel", ip_address=client_ip(request))
     return FileResponse(filepath, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename=f"lista_{ld.name}.xlsx")
 
 
@@ -377,6 +400,7 @@ def list_records(
 def create_record(
     list_id: int,
     data: dict,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -385,6 +409,9 @@ def create_record(
     if current_user.role not in ("admin", "direccion", "direccion_medica", "medico"):
         raise HTTPException(status_code=403, detail="No tienes permisos para crear expedientes")
     record = add_record(db, list_id, data.get("data", data), user_id=current_user.id)
+    det = (record.data or {}).get("expediente") if isinstance(record.data, dict) else None
+    log_audit(db, current_user, "record_create", entity_type="record", entity_id=record.id,
+              detail=f"creó expediente {det or ''}".strip(), ip_address=client_ip(request))
     return {"id": str(record.id), "message": "Registro creado correctamente"}
 
 
@@ -393,6 +420,7 @@ def update_record_endpoint(
     list_id: int,
     record_id: int,
     data: dict,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -401,6 +429,8 @@ def update_record_endpoint(
         from fastapi import HTTPException
         raise HTTPException(status_code=403, detail="No tienes permisos para esta acción")
     update_record(db, record_id, data.get("data", data), user_id=current_user.id, user_role=current_user.role)
+    log_audit(db, current_user, "record_update", entity_type="record", entity_id=record_id,
+              ip_address=client_ip(request))
     return {"message": "Registro actualizado correctamente"}
 
 
@@ -408,11 +438,14 @@ def update_record_endpoint(
 def delete_record_endpoint(
     list_id: int,
     record_id: int,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     from app.services.record_service import delete_record
     delete_record(db, record_id, user_id=current_user.id, user_role=current_user.role)
+    log_audit(db, current_user, "record_delete", entity_type="record", entity_id=record_id,
+              ip_address=client_ip(request))
     return {"message": "Registro eliminado correctamente"}
 
 
@@ -420,6 +453,7 @@ def delete_record_endpoint(
 def bulk_delete_records_endpoint(
     list_id: int,
     payload: dict,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -434,6 +468,9 @@ def bulk_delete_records_endpoint(
             deleted += 1
         except HTTPException as e:
             errors.append({"id": record_id, "detail": e.detail})
+    if deleted:
+        log_audit(db, current_user, "record_delete_bulk", entity_type="record",
+                  detail=f"eliminó {deleted} expediente(s)", ip_address=client_ip(request))
     message = f"{deleted} registro(s) eliminado(s)"
     if errors:
         message += f", {len(errors)} no eliminado(s) por permisos"

@@ -189,3 +189,23 @@ python backup_db.py --keep 14    # conservar los últimos 14 respaldos (default:
 ```
 
 > **Nota:** `backups/` está en `.gitignore`; los respaldos contienen datos de pacientes y no deben subirse al repositorio. Para protección adicional, copia el respaldo diario a un almacenamiento externo (Google Drive, OneDrive, disco USB, etc.).
+
+## Seguridad
+
+### Autenticación y control de acceso
+
+- **Bloqueo de cuenta:** después de 5 intentos de contraseña fallidos, la cuenta se bloquea por 15 minutos (el administrador puede desbloquearla desde Usuarios).
+- **Límite de intentos por IP:** máximo 20 intentos de inicio de sesión fallidos por IP en 15 minutos; se responde `429`.
+- **Control de sesiones:** cada inicio de sesión crea una sesión rastreable (IP, navegador, dispositivo). Desde **Seguridad → Sesiones** se pueden ver todas las sesiones activas y cerrarlas remotamente. El cierre de sesión revoca el token de inmediato.
+- **Registro de auditoría:** **Seguridad → Auditoría** muestra quién creó, modificó, exportó o descargó expedientes, reportes, listados y usuarios, con fecha, acción, detalle e IP.
+
+### Configuración requerida en producción
+
+- `SECRET_KEY`: obligatoria en la variable de entorno con **mínimo 32 caracteres**. El backend **no arranca** si falta o es la clave por defecto.
+- `ALLOWED_ORIGINS`: opcional, lista de orígenes extra permitidos por CORS separados por comas (por ejemplo una URL exacta de túnel como `https://mi-tunel.trycloudflare.com`). Los wildcards (`*.trycloudflare.com`) ya no están permitidos por seguridad.
+
+### Transporte
+
+- Redirección automática HTTP → HTTPS y cabecera `Strict-Transport-Security` (HSTS) cuando la petición llega por proxy con `X-Forwarded-Proto: https`.
+- Cabeceras de seguridad en todas las respuestas: `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`.
+- Los errores internos ya no exponen detalles al cliente; se responde un mensaje genérico y el detalle queda en los logs del servidor.

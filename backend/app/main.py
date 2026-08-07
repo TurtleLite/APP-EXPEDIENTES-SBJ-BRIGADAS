@@ -1,23 +1,29 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, Response
-from fastapi.responses import JSONResponse
-from app.api import auth, users, lists, reports, day_lists, specialties, localities
+from fastapi.responses import JSONResponse, RedirectResponse
+from app.api import auth, users, lists, reports, day_lists, specialties, localities, audit
 from app.core.database import engine, Base, SessionLocal
 from sqlalchemy import inspect, text
 import logging
+import app.models  # noqa: F401  (registra los modelos en Base.metadata, incluidos audit_logs y user_sessions)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 import fnmatch
 import os
+from app.core.config import settings
+
+if not settings.SECRET_KEY or len(settings.SECRET_KEY) < 32 or settings.SECRET_KEY == "tu_clave_secreta_super_segura_cambiar_en_produccion":
+    raise RuntimeError(
+        "SECRET_KEY inválida o demasiado corta. Configure una variable de entorno 'SECRET_KEY' "
+        "de al menos 32 caracteres (ej. en Render: Settings > Environment)."
+    )
 
 ALLOWED_ORIGINS = [
     "https://sistema-web-expedientes-cmsbj.onrender.com",
     "https://app-expedientes-sbj-brigadas.onrender.com",
     "https://expedientes-api-2dje.onrender.com",
-    "https://*.trycloudflare.com",
-    "https://api.trycloudflare.com",
     "http://localhost:5173",
     "http://localhost:8000",
 ]
@@ -75,6 +81,12 @@ async def lifespan(app: FastAPI):
                     """))
                     conn.commit()
                 logger.info("Renamed users.email to users.telefono")
+            if "failed_attempts" not in columns:
+                with engine.connect() as conn:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN failed_attempts INTEGER NOT NULL DEFAULT 0"))
+                    conn.execute(text("ALTER TABLE users ADD COLUMN locked_until TIMESTAMPTZ"))
+                    conn.commit()
+                logger.info("Added security columns (failed_attempts, locked_until) to users")
         if "reports" in inspector.get_table_names():
             columns = [c["name"] for c in inspector.get_columns("reports")]
             if "record_order" not in columns:
@@ -123,7 +135,16 @@ def _cors_headers(origin: str) -> dict:
 @app.middleware("http")
 async def cors_and_logging(request: Request, call_next):
     origin = request.headers.get("origin", "")
+    forwarded_proto = request.headers.get("x-forwarded-proto", "")
     method = request.method
+
+    if forwarded_proto == "http":
+        https_url = request.url.replace(
+            scheme="https",
+            netloc=request.headers.get("host") or request.url.netloc,
+        )
+        logger.info(f"Redirecting http -> https: {request.url.path}")
+        return RedirectResponse(str(https_url), status_code=307)
 
     if method == "OPTIONS":
         headers = _cors_headers(origin)
@@ -142,11 +163,16 @@ async def cors_and_logging(request: Request, call_next):
         headers = _cors_headers(origin)
         for k, v in headers.items():
             response.headers[k] = v
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "SAMEORIGIN"
+        response.headers["Referrer-Policy"] = "no-referrer"
+        if forwarded_proto == "https":
+            response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
         return response
     except Exception as e:
         logger.error(f"  -> ERROR: {e}", exc_info=True)
         headers = _cors_headers(origin)
-        return JSONResponse({"detail": str(e)}, status_code=500, headers=headers)
+        return JSONResponse({"detail": "Error interno del servidor"}, status_code=500, headers=headers)
 
 app.include_router(auth.router)
 app.include_router(users.router)
@@ -155,6 +181,7 @@ app.include_router(reports.router)
 app.include_router(day_lists.router)
 app.include_router(specialties.router)
 app.include_router(localities.router)
+app.include_router(audit.router)
 
 
 @app.get("/")

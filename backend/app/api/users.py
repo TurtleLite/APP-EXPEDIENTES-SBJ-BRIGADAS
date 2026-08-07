@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.schemas.user import UserCreate, UserUpdate, UserResponse
 from app.services.user_service import get_users, get_user, create_user, update_user, delete_user
 from app.services.auth_service import get_current_user, require_role
+from app.services.audit_service import log_audit, client_ip
 from app.models.user import User
 
 router = APIRouter(prefix="/users", tags=["Usuarios"])
@@ -47,32 +48,47 @@ def get_user_endpoint(
 @router.post("/", response_model=UserResponse)
 def create_user_endpoint(
     data: UserCreate,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role("admin")),
 ):
     from app.services.user_service import create_user
-    return create_user(db, data)
+    user = create_user(db, data)
+    log_audit(db, current_user, "user_create", entity_type="user", entity_id=user.id,
+              detail=f"creó usuario {data.username}", ip_address=client_ip(request))
+    return user
 
 
 @router.put("/{user_id}", response_model=UserResponse)
 def update_user_endpoint(
     user_id: int,
     data: UserUpdate,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role("admin")),
 ):
     from app.services.user_service import update_user
-    return update_user(db, user_id, data)
+    user = update_user(db, user_id, data)
+    log_audit(db, current_user, "user_update", entity_type="user", entity_id=user.id,
+              detail=f"actualizó usuario {user.username}", ip_address=client_ip(request))
+    return user
 
 
 @router.delete("/{user_id}")
 def delete_user_endpoint(
     user_id: int,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role("admin")),
 ):
     from app.services.user_service import delete_user
+    target = get_user(db, user_id)
     delete_user(db, user_id)
+    from app.models.user_session import UserSession
+    db.query(UserSession).filter(UserSession.user_id == user_id).delete(synchronize_session=False)
+    db.commit()
+    log_audit(db, current_user, "user_delete", entity_type="user", entity_id=user_id,
+              detail=f"eliminó usuario {target.username}", ip_address=client_ip(request))
     return {"message": "Usuario eliminado correctamente"}
 
 
@@ -84,3 +100,17 @@ def reset_users_endpoint(
     from app.services.user_service import reset_default_users
     reset_default_users(db)
     return {"message": "Usuarios reseteados correctamente"}
+
+
+@router.post("/{user_id}/unlock")
+def unlock_user_endpoint(
+    user_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("admin")),
+):
+    from app.services.user_service import unlock_user
+    user = unlock_user(db, user_id)
+    log_audit(db, current_user, "user_unlock", entity_type="user", entity_id=user.id,
+              detail=f"desbloqueó usuario {user.username}", ip_address=client_ip(request))
+    return {"message": f"Usuario {user.username} desbloqueado"}

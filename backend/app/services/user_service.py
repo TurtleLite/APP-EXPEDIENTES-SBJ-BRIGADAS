@@ -102,6 +102,18 @@ def delete_user(db: Session, user_id: int):
     db.commit()
 
 
+def unlock_user(db: Session, user_id: int) -> User:
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    user.failed_attempts = 0
+    user.locked_until = None
+    db.commit()
+    db.refresh(user)
+    return user
+
+
 def reset_default_users(db: Session):
     defaults = [
         User(username="admin", telefono="2201-1100", full_name="Administrador",

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from app.core.database import get_db
@@ -6,6 +6,7 @@ from app.core.config import settings
 from app.models.report import Report
 from app.models.list_definition import ListDefinition, ListRecord
 from app.services.auth_service import get_current_user, require_role
+from app.services.audit_service import log_audit, client_ip
 from app.models.user import User
 from app.services.excel_service import export_to_excel
 import os
@@ -116,6 +117,7 @@ def _report_rows(records: list[ListRecord]) -> list[dict]:
 @router.post("/")
 def create_report(
     data: dict,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
 ):
@@ -136,6 +138,8 @@ def create_report(
     db.add(report)
     db.commit()
     db.refresh(report)
+    log_audit(db, current_user, "report_create", entity_type="report", entity_id=report.id,
+              detail=f"creó el reporte {report.name}", ip_address=client_ip(request))
     return {"id": str(report.id), "message": "Reporte creado correctamente"}
 
 
@@ -206,6 +210,7 @@ def save_report_order(
 @router.post("/{report_id}/generate-excel")
 def generate_excel_report(
     report_id: int,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
 ):
@@ -224,6 +229,8 @@ def generate_excel_report(
     export_to_excel(data, columns, filepath, title=report.name, filters=report.filters, count=len(data))
     report.file_path_excel = filepath
     db.commit()
+    log_audit(db, current_user, "report_generate", entity_type="report", entity_id=report_id,
+              detail=f"generó el reporte {report.name} ({len(data)} registros)", ip_address=client_ip(request))
     return {"message": "Reporte Excel generado", "file_path": filepath, "filename": _report_sequence_filename(db, report), "count": len(data)}
 
 
@@ -256,6 +263,7 @@ def preview_report(
 @router.get("/{report_id}/download")
 def download_report(
     report_id: int,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -265,6 +273,8 @@ def download_report(
     file_path = report.file_path_excel
     if not file_path or not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="Archivo no encontrado. Genere el reporte primero.")
+    log_audit(db, current_user, "report_download", entity_type="report", entity_id=report_id,
+              detail=f"descargó el reporte {report.name}", ip_address=client_ip(request))
     media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     return FileResponse(file_path, media_type=media_type, filename=_report_sequence_filename(db, report))
 
@@ -272,6 +282,7 @@ def download_report(
 @router.delete("/{report_id}")
 def delete_report(
     report_id: int,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
 ):
@@ -282,4 +293,6 @@ def delete_report(
         os.remove(report.file_path_excel)
     db.delete(report)
     db.commit()
+    log_audit(db, current_user, "report_delete", entity_type="report", entity_id=report_id,
+              detail=f"eliminó el reporte {report.name}", ip_address=client_ip(request))
     return {"message": "Reporte eliminado correctamente"}

@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
@@ -11,6 +11,7 @@ from app.models.list_definition import ListRecord
 from app.models.surgery_day_list import SurgeryDayList
 from app.models.user import User
 from app.services.auth_service import require_role
+from app.services.audit_service import log_audit, client_ip
 
 router = APIRouter(prefix="/day-lists", tags=["Listados del día"])
 
@@ -59,6 +60,7 @@ def get_day_list(
 def save_day_list(
     list_date: str,
     data: dict,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
 ):
@@ -72,12 +74,15 @@ def save_day_list(
         day_list.record_ids = ids
     db.commit()
     db.refresh(day_list)
+    log_audit(db, current_user, "daylist_save", entity_type="daylist",
+              detail=f"guardó listado del {d.isoformat()} ({len(ids)} registros)", ip_address=client_ip(request))
     return _serialize(day_list)
 
 
 @router.get("/{list_date}/export-excel")
 def export_day_list_excel(
     list_date: str,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
 ):
@@ -106,6 +111,8 @@ def export_day_list_excel(
     os.makedirs(settings.REPORTS_DIR, exist_ok=True)
     filepath = os.path.join(settings.REPORTS_DIR, f"LISTADO_{d.isoformat()}.xlsx")
     export_day_list_to_excel(sections, columns, filepath, title=title, count=len(ordered))
+    log_audit(db, current_user, "daylist_export", entity_type="daylist",
+              detail=f"exportó listado del {d.isoformat()}", ip_address=client_ip(request))
     media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     return FileResponse(filepath, media_type=media_type, filename=os.path.basename(filepath))
 
@@ -113,6 +120,7 @@ def export_day_list_excel(
 @router.delete("/{list_date}")
 def delete_day_list(
     list_date: str,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
 ):
@@ -122,4 +130,6 @@ def delete_day_list(
         raise HTTPException(status_code=404, detail="No hay listado para esa fecha")
     db.delete(day_list)
     db.commit()
+    log_audit(db, current_user, "daylist_delete", entity_type="daylist",
+              detail=f"eliminó listado del {d.isoformat()}", ip_address=client_ip(request))
     return {"message": "Listado eliminado"}

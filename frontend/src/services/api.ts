@@ -36,6 +36,13 @@ api.interceptors.response.use(
 export const authApi = {
   login: (username: string, password: string) =>
     api.post('/auth/login', { username, password }, { timeout: 90000 }),
+  logout: () => api.post('/auth/logout'),
+  sessions: (params?: any) => api.get('/auth/sessions', { params }),
+  revokeSession: (id: string | number) => api.delete(`/auth/sessions/${id}`),
+}
+
+export const auditApi = {
+  list: (params?: any) => api.get('/audit/', { params }),
 }
 
 export const usersApi = {
@@ -46,6 +53,7 @@ export const usersApi = {
   create: (data: any) => api.post('/users/', data),
   update: (id: string | number, data: any) => api.put(`/users/${id}`, data),
   delete: (id: string | number) => api.delete(`/users/${id}`),
+  unlock: (id: string | number) => api.post(`/users/${id}/unlock`),
 }
 
 export const listsApi = {

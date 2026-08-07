@@ -5,6 +5,7 @@ export interface User {
   full_name: string
   role: 'admin' | 'direccion' | 'direccion_medica' | 'medico'
   is_active: boolean
+  locked_until?: string | null
   created_at: string
 }
 

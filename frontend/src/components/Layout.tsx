@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { listsApi } from '../services/api'
 import {
   LayoutDashboard, Users, FileText, Table2, LogOut, Activity, UserCircle2, Lock, ClipboardList,
+  ShieldCheck, ScrollText,
 } from 'lucide-react'
 import { ROLE_META } from '../constants'
 import { RoleAvatar } from './RoleAvatar'
@@ -43,6 +44,13 @@ const navSections: NavSection[] = [
       { label: 'Reportes', path: '/reports', icon: <FileText size={18} />, roles: ['admin', 'direccion', 'direccion_medica'] },
       { label: 'Listados', path: '/listado-diario', icon: <ClipboardList size={18} />, roles: ['admin', 'direccion', 'direccion_medica'] },
       { label: 'Estatus Cirugía', path: '/estado-cirugia', icon: <Activity size={18} />, roles: ['admin', 'direccion', 'direccion_medica'] },
+    ],
+  },
+  {
+    title: 'Seguridad',
+    items: [
+      { label: 'Sesiones', path: '/seguridad', icon: <ShieldCheck size={18} />, roles: ['admin', 'direccion'] },
+      { label: 'Auditoría', path: '/auditoria', icon: <ScrollText size={18} />, roles: ['admin', 'direccion'] },
     ],
   },
 ]

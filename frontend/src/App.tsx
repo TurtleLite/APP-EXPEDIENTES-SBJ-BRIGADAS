@@ -11,6 +11,8 @@ import { Reports } from './pages/Reports'
 import { DayList } from './pages/DayList'
 import { EstadoCirugia } from './pages/EstadoCirugia'
 import { Profile } from './pages/Profile'
+import { Sessions } from './pages/Sessions'
+import { AuditLog } from './pages/AuditLog'
 import { ReactNode } from 'react'
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
@@ -43,6 +45,8 @@ function App() {
           <Route path="/reports" element={<RoleRoute roles={['admin', 'direccion', 'direccion_medica']}><Reports /></RoleRoute>} />
           <Route path="/listado-diario" element={<RoleRoute roles={['admin', 'direccion', 'direccion_medica']}><DayList /></RoleRoute>} />
           <Route path="/estado-cirugia" element={<RoleRoute roles={['admin', 'direccion', 'direccion_medica']}><EstadoCirugia /></RoleRoute>} />
+          <Route path="/seguridad" element={<RoleRoute roles={['admin', 'direccion']}><Sessions /></RoleRoute>} />
+          <Route path="/auditoria" element={<RoleRoute roles={['admin', 'direccion']}><AuditLog /></RoleRoute>} />
           <Route path="/" element={<Navigate to="/dashboard" />} />
           <Route path="*" element={<Navigate to="/dashboard" />} />
         </Routes>

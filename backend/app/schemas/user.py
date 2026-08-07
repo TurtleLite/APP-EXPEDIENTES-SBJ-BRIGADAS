@@ -28,6 +28,7 @@ class UserResponse(BaseModel):
     full_name: str
     role: str
     is_active: bool
+    locked_until: Optional[datetime] = None
     created_at: datetime
 
     @field_validator('id', mode='before')
