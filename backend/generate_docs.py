@@ -648,12 +648,18 @@ def acuerdo_marco(out_dir, version="1.0"):
 
     b.spacer(0.5)
     b.body("En constancia de conformidad, ambas partes firman el presente Acuerdo Marco y su Anexo de Protección de Datos Personales de Salud:")
-    b.spacer(0.8)
-    b.table([
-        ["Firma y fecha: ____________________", "Firma y fecha: ____________________"],
-        ["Alexander James Scheibner", "Amed Enmanuel Canales Mejía"],
-        ["Representante legal", "Desarrollador"],
-    ], [8.3 * cm, 8.3 * cm], header=False)
+
+    b.spacer(2.5)
+    b.body("Firma y fecha: _______________________________")
+    b.spacer(2.0)
+    b.body("<b>Alexander James Scheibner</b>")
+    b.body("Representante legal - Centro Médico San Benito José")
+
+    b.spacer(2.0)
+    b.body("Firma y fecha: _______________________________")
+    b.spacer(2.0)
+    b.body("<b>Amed Enmanuel Canales Mejía</b>")
+    b.body("Desarrollador - TurtleLite")
 
     b.build()
 
