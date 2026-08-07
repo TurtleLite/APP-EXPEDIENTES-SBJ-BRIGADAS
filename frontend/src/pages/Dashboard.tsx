@@ -36,8 +36,8 @@ export function Dashboard() {
   }, [denied])
 
   const role = user?.role || 'medico'
-  const canReports = role === 'admin' || role === 'direccion' || role === 'direccion_medica'
-  const canLists = role === 'admin' || role === 'direccion' || role === 'direccion_medica'
+  const canReports = role === 'direccion' || role === 'direccion_medica'
+  const canLists = role === 'direccion' || role === 'direccion_medica'
   const canSecurity = role === 'admin'
 
   const goExpedientes = () => {

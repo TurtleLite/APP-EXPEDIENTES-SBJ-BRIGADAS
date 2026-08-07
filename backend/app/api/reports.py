@@ -117,7 +117,7 @@ def create_report(
     data: dict,
     request: Request,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
+    current_user: User = Depends(require_role("direccion", "direccion_medica")),
 ):
     list_id = data.get("list_definition_id")
     if not list_id and (data.get("filters") or {}):
@@ -144,7 +144,7 @@ def create_report(
 @router.get("/")
 def list_reports(
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
+    current_user: User = Depends(require_role("direccion", "direccion_medica")),
 ):
     reports = db.query(Report).order_by(Report.created_at.desc()).all()
     result = []
@@ -169,7 +169,7 @@ def list_reports(
 def get_report(
     report_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
+    current_user: User = Depends(require_role("direccion", "direccion_medica")),
 ):
     report = db.query(Report).filter(Report.id == report_id).first()
     if not report:
@@ -192,7 +192,7 @@ def save_report_order(
     report_id: int,
     data: dict,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
+    current_user: User = Depends(require_role("direccion", "direccion_medica")),
 ):
     report = db.query(Report).filter(Report.id == report_id).first()
     if not report:
@@ -210,7 +210,7 @@ def generate_excel_report(
     report_id: int,
     request: Request,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
+    current_user: User = Depends(require_role("direccion", "direccion_medica")),
 ):
     report = db.query(Report).filter(Report.id == report_id).first()
     if not report:
@@ -236,7 +236,7 @@ def generate_excel_report(
 def preview_report(
     report_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
+    current_user: User = Depends(require_role("direccion", "direccion_medica")),
 ):
     report = db.query(Report).filter(Report.id == report_id).first()
     if not report:
@@ -262,7 +262,7 @@ def preview_report(
 def download_report(
     report_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
+    current_user: User = Depends(require_role("direccion", "direccion_medica")),
 ):
     report = db.query(Report).filter(Report.id == report_id).first()
     if not report:
@@ -281,7 +281,7 @@ def delete_report(
     report_id: int,
     request: Request,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
+    current_user: User = Depends(require_role("direccion", "direccion_medica")),
 ):
     report = db.query(Report).filter(Report.id == report_id).first()
     if not report:

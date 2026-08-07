@@ -361,7 +361,8 @@ export function ListDetail() {
     : localities
 
   const selectedRecord = records.find((r) => selectedIds.has(r.id))
-  const canEditSelected = user?.role !== 'medico' || (!!selectedRecord?.created_by && String(selectedRecord.created_by) === String(user.id))
+  const canEditSelected = user?.role === 'direccion' || user?.role === 'direccion_medica'
+    || (user?.role === 'medico' && !!selectedRecord?.created_by && String(selectedRecord.created_by) === String(user.id))
 
   return (
     <div className="h-full flex flex-col gap-4">
@@ -372,6 +373,7 @@ export function ListDetail() {
         </div>
         <div className="flex gap-2">
           {list?.is_system ? (
+            user?.role !== 'admin' && (
             <button
               onClick={() => { setEditingRecord(null); setShowExpedienteForm(true) }}
               className="flex items-center gap-1.5 bg-[#6E7B91] text-white px-5 py-2.5 rounded-xl hover:bg-[#5F6B80] shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
@@ -379,6 +381,7 @@ export function ListDetail() {
               <Stethoscope size={16} />
               Nuevo
             </button>
+            )
           ) : (
             <button
               onClick={() => {
@@ -458,13 +461,15 @@ export function ListDetail() {
               )}
               {selectedIds.size > 0 && (
                 <div className="flex items-center gap-2 flex-wrap">
-                  <button
-                    onClick={handleExportSelected}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-[#6E7B91] text-white rounded-xl hover:bg-[#5F6B80] shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
-                  >
-                    <Download size={16} />
-                    Exportar {selectedIds.size} seleccionados
-                  </button>
+                  {!list?.is_system || user?.role !== 'admin' ? (
+                    <button
+                      onClick={handleExportSelected}
+                      className="flex items-center gap-1.5 px-4 py-2 bg-[#6E7B91] text-white rounded-xl hover:bg-[#5F6B80] shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"
+                    >
+                      <Download size={16} />
+                      Exportar {selectedIds.size} seleccionados
+                    </button>
+                  ) : null}
                   {selectedIds.size === 1 && canEditSelected && (
                     <button
                       onClick={handleEditSelected}
@@ -483,7 +488,10 @@ export function ListDetail() {
                       Vista previa
                     </button>
                   )}
-                  {user?.role === 'admin' || user?.role === 'direccion' || user?.role === 'direccion_medica' ? (
+                  {(list?.is_system
+                    ? (user?.role === 'direccion' || user?.role === 'direccion_medica')
+                    : (user?.role === 'admin' || user?.role === 'direccion' || user?.role === 'direccion_medica')
+                  ) ? (
                     <button
                       onClick={handleDeleteSelected}
                       className="flex items-center gap-1.5 px-4 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 shadow-sm hover:shadow-md transition-all duration-200  text-sm font-medium"

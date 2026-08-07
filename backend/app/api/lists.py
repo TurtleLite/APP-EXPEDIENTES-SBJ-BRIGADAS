@@ -115,7 +115,7 @@ def export_expediente(
     list_id: int,
     request: Request,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role("direccion", "direccion_medica", "medico")),
 ):
     from app.services.list_service import get_list_definition
     from app.services.record_service import get_records
@@ -177,7 +177,7 @@ def export_expediente_selected(
     data: dict,
     request: Request,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role("direccion", "direccion_medica", "medico")),
 ):
     from app.services.list_service import get_list_definition
     from app.services.record_service import get_records_by_ids
@@ -406,7 +406,7 @@ def create_record(
 ):
     from fastapi import HTTPException
     from app.services.record_service import add_record
-    if current_user.role not in ("admin", "direccion", "direccion_medica", "medico"):
+    if current_user.role not in ("direccion", "direccion_medica", "medico"):
         raise HTTPException(status_code=403, detail="No tienes permisos para crear expedientes")
     record = add_record(db, list_id, data.get("data", data), user_id=current_user.id)
     det = (record.data or {}).get("expediente") if isinstance(record.data, dict) else None
@@ -425,7 +425,7 @@ def update_record_endpoint(
     current_user: User = Depends(get_current_user),
 ):
     from app.services.record_service import update_record
-    if current_user.role not in ("admin", "direccion", "direccion_medica") and current_user.role != "medico":
+    if current_user.role not in ("direccion", "direccion_medica", "medico"):
         from fastapi import HTTPException
         raise HTTPException(status_code=403, detail="No tienes permisos para esta acción")
     update_record(db, record_id, data.get("data", data), user_id=current_user.id, user_role=current_user.role)

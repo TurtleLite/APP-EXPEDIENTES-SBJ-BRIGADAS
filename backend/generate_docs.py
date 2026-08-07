@@ -206,7 +206,7 @@ class DocBuilder:
 # ---------------------------------------------------------------------------
 ROLE_TABLE = [
     ["Rol", "Descripción", "Alcance general"],
-    ["Administrador", "Gestiona usuarios, especialidades, localidades y configuración del sistema.", "Acceso total al sistema."],
+    ["Administrador", "Gestiona usuarios, sesiones, auditoría, especialidades y localidades. Consulta expedientes, pero no crea, edita ni elimina expedientes.", "Usuarios, sesiones, auditoría, especialidades y localidades."],
     ["Dirección", "Consulta y gestiona expedientes (crear, editar, eliminar), reportes, listados diarios y estatus de cirugía.", "Expedientes, reportes, listados y estatus."],
     ["Dirección Médica", "Gestiona expedientes, reportes, listados diarios y estatus de cirugía.", "Expedientes, reportes, listados y estatus."],
     ["Médico", "Crea y edita sus propios expedientes. No puede eliminar expedientes.", "Expedientes propios."],
@@ -524,12 +524,12 @@ def manual_medico(out_dir, version="1.0"):
         ["Usuarios (crear, editar, eliminar, restablecer)", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
         ["Sesiones (ver y cerrar sesiones)", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
         ["Auditoría (historial de actividades)", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
-        ["Reportes (crear, generar, descargar, eliminar)", "Administrador, Dirección y Dirección Médica", "Mensaje \"No tienes acceso\"."],
-        ["Listado Diario de Cirugías (armar y guardar)", "Administrador, Dirección y Dirección Médica", "Mensaje \"No tienes acceso\"."],
-        ["Estatus Cirugía (asignar/cambiar estatus)", "Administrador, Dirección y Dirección Médica", "Mensaje \"No tienes acceso\"."],
+        ["Reportes (crear, generar, descargar, eliminar)", "Dirección y Dirección Médica", "Mensaje \"No tienes acceso\"."],
+        ["Listado Diario de Cirugías (armar y guardar)", "Dirección y Dirección Médica", "Mensaje \"No tienes acceso\"."],
+        ["Estatus Cirugía (asignar/cambiar estatus)", "Dirección y Dirección Médica", "Mensaje \"No tienes acceso\"."],
         ["Editar expedientes de otros médicos", "Solo su propio creador", "La opción Editar no está disponible."],
-        ["Eliminar expedientes", "Administrador, Dirección y Dirección Médica", "El botón no está disponible."],
-        ["Cambiar el estatus de cirugía de un expediente", "Administrador, Dirección y Dirección Médica", "El sistema rechaza el cambio."],
+        ["Eliminar expedientes", "Dirección y Dirección Médica", "El botón no está disponible."],
+        ["Cambiar el estatus de cirugía de un expediente", "Dirección y Dirección Médica", "El sistema rechaza el cambio."],
         ["Administrar especialidades y localidades", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
         ["Importar expedientes desde Excel", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
         ["Cambiar contraseñas de otros usuarios", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
@@ -537,15 +537,15 @@ def manual_medico(out_dir, version="1.0"):
     b.spacer(0.3)
     b.h1("Preguntas frecuentes")
     b.quote("¿Puedo editar un expediente que creó otro médico?")
-    b.body("No. Solo puede editar los expedientes que usted creó. Para corregir un expediente de otro médico, comuníquese con la Dirección Médica o el Administrador.")
+    b.body("No. Solo puede editar los expedientes que usted creó. Para corregir un expediente de otro médico, comuníquese con la Dirección Médica o la Dirección.")
     b.quote("¿Puedo eliminar un expediente?")
-    b.body("No. La eliminación de expedientes corresponde al Administrador, la Dirección y la Dirección Médica.")
+    b.body("No. La eliminación de expedientes corresponde a la Dirección y la Dirección Médica.")
     b.quote("¿Por qué veo Reportes o Listados en mi menú pero no puedo abrirlos?")
-    b.body("El menú es igual para todos los usuarios. Esos módulos son del Administrador, la Dirección y la Dirección Médica; al seleccionarlos, su rol ve el mensaje \"No tienes acceso\".")
+    b.body("El menú es igual para todos los usuarios. Esos módulos son de la Dirección y la Dirección Médica; al seleccionarlos, su rol ve el mensaje \"No tienes acceso\".")
     b.quote("¿Puedo cambiar el estatus de cirugía?")
-    b.body("No. El estatus de cirugía solo lo cambian el Administrador, la Dirección y la Dirección Médica.")
+    b.body("No. El estatus de cirugía solo lo cambian la Dirección y la Dirección Médica.")
     b.quote("¿Qué hago si cometí un error al crear un expediente?")
-    b.body("Si el expediente es suyo, puede editarlo. Si necesita eliminarlo o corregir un expediente de otro médico, solicite la ayuda a la Dirección Médica o al Administrador.")
+    b.body("Si el expediente es suyo, puede editarlo. Si necesita eliminarlo o corregir un expediente de otro médico, solicite la ayuda a la Dirección Médica.")
     b.quote("¿El teléfono es obligatorio en el perfil?")
     b.body("Sí, junto con el nombre completo. El formato es 0000-0000 y el sistema valida que lo cumpla.")
 
@@ -597,7 +597,7 @@ def acuerdo_marco(out_dir, version="1.0"):
 
     b.h2("Artículo 2. Objeto")
     b.body("2.1 El Desarrollador ha construido y entregado el Sistema Web de Gestión de Expedientes Médicos (sitio web, aplicación de backend, base de datos y documentación), que registra y administra expedientes de pacientes con número único automático en formato numérico; asigna criticidad clínica (Baja, Media o Alta); desglosa el domicilio por departamento, municipio y localidad; busca sin distinción de mayúsculas ni tildes; genera reportes exportables a Excel con reordenamiento de la columna No fija; y controla los listados diarios de cirugías y el estatus quirúrgico con observaciones.")
-    b.body("2.2 El sistema administra usuarios con roles de acceso (Administrador, Dirección, Dirección Médica y Médico). El menú y las secciones del sistema se muestran de forma uniforme a todos los usuarios; la autorización para cada función está controlada por el rol del usuario, de modo que el sistema valida el permiso al momento de acceder y, si el usuario no lo tiene, muestra el aviso de acceso no autorizado e impide abrir la función o sección correspondiente.")
+    b.body("2.2 El sistema administra usuarios con roles de acceso (Administrador, Dirección, Dirección Médica y Médico): el Administrador gestiona usuarios, sesiones, auditoría, especialidades y localidades, y únicamente consulta expedientes; la Dirección y la Dirección Médica gestionan expedientes, reportes, listados diarios de cirugías y el estatus quirúrgico; el Médico registra expedientes, edita únicamente los que él mismo creó, y puede visualizar y exportar expedientes. El menú y las secciones del sistema se muestran de forma uniforme a todos los usuarios; la autorización para cada función está controlada por el rol del usuario, de modo que el sistema valida el permiso al momento de acceder y, si el usuario no lo tiene, muestra el aviso de acceso no autorizado e impide abrir la función o sección correspondiente.")
 
     b.h2("Artículo 3. Titularidad del software")
     b.body("3.1 El Desarrollador cede al Centro el uso pleno, permanente e irrevocable del sistema y de su código fuente, con derecho a modificarlo, adaptarlo y desplegarlo en la infraestructura que el Centro elija.")
