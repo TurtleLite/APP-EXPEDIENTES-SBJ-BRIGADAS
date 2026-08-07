@@ -144,7 +144,7 @@ def create_report(
 @router.get("/")
 def list_reports(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
 ):
     reports = db.query(Report).order_by(Report.created_at.desc()).all()
     result = []
@@ -169,7 +169,7 @@ def list_reports(
 def get_report(
     report_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
 ):
     report = db.query(Report).filter(Report.id == report_id).first()
     if not report:
@@ -236,7 +236,7 @@ def generate_excel_report(
 def preview_report(
     report_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
 ):
     report = db.query(Report).filter(Report.id == report_id).first()
     if not report:
@@ -261,9 +261,8 @@ def preview_report(
 @router.get("/{report_id}/download")
 def download_report(
     report_id: int,
-    request: Request,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role("admin", "direccion", "direccion_medica")),
 ):
     report = db.query(Report).filter(Report.id == report_id).first()
     if not report:
