@@ -236,12 +236,8 @@ INTRO = [
     ("bullet", "La contraseña es personal e intransferible."),
     ("bullet", "Cierre sesión con el botón <b>Cerrar sesión</b> del menú lateral cuando termine su jornada."),
     ("bullet", "No comparta su sesión con otros usuarios, ni siquiera temporalmente."),
-    ("h2", "1.6. Instalación de la aplicación en las tablets del consultorio"),
-    ("body", "El sistema se entrega instalado como una aplicación en las tablets de cada consultorio y queda anclado en la barra de tareas para un acceso inmediato."),
-    ("bullet", "Al encender la tablet, la aplicación ya está instalada y disponible."),
-    ("bullet", "Para abrirla, toque el ícono de la aplicación fijado en la barra de tareas; no necesita escribir la dirección del sistema."),
-    ("bullet", "La aplicación abre la misma pantalla de inicio de sesión: ingrese su usuario y contraseña."),
-    ("bullet", "El sistema requiere conexión a internet; si la tablet no tiene señal, la aplicación no podrá cargar los datos."),
+    ("h2", "1.6. Instalación de la aplicación"),
+    ("body", "El programa se encuentra en la barra de tareas de cada tablet."),
 ]
 
 INTERFACE = [
