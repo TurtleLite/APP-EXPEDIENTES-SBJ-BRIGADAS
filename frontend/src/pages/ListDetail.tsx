@@ -361,12 +361,7 @@ export function ListDetail() {
     : localities
 
   const selectedRecord = records.find((r) => selectedIds.has(r.id))
-  const selectedRecord = records.find(r => selectedIds.has(r.id))
-  const canEditSelected = selectedIds.size === 1 && (
-    user?.role !== 'medico' ||
-    (selectedRecord && String(selectedRecord.created_by) === String(user?.id))
-  )
-    || (!!selectedRecord?.created_by && String(selectedRecord.created_by) === String(user.id))
+  const canEditSelected = user?.role !== 'medico' || (!!selectedRecord?.created_by && String(selectedRecord.created_by) === String(user.id))
 
   return (
     <div className="h-full flex flex-col gap-4">
