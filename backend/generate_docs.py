@@ -220,6 +220,7 @@ INTRO = [
     ("body", "Cada usuario pertenece a un rol que determina las funciones que puede realizar. Los roles son los siguientes:"),
     ("table", ROLE_TABLE, [3.6 * cm, 8.4 * cm, 4.0 * cm]),
     ("note", "Nota: Su rol es {rol}. Las secciones de este manual describen únicamente lo que su rol puede hacer."),
+    ("body", "El menú y las secciones del sistema son los mismos para todos los usuarios. Lo que cambia es la autorización: el sistema valida su rol al acceder a cada sección y, si no tiene permiso, muestra el mensaje \"No tienes acceso\" y no abre la página."),
     ("h2", "1.3. Requisitos para usar el sistema"),
     ("bullet", "Un navegador actualizado (Google Chrome, Microsoft Edge o Firefox)."),
     ("bullet", "Conexión a internet estable."),
@@ -247,11 +248,10 @@ INTERFACE = [
     ("h1", "2. La interfaz del sistema"),
     ("h2", "2.1. El menú lateral"),
     ("body", "Al iniciar sesión verá el menú lateral (lado izquierdo), el encabezado con el nombre del centro médico y su rol, y el área de trabajo donde se muestran las secciones."),
-    ("body", "Las secciones visibles en su menú son: {menus}."),
-    ("bullet", "<b>Inicio:</b> resumen general del sistema."),
-    ("bullet", "<b>Mi Perfil:</b> sus datos personales y contraseña."),
-    ("bullet", "Las demás secciones dependen de su rol (descritas en el punto 3)."),
-    ("note", "Nota: Si una sección no aparece en su menú, no tiene permiso para usarla. Al intentar acceder, el sistema muestra el mensaje \"No tienes acceso a [sección]\"."),
+    ("body", "El menú lateral es el mismo para todos los usuarios: Inicio, Mi Perfil, Expedientes, Reportes, Estadísticas, Estatus, Usuarios, Sesiones y Auditoría."),
+    ("bullet", "Las secciones para las que su rol tiene permiso abren directamente al seleccionarlas."),
+    ("bullet", "Las secciones restringidas se ven igual en el menú, pero el sistema valida su rol al seleccionarlas."),
+    ("note", "Nota: Si usted no tiene permiso para una sección, al seleccionarla el sistema muestra el mensaje \"No tienes acceso a [sección]\" y no abrirá la página. Su rol determina qué funciones puede realizar."),
     ("h2", "2.2. El encabezado"),
     ("body", "En la parte superior se muestra el nombre del centro médico y, a la derecha, una etiqueta con su rol (Administrador, Dirección, Dirección Médica o Médico). En la esquina inferior derecha aparece la Versión del sistema como referencia."),
     ("h2", "2.3. Su perfil y cierre de sesión"),
@@ -292,7 +292,7 @@ def manual_direccion(out_dir, version="1.0"):
                    "Manual de Usuario - Dirección", version)
     b.cover("CENTRO MÉDICO SAN BENITO JOSÉ", "Sistema Web de Gestión de Expedientes Médicos", version, "Dirección")
     emit(b, INTRO, rol="Dirección")
-    emit(b, INTERFACE, menus="Inicio, Mi Perfil, Expedientes, Reportes, Listados y Estatus Cirugía")
+    emit(b, INTERFACE)
 
     b.h1("3. Funciones a las que SÍ tiene acceso, en detalle")
     b.h2("3.1. Inicio (panel principal)")
@@ -366,13 +366,15 @@ def manual_direccion(out_dir, version="1.0"):
     emit(b, PROFILE)
 
     b.h1("Funciones a las que NO tiene acceso")
-    b.body("Su rol no incluye las funciones de la siguiente tabla. Si intenta ingresar a esas secciones, el sistema mostrará el mensaje \"No tienes acceso\" y no abrirá la página:")
+    b.body("El menú lateral es el mismo para todos los usuarios, pero su rol no incluye las funciones de la siguiente tabla. Si intenta ingresar a esas secciones, el sistema mostrará el mensaje \"No tienes acceso\" y no abrirá la página:")
     b.table([
         ["Función / Módulo", "Disponible para", "Comportamiento con su rol"],
-        ["Usuarios (crear, editar, eliminar, restablecer)", "Solo Administrador", "Menú oculto."],
-        ["Administrar especialidades y localidades", "Solo Administrador", "Botones no disponibles."],
-        ["Importar expedientes desde Excel", "Solo Administrador", "Sin acceso."],
-        ["Cambiar contraseñas de otros usuarios", "Solo Administrador", "Sin acceso a Usuarios."],
+        ["Usuarios (crear, editar, eliminar, restablecer)", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
+        ["Sesiones (ver y cerrar sesiones)", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
+        ["Auditoría (historial de actividades)", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
+        ["Administrar especialidades y localidades", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
+        ["Importar expedientes desde Excel", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
+        ["Cambiar contraseñas de otros usuarios", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
     ], [5.6 * cm, 4.4 * cm, 5.0 * cm])
     b.spacer(0.3)
     b.h1("Preguntas frecuentes")
@@ -397,7 +399,7 @@ def manual_direccion_medica(out_dir, version="1.0"):
                    "Manual de Usuario - Dirección Médica", version)
     b.cover("CENTRO MÉDICO SAN BENITO JOSÉ", "Sistema Web de Gestión de Expedientes Médicos", version, "Dirección Médica")
     emit(b, INTRO, rol="Dirección Médica")
-    emit(b, INTERFACE, menus="Inicio, Mi Perfil, Expedientes, Reportes, Listados y Estatus Cirugía")
+    emit(b, INTERFACE)
 
     b.h1("3. Funciones a las que SÍ tiene acceso, en detalle")
     b.h2("3.1. Inicio (panel principal)")
@@ -455,13 +457,15 @@ def manual_direccion_medica(out_dir, version="1.0"):
     emit(b, PROFILE)
 
     b.h1("Funciones a las que NO tiene acceso")
-    b.body("Su rol no incluye las funciones de la siguiente tabla. Si intenta ingresar a esas secciones, el sistema mostrará el mensaje \"No tienes acceso\" y no abrirá la página:")
+    b.body("El menú lateral es el mismo para todos los usuarios, pero su rol no incluye las funciones de la siguiente tabla. Si intenta ingresar a esas secciones, el sistema mostrará el mensaje \"No tienes acceso\" y no abrirá la página:")
     b.table([
         ["Función / Módulo", "Disponible para", "Comportamiento con su rol"],
-        ["Usuarios (crear, editar, eliminar, restablecer)", "Solo Administrador", "Menú oculto."],
-        ["Administrar especialidades y localidades", "Solo Administrador", "Botones no disponibles."],
-        ["Importar expedientes desde Excel", "Solo Administrador", "Sin acceso."],
-        ["Cambiar contraseñas de otros usuarios", "Solo Administrador", "Sin acceso a Usuarios."],
+        ["Usuarios (crear, editar, eliminar, restablecer)", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
+        ["Sesiones (ver y cerrar sesiones)", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
+        ["Auditoría (historial de actividades)", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
+        ["Administrar especialidades y localidades", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
+        ["Importar expedientes desde Excel", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
+        ["Cambiar contraseñas de otros usuarios", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
     ], [5.6 * cm, 4.4 * cm, 5.0 * cm])
     b.spacer(0.3)
     b.h1("Preguntas frecuentes")
@@ -486,7 +490,7 @@ def manual_medico(out_dir, version="1.0"):
                    "Manual de Usuario - Médico", version)
     b.cover("CENTRO MÉDICO SAN BENITO JOSÉ", "Sistema Web de Gestión de Expedientes Médicos", version, "Médico")
     emit(b, INTRO, rol="Médico")
-    emit(b, INTERFACE, menus="Inicio, Mi Perfil y Expedientes")
+    emit(b, INTERFACE)
 
     b.h1("3. Funciones a las que SÍ tiene acceso, en detalle")
     b.h2("3.1. Inicio (panel principal)")
@@ -514,18 +518,21 @@ def manual_medico(out_dir, version="1.0"):
     emit(b, PROFILE)
 
     b.h1("Funciones a las que NO tiene acceso")
-    b.body("Su rol no incluye las funciones de la siguiente tabla. Si intenta ingresar a esas secciones, el sistema mostrará el mensaje \"No tienes acceso\" y no abrirá la página:")
+    b.body("El menú lateral es el mismo para todos los usuarios, pero su rol no incluye las funciones de la siguiente tabla. Si intenta ingresar a esas secciones, el sistema mostrará el mensaje \"No tienes acceso\" y no abrirá la página:")
     b.table([
         ["Función / Módulo", "Disponible para", "Comportamiento con su rol"],
-        ["Usuarios (crear, editar, eliminar, restablecer)", "Solo Administrador", "Menú oculto."],
-        ["Reportes (crear, generar, descargar, eliminar)", "Administrador, Dirección y Dirección Médica", "Menú oculto."],
-        ["Listado Diario de Cirugías (armar y guardar)", "Administrador, Dirección y Dirección Médica", "Menú oculto."],
-        ["Estatus Cirugía (asignar/cambiar estatus)", "Administrador, Dirección y Dirección Médica", "Menú oculto."],
+        ["Usuarios (crear, editar, eliminar, restablecer)", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
+        ["Sesiones (ver y cerrar sesiones)", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
+        ["Auditoría (historial de actividades)", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
+        ["Reportes (crear, generar, descargar, eliminar)", "Administrador, Dirección y Dirección Médica", "Mensaje \"No tienes acceso\"."],
+        ["Listado Diario de Cirugías (armar y guardar)", "Administrador, Dirección y Dirección Médica", "Mensaje \"No tienes acceso\"."],
+        ["Estatus Cirugía (asignar/cambiar estatus)", "Administrador, Dirección y Dirección Médica", "Mensaje \"No tienes acceso\"."],
         ["Editar expedientes de otros médicos", "Solo su propio creador", "La opción Editar no está disponible."],
         ["Eliminar expedientes", "Administrador, Dirección y Dirección Médica", "El botón no está disponible."],
         ["Cambiar el estatus de cirugía de un expediente", "Administrador, Dirección y Dirección Médica", "El sistema rechaza el cambio."],
-        ["Administrar especialidades y localidades", "Solo Administrador", "Botones no disponibles."],
-        ["Cambiar contraseñas de otros usuarios", "Solo Administrador", "Sin acceso a Usuarios."],
+        ["Administrar especialidades y localidades", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
+        ["Importar expedientes desde Excel", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
+        ["Cambiar contraseñas de otros usuarios", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
     ], [5.6 * cm, 4.4 * cm, 5.0 * cm])
     b.spacer(0.3)
     b.h1("Preguntas frecuentes")
@@ -533,8 +540,8 @@ def manual_medico(out_dir, version="1.0"):
     b.body("No. Solo puede editar los expedientes que usted creó. Para corregir un expediente de otro médico, comuníquese con la Dirección Médica o el Administrador.")
     b.quote("¿Puedo eliminar un expediente?")
     b.body("No. La eliminación de expedientes corresponde al Administrador, la Dirección y la Dirección Médica.")
-    b.quote("¿Por qué no veo Reportes ni Listados en mi menú?")
-    b.body("Esos módulos son de Administración, Dirección y Dirección Médica. Su rol (Médico) solo utiliza Expedientes, Mi Perfil e Inicio.")
+    b.quote("¿Por qué veo Reportes o Listados en mi menú pero no puedo abrirlos?")
+    b.body("El menú es igual para todos los usuarios. Esos módulos son del Administrador, la Dirección y la Dirección Médica; al seleccionarlos, su rol ve el mensaje \"No tienes acceso\".")
     b.quote("¿Puedo cambiar el estatus de cirugía?")
     b.body("No. El estatus de cirugía solo lo cambian el Administrador, la Dirección y la Dirección Médica.")
     b.quote("¿Qué hago si cometí un error al crear un expediente?")
@@ -590,7 +597,7 @@ def acuerdo_marco(out_dir, version="1.0"):
 
     b.h2("Artículo 2. Objeto")
     b.body("2.1 El Desarrollador ha construido y entregado el Sistema Web de Gestión de Expedientes Médicos (sitio web, aplicación de backend, base de datos y documentación), que registra y administra expedientes de pacientes con número único automático en formato numérico; asigna criticidad clínica (Baja, Media o Alta); desglosa el domicilio por departamento, municipio y localidad; busca sin distinción de mayúsculas ni tildes; genera reportes exportables a Excel con reordenamiento de la columna No fija; y controla los listados diarios de cirugías y el estatus quirúrgico con observaciones.")
-    b.body("2.2 El sistema administra usuarios con roles de acceso (Administrador, Dirección, Dirección Médica y Médico).")
+    b.body("2.2 El sistema administra usuarios con roles de acceso (Administrador, Dirección, Dirección Médica y Médico). El menú y las secciones del sistema se muestran de forma uniforme a todos los usuarios; la autorización para cada función está controlada por el rol del usuario, de modo que el sistema valida el permiso al momento de acceder y, si el usuario no lo tiene, muestra el aviso de acceso no autorizado e impide abrir la función o sección correspondiente.")
 
     b.h2("Artículo 3. Titularidad del software")
     b.body("3.1 El Desarrollador cede al Centro el uso pleno, permanente e irrevocable del sistema y de su código fuente, con derecho a modificarlo, adaptarlo y desplegarlo en la infraestructura que el Centro elija.")
@@ -630,7 +637,7 @@ def acuerdo_marco(out_dir, version="1.0"):
     b.bullet("<b>Consentimiento:</b> los pacientes autorizan el registro de sus datos al momento de su atención.")
     b.bullet("<b>Finalidad:</b> los datos se usan únicamente para los fines declarados.")
     b.bullet("<b>Proporcionalidad:</b> solo se registran los datos estrictamente necesarios.")
-    b.bullet("<b>Seguridad:</b> el acceso está limitado por roles con permisos específicos.")
+    b.bullet("<b>Seguridad:</b> el acceso está limitado por roles con permisos específicos; las funciones se muestran a todos los usuarios, pero solo el rol autorizado puede ejecutarlas, y el acceso no autorizado se rechaza con el mensaje correspondiente.")
     b.bullet("<b>Confidencialidad:</b> el personal del Centro guarda secreto sobre la información de los pacientes, incluso después de dejar de laborar.")
 
     b.h2("Artículo 14. Derechos de los pacientes")
@@ -639,6 +646,7 @@ def acuerdo_marco(out_dir, version="1.0"):
     b.h2("Artículo 15. Medidas de seguridad técnicas")
     b.bullet("Autenticación con usuario y contraseña para todos los usuarios.")
     b.bullet("Roles de acceso que limitan qué puede ver, crear, editar o eliminar cada usuario.")
+    b.bullet("Validación de permisos en cada función: el sistema impide el acceso a las secciones no autorizadas para el rol del usuario y muestra el mensaje \"No tienes acceso\".")
     b.bullet("Respaldos periódicos de la base de datos realizados por el Centro.")
     b.bullet("Número de expediente único, automático y en formato numérico.")
     b.bullet("El sistema no recopila información fuera de la finalidad declarada.")
@@ -664,12 +672,13 @@ def acuerdo_marco(out_dir, version="1.0"):
 
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
-    out_dir = "docs"
+    out_dir = "docs_v17"
+    version = "1.0"
     if "--out" in sys.argv:
         out_dir = sys.argv[sys.argv.index("--out") + 1]
     os.makedirs(out_dir, exist_ok=True)
-    manual_direccion(out_dir)
-    manual_direccion_medica(out_dir)
-    manual_medico(out_dir)
-    acuerdo_marco(out_dir)
+    manual_direccion(out_dir, version)
+    manual_direccion_medica(out_dir, version)
+    manual_medico(out_dir, version)
+    acuerdo_marco(out_dir, version)
     print("PDFs generados en:", os.path.abspath(out_dir))

@@ -13,6 +13,7 @@ import { EstadoCirugia } from './pages/EstadoCirugia'
 import { Profile } from './pages/Profile'
 import { Sessions } from './pages/Sessions'
 import { AuditLog } from './pages/AuditLog'
+import { Lock } from 'lucide-react'
 import { ReactNode } from 'react'
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
@@ -22,11 +23,22 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
   return <Layout>{children}</Layout>
 }
 
-function RoleRoute({ children, roles }: { children: ReactNode; roles: string[] }) {
+function AccessDenied({ section }: { section: string }) {
+  return (
+    <div className="flex flex-1 items-center justify-center min-h-0">
+      <div className="flex items-center gap-2.5 bg-rose-50 border-2 border-rose-200 text-rose-700 px-5 py-4 rounded-xl shadow-xl">
+        <Lock size={16} className="shrink-0" />
+        <p className="text-sm font-semibold">No tienes acceso a {section}</p>
+      </div>
+    </div>
+  )
+}
+
+function RoleRoute({ children, roles, section }: { children: ReactNode; roles: string[]; section: string }) {
   const { user, loading } = useAuth()
   if (loading) return <div className="min-h-screen flex items-center justify-center">Cargando...</div>
   if (!user) return <Navigate to="/login" />
-  if (!roles.includes(user.role)) return <Navigate to="/dashboard" />
+  if (!roles.includes(user.role)) return <Layout><AccessDenied section={section} /></Layout>
   return <Layout>{children}</Layout>
 }
 
@@ -39,14 +51,14 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/perfil" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path="/users" element={<RoleRoute roles={['admin']}><Users /></RoleRoute>} />
+          <Route path="/users" element={<RoleRoute roles={['admin']} section="Usuarios"><Users /></RoleRoute>} />
           <Route path="/lists" element={<ProtectedRoute><Lists /></ProtectedRoute>} />
           <Route path="/lists/:id" element={<ProtectedRoute><ListDetail /></ProtectedRoute>} />
-          <Route path="/reports" element={<RoleRoute roles={['admin', 'direccion', 'direccion_medica']}><Reports /></RoleRoute>} />
-          <Route path="/listado-diario" element={<RoleRoute roles={['admin', 'direccion', 'direccion_medica']}><DayList /></RoleRoute>} />
-          <Route path="/estado-cirugia" element={<RoleRoute roles={['admin', 'direccion', 'direccion_medica']}><EstadoCirugia /></RoleRoute>} />
-          <Route path="/seguridad" element={<RoleRoute roles={['admin', 'direccion']}><Sessions /></RoleRoute>} />
-          <Route path="/auditoria" element={<RoleRoute roles={['admin', 'direccion']}><AuditLog /></RoleRoute>} />
+          <Route path="/reports" element={<RoleRoute roles={['admin', 'direccion', 'direccion_medica']} section="Reportes"><Reports /></RoleRoute>} />
+          <Route path="/listado-diario" element={<RoleRoute roles={['admin', 'direccion', 'direccion_medica']} section="Listados Diarios"><DayList /></RoleRoute>} />
+          <Route path="/estado-cirugia" element={<RoleRoute roles={['admin', 'direccion', 'direccion_medica']} section="Estatus Cirugia"><EstadoCirugia /></RoleRoute>} />
+          <Route path="/seguridad" element={<RoleRoute roles={['admin']} section="Sesiones"><Sessions /></RoleRoute>} />
+          <Route path="/auditoria" element={<RoleRoute roles={['admin']} section="Auditoria"><AuditLog /></RoleRoute>} />
           <Route path="/" element={<Navigate to="/dashboard" />} />
           <Route path="*" element={<Navigate to="/dashboard" />} />
         </Routes>

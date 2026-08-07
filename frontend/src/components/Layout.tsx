@@ -61,10 +61,7 @@ export function Layout({ children }: { children: ReactNode }) {
   const location = useLocation()
   const [denied, setDenied] = useState<string | null>(null)
 
-  const role = user?.role || ''
   const visibleSections = navSections
-    .map((section) => ({ ...section, items: section.items.filter((item) => item.roles.includes(role)) }))
-    .filter((section) => section.items.length > 0)
 
   useEffect(() => {
     if (!denied) return
