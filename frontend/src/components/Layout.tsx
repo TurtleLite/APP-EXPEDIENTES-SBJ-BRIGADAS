@@ -38,7 +38,7 @@ const navSections: NavSection[] = [
     ],
   },
   {
-    title: 'Reportes',
+    title: 'Operaciones',
     items: [
       { label: 'Reportes', path: '/reports', icon: <FileText size={18} />, roles: ['admin', 'direccion', 'direccion_medica'] },
       { label: 'Listados', path: '/listado-diario', icon: <ClipboardList size={18} />, roles: ['admin', 'direccion', 'direccion_medica'] },
