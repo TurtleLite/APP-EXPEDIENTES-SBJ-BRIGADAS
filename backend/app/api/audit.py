@@ -17,7 +17,7 @@ def list_audit_logs(
     user_id: int = None,
     username: str = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "direccion")),
+    current_user: User = Depends(require_role("admin")),
 ):
     items, total = list_logs(
         db,

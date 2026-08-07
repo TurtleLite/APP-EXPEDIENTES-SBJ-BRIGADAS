@@ -361,7 +361,11 @@ export function ListDetail() {
     : localities
 
   const selectedRecord = records.find((r) => selectedIds.has(r.id))
-  const canEditSelected = user?.role !== 'medico'
+  const selectedRecord = records.find(r => selectedIds.has(r.id))
+  const canEditSelected = selectedIds.size === 1 && (
+    user?.role !== 'medico' ||
+    (selectedRecord && String(selectedRecord.created_by) === String(user?.id))
+  )
     || (!!selectedRecord?.created_by && String(selectedRecord.created_by) === String(user.id))
 
   return (

@@ -39,7 +39,7 @@ def list_sessions(
     current_user: User = Depends(get_current_user),
 ):
     include_others = all_users or user_id is not None
-    if include_others and current_user.role not in ("admin", "direccion"):
+    if include_others and current_user.role not in ("admin",):
         from fastapi import HTTPException
         raise HTTPException(status_code=403, detail="No tienes permisos para ver otras sesiones")
     current_jti = None

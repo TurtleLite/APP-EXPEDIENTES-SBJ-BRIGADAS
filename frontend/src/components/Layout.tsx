@@ -49,8 +49,8 @@ const navSections: NavSection[] = [
     title: 'Seguridad',
     items: [
       { label: 'Usuarios', path: '/users', icon: <Users size={18} />, roles: ['admin'] },
-      { label: 'Sesiones', path: '/seguridad', icon: <ShieldCheck size={18} />, roles: ['admin', 'direccion'] },
-      { label: 'Auditoría', path: '/auditoria', icon: <ScrollText size={18} />, roles: ['admin', 'direccion'] },
+      { label: 'Sesiones', path: '/seguridad', icon: <ShieldCheck size={18} />, roles: ['admin'] },
+      { label: 'Auditoría', path: '/auditoria', icon: <ScrollText size={18} />, roles: ['admin'] },
     ],
   },
 ]
@@ -60,6 +60,11 @@ export function Layout({ children }: { children: ReactNode }) {
   const navigate = useNavigate()
   const location = useLocation()
   const [denied, setDenied] = useState<string | null>(null)
+
+  const role = user?.role || ''
+  const visibleSections = navSections
+    .map((section) => ({ ...section, items: section.items.filter((item) => item.roles.includes(role)) }))
+    .filter((section) => section.items.length > 0)
 
   useEffect(() => {
     if (!denied) return
@@ -111,7 +116,7 @@ export function Layout({ children }: { children: ReactNode }) {
           <img src="/logo_sbj.png" alt="Logo SBJ Cirugias" className="w-36 h-auto mx-auto" />
         </div>
         <nav className="flex-1 px-3 py-2 flex flex-col justify-between overflow-y-auto">
-          {navSections.map((section) => (
+          {visibleSections.map((section) => (
             <div key={section.title} className="mb-1">
               <p className="px-3 pt-1 pb-0.5 text-[10px] font-semibold uppercase tracking-widest text-[#98A0AC]">
                 {section.title}

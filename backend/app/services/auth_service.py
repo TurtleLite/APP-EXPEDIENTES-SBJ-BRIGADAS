@@ -239,7 +239,7 @@ def revoke_user_session(db: Session, session_id: int, current_user: User, reques
     session = db.query(UserSession).filter(UserSession.id == session_id).first()
     if not session:
         raise HTTPException(status_code=404, detail="Sesión no encontrada")
-    if session.user_id != current_user.id and current_user.role not in ("admin", "direccion"):
+    if session.user_id != current_user.id and current_user.role not in ("admin",):
         raise HTTPException(status_code=403, detail="No tienes permisos para cerrar esta sesión")
     if not session.revoked_at:
         session.revoked_at = _now()

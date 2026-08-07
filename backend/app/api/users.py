@@ -15,7 +15,7 @@ def list_users(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "direccion")),
+    current_user: User = Depends(require_role("admin")),
 ):
     return get_users(db, skip, limit)
 
@@ -39,7 +39,7 @@ def update_me(
 def get_user_endpoint(
     user_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin", "direccion")),
+    current_user: User = Depends(require_role("admin")),
 ):
     from app.services.user_service import get_user
     return get_user(db, user_id)

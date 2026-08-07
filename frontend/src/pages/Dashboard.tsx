@@ -37,7 +37,8 @@ export function Dashboard() {
 
   const role = user?.role || 'medico'
   const canReports = role === 'admin' || role === 'direccion' || role === 'direccion_medica'
-  const canLists = role === 'admin' || role === 'direccion_medica'
+  const canLists = role === 'admin' || role === 'direccion' || role === 'direccion_medica'
+  const canSecurity = role === 'admin'
 
   const goExpedientes = () => {
     if (systemListId) {
@@ -85,7 +86,7 @@ export function Dashboard() {
       label: 'Estatus',
       icon: <Activity size={22} />,
       color: 'bg-rose-500',
-      allowed: role === 'admin' || role === 'direccion',
+      allowed: canReports,
       onClick: () => navigate('/estado-cirugia'),
     },
     {
@@ -99,14 +100,14 @@ export function Dashboard() {
       label: 'Sesiones',
       icon: <ShieldCheck size={22} />,
       color: 'bg-teal-600',
-      allowed: role === 'admin' || role === 'direccion',
+      allowed: canSecurity,
       onClick: () => navigate('/seguridad'),
     },
     {
       label: 'Auditoría',
       icon: <ScrollText size={22} />,
       color: 'bg-cyan-600',
-      allowed: role === 'admin' || role === 'direccion',
+      allowed: canSecurity,
       onClick: () => navigate('/auditoria'),
     },
   ]
