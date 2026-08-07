@@ -148,6 +148,21 @@ La base de datos está alojada en la nube de **CockroachLabs** (SQL distribuido,
 
 > **Nota:** el backend acepta peticiones CORS solo desde los orígenes listados en `ALLOWED_ORIGINS` (backend/app/main.py). Si cambias la URL del frontend o del backend, actualízala allí.
 
+### URL sin "onrender" (dominio propio gratis)
+
+Render **no permite dominios personalizados en el plan gratuito** (es una función de pago). Para tener una URL limpia sin costo, el frontend se mueve a un host gratuito que sí acepta dominios personalizados:
+
+1. **Consigue un subdominio gratis** (los dominios `.com`/`.hn` ya son de pago):
+   - `tu-nombre.is-a.dev` — gratis, se solicita con un PR en https://github.com/is-a-dev/is-a-dev
+   - `tu-nombre.eu.org` — gratis, registro en https://nic.eu.org
+2. **Despliega el frontend en Cloudflare Pages o Netlify** (el repo ya incluye `netlify.toml` y `public/_redirects`):
+   - **Cloudflare Pages:** conecta el repo → Build: `npm run build` → Output: `dist`. Luego agrega el subdominio en *Custom domains* (HTTPS automático).
+   - **Netlify:** conecta el repo → Build: `npm run build` → Publish: `dist`. Luego *Domain settings → Add a domain* con el subdominio.
+   - Configura la variable `VITE_API_URL` = `https://expedientes-api-2dje.onrender.com` (el backend se queda en Render).
+3. **Agrega la nueva URL** a `ALLOWED_ORIGINS` en `backend/app/main.py` (o usa la variable de entorno `ALLOWED_ORIGINS` del backend en Render) para que el CORS acepte el frontend nuevo.
+
+> El backend (API) no necesita dominio propio: los usuarios solo usan la URL del frontend. Si quieres limpiar también la API, esa URL debe quedar en `VITE_API_URL` del frontend.
+
 ### Usuarios por defecto
 
 | Usuario | Contraseña | Rol |
