@@ -144,7 +144,7 @@ class DocBuilder:
     def pagebreak(self):
         self.story.append(PageBreak())
 
-    def table(self, rows, col_widths=None, header=True, center_cols=()):
+    def table(self, rows, col_widths=None, header=True, center_cols=(), grid=True, row_heights=None):
         data = []
         for r in rows:
             row = []
@@ -163,11 +163,14 @@ class DocBuilder:
             ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
             ("LEFTPADDING", (0, 0), (-1, -1), 6),
             ("RIGHTPADDING", (0, 0), (-1, -1), 6),
-            ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#E5E7EB")),
-            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#6E7B91")) if header else None,
-            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#F8F9FA")]),
         ]
-        t = Table(data, colWidths=col_widths, repeatRows=1 if header else 0)
+        if grid:
+            style += [
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#E5E7EB")),
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#6E7B91")) if header else None,
+                ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#F8F9FA")]),
+            ]
+        t = Table(data, colWidths=col_widths, repeatRows=1 if header else 0, rowHeights=row_heights)
         t.setStyle(TableStyle([s for s in style if s]))
         self.story.append(t)
         self.spacer(0.2)
@@ -648,18 +651,13 @@ def acuerdo_marco(out_dir, version="1.0"):
 
     b.spacer(0.5)
     b.body("En constancia de conformidad, ambas partes firman el presente Acuerdo Marco y su Anexo de Protección de Datos Personales de Salud:")
-
-    b.spacer(2.5)
-    b.body("Firma y fecha: _______________________________")
-    b.spacer(2.0)
-    b.body("<b>Alexander James Scheibner</b>")
-    b.body("Representante legal - Centro Médico San Benito José")
-
-    b.spacer(2.0)
-    b.body("Firma y fecha: _______________________________")
-    b.spacer(2.0)
-    b.body("<b>Amed Enmanuel Canales Mejía</b>")
-    b.body("Desarrollador - TurtleLite")
+    b.spacer(1.5)
+    b.table([
+        ["Firma y fecha: ____________________", "Firma y fecha: ____________________"],
+        ["", ""],
+        ["<b>Alexander James Scheibner</b>", "<b>Amed Enmanuel Canales Mejía</b>"],
+        ["Representante legal - Centro Médico San Benito José", "Desarrollador - TurtleLite"],
+    ], [8.3 * cm, 8.3 * cm], header=False, grid=False, row_heights=[None, 3.0 * cm, None, None])
 
     b.build()
 
