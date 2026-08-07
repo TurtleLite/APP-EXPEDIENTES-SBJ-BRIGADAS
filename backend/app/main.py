@@ -22,7 +22,6 @@ if not settings.SECRET_KEY or len(settings.SECRET_KEY) < 32 or settings.SECRET_K
 
 ALLOWED_ORIGINS = [
     "https://sistema-web-expedientes-cmsbj.onrender.com",
-    "https://app-expedientes-sbj-brigadas.onrender.com",
     "https://expedientes-api-2dje.onrender.com",
     "http://localhost:5173",
     "http://localhost:8000",
@@ -111,7 +110,7 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(
-    title="APP EXPEDIENTES SBJ BRIGADAS",
+    title="SISTEMA DE EXPEDIENTES SBJ",
     description="Sistema de gestión de expedientes para SBJ Cirugías",
     version="1.0.0",
     lifespan=lifespan,

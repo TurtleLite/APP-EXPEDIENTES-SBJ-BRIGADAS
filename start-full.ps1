@@ -119,7 +119,7 @@ Write-Host "============================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "  Backend:  http://localhost:8000" -ForegroundColor White
 Write-Host "  Tunnel:   $tunnelUrl" -ForegroundColor White
-Write-Host "  Frontend: https://app-expedientes-sbj-brigadas.onrender.com" -ForegroundColor White
+Write-Host "  Frontend: https://sistema-web-expedientes-cmsbj.onrender.com" -ForegroundColor White
 Write-Host ""
 Write-Host "  El deploy en Render tardara 2-3 minutos." -ForegroundColor Gray
 Write-Host "  No cierres esta ventana ni las del backend/tunnel." -ForegroundColor Yellow

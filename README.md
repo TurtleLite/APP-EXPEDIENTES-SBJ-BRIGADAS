@@ -1,4 +1,4 @@
-# APP EXPEDIENTES SBJ BRIGADAS
+# SISTEMA DE EXPEDIENTES SBJ
 
 Aplicación web para gestión de usuarios con roles, listas personalizables desde Excel, y reportes exportables a Excel/PDF.
 

@@ -1,8 +1,8 @@
 @echo off
 chcp 65001 >nul
-title APP EXPEDIENTES SBJ BRIGADAS - SETUP
+title SISTEMA DE EXPEDIENTES SBJ - SETUP
 echo ============================================
-echo  APP EXPEDIENTES SBJ BRIGADAS
+echo  SISTEMA DE EXPEDIENTES SBJ
 echo  Configuracion del Servidor Windows
 echo ============================================
 echo.
