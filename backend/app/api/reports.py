@@ -84,11 +84,9 @@ def _report_columns() -> list[str]:
 
 
 def _report_sequence_filename(db: Session, report: Report) -> str:
-    """Nombre de descarga con numeración por usuario: REPORTE_EXPEDIENTES_N."""
-    seq = db.query(Report).filter(
-        Report.created_by == report.created_by, Report.id <= report.id
-    ).count()
-    return f"REPORTE_EXPEDIENTES_{seq}.xlsx"
+    import re
+    name = re.sub(r'[\\/*?:"<>|]', '', str(report.name or "Reporte")).strip().replace(" ", "_") or "Reporte"
+    return f"REPORTE_{name}.xlsx"
 
 
 def _report_rows(records: list[ListRecord]) -> list[dict]:
