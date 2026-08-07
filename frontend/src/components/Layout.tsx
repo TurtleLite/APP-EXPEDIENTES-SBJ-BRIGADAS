@@ -34,7 +34,6 @@ const navSections: NavSection[] = [
     items: [
       { label: 'Inicio', path: '/dashboard', icon: <LayoutDashboard size={18} />, roles: ['admin', 'direccion', 'direccion_medica', 'medico'] },
       { label: 'Mi Perfil', path: '/perfil', icon: <UserCircle2 size={18} />, roles: ['admin', 'direccion', 'direccion_medica', 'medico'] },
-      { label: 'Usuarios', path: '/users', icon: <Users size={18} />, roles: ['admin'] },
       { label: 'Expedientes', path: '/lists', icon: <Table2 size={18} />, roles: ['admin', 'direccion', 'direccion_medica', 'medico'] },
     ],
   },
@@ -49,6 +48,7 @@ const navSections: NavSection[] = [
   {
     title: 'Seguridad',
     items: [
+      { label: 'Usuarios', path: '/users', icon: <Users size={18} />, roles: ['admin'] },
       { label: 'Sesiones', path: '/seguridad', icon: <ShieldCheck size={18} />, roles: ['admin', 'direccion'] },
       { label: 'Auditoría', path: '/auditoria', icon: <ScrollText size={18} />, roles: ['admin', 'direccion'] },
     ],
@@ -110,7 +110,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <div className="px-5 pt-3 pb-2 border-b border-[#E3E6EB] flex items-center justify-center">
           <img src="/logo_sbj.png" alt="Logo SBJ Cirugias" className="w-36 h-auto mx-auto" />
         </div>
-        <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
+        <nav className="flex-1 px-3 py-2 flex flex-col justify-between overflow-y-auto">
           {navSections.map((section) => (
             <div key={section.title} className="mb-1">
               <p className="px-3 pt-1 pb-0.5 text-[10px] font-semibold uppercase tracking-widest text-[#98A0AC]">
@@ -123,7 +123,7 @@ export function Layout({ children }: { children: ReactNode }) {
                   <button
                     key={item.path}
                     onClick={() => handleNavClick(item)}
-                    className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-200 relative ${
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 relative ${
                       isActive
                         ? 'bg-[#EDF0F4] text-[#3F4650]'
                         : 'text-[#6F7682] hover:text-[#3F4650] hover:bg-[#F8F9FA]'

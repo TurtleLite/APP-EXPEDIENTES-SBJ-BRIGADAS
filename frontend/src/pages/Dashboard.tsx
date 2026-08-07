@@ -145,12 +145,12 @@ export function Dashboard() {
       </header>
 
       <div className="flex-1 flex items-center min-h-0 mt-7">
-        <div className="w-full grid grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="w-full grid grid-cols-2 lg:grid-cols-4 gap-4">
           {options.map((opt) => (
             <button
               key={opt.label}
               onClick={() => (opt.allowed ? opt.onClick() : setDenied(opt.label))}
-              className="h-36 flex flex-col items-center justify-center gap-2 rounded-2xl bg-white border border-slate-100 hover:border-[#E3E6EB] hover:shadow-md transition-all duration-200 group"
+              className="h-44 flex flex-col items-center justify-center gap-3 rounded-2xl bg-white border border-slate-100 hover:border-[#E3E6EB] hover:shadow-md transition-all duration-200 group"
             >
               <div className={`w-11 h-11 rounded-xl ${opt.color} text-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-200`}>
                 {opt.icon}
