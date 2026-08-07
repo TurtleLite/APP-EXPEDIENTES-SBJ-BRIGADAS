@@ -206,10 +206,30 @@ class DocBuilder:
 # ---------------------------------------------------------------------------
 ROLE_TABLE = [
     ["Rol", "Descripción", "Alcance general"],
-    ["Administrador", "Gestiona usuarios, sesiones, auditoría, especialidades y localidades. Consulta expedientes, pero no crea, edita ni elimina expedientes.", "Usuarios, sesiones, auditoría, especialidades y localidades."],
+    ["Administrador", "Gestiona usuarios, sesiones, auditoría, especialidades y localidades. Consulta expedientes, pero no los crea, edita, elimina ni exporta.", "Usuarios, sesiones, auditoría, especialidades y localidades."],
     ["Dirección", "Consulta y gestiona expedientes (crear, editar, eliminar), reportes, listados diarios y estatus de cirugía.", "Expedientes, reportes, listados y estatus."],
     ["Dirección Médica", "Gestiona expedientes, reportes, listados diarios y estatus de cirugía.", "Expedientes, reportes, listados y estatus."],
-    ["Médico", "Crea y edita sus propios expedientes. No puede eliminar expedientes.", "Expedientes propios."],
+    ["Médico", "Crea y edita sus propios expedientes y exporta expedientes a Excel. No los elimina.", "Expedientes propios y exportación."],
+]
+
+PERMISSION_MATRIX = [
+    ["Función", "Administrador", "Dirección", "Dirección Médica", "Médico"],
+    ["Consultar expedientes", "Sí", "Sí", "Sí", "Sí"],
+    ["Crear expedientes", "No", "Sí", "Sí", "Sí"],
+    ["Editar expedientes propios", "No", "Sí", "Sí", "Sí"],
+    ["Editar expedientes de otros", "No", "Sí", "Sí", "No"],
+    ["Eliminar expedientes", "No", "Sí", "Sí", "No"],
+    ["Exportar expedientes a Excel", "No", "Sí", "Sí", "Sí"],
+    ["Vista previa del expediente", "Sí", "Sí", "Sí", "Sí"],
+    ["Reportes (crear, generar, descargar, eliminar)", "No", "Sí", "Sí", "No"],
+    ["Listado diario de cirugías (armar y guardar)", "No", "Sí", "Sí", "No"],
+    ["Estatus de cirugía (asignar y cambiar)", "No", "Sí", "Sí", "No"],
+    ["Usuarios (crear, editar, eliminar, desbloquear, restablecer)", "Sí", "No", "No", "No"],
+    ["Sesiones (ver y cerrar)", "Sí", "No", "No", "No"],
+    ["Auditoría (historial de actividades)", "Sí", "No", "No", "No"],
+    ["Especialidades y localidades (crear, editar, eliminar)", "Sí", "No", "No", "No"],
+    ["Importar expedientes desde Excel", "Sí", "No", "No", "No"],
+    ["Mi Perfil (datos y contraseña)", "Sí", "Sí", "Sí", "Sí"],
 ]
 
 INTRO = [
@@ -221,6 +241,9 @@ INTRO = [
     ("table", ROLE_TABLE, [3.6 * cm, 8.4 * cm, 4.0 * cm]),
     ("note", "Nota: Su rol es {rol}. Las secciones de este manual describen únicamente lo que su rol puede hacer."),
     ("body", "El menú y las secciones del sistema son los mismos para todos los usuarios. Lo que cambia es la autorización: el sistema valida su rol al acceder a cada sección y, si no tiene permiso, muestra el mensaje \"No tienes acceso\" y no abre la página."),
+    ("h2", "1.2.1. Permisos por rol"),
+    ("body", "La siguiente tabla resume, para cada función del sistema, qué roles pueden realizarla. Localice la columna de su rol para conocer sus permisos exactos."),
+    ("table", PERMISSION_MATRIX, [6.0 * cm, 2.8 * cm, 2.9 * cm, 2.9 * cm, 2.6 * cm]),
     ("h2", "1.3. Requisitos para usar el sistema"),
     ("bullet", "Un navegador actualizado (Google Chrome, Microsoft Edge o Firefox)."),
     ("bullet", "Conexión a internet estable."),
