@@ -657,7 +657,7 @@ def acuerdo_marco(out_dir, version="1.0"):
         ["", ""],
         ["<b>Alexander James Scheibner</b>", "<b>Amed Enmanuel Canales Mejía</b>"],
         ["Representante legal - Centro Médico San Benito José", "Desarrollador - TurtleLite"],
-    ], [8.3 * cm, 8.3 * cm], header=False, grid=False, row_heights=[None, 3.0 * cm, None, None])
+    ], [8.3 * cm, 8.3 * cm], header=False, center_cols=(0, 1), grid=False, row_heights=[None, 3.0 * cm, None, None])
 
     b.build()
 
