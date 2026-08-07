@@ -172,7 +172,7 @@ async def cors_and_logging(request: Request, call_next):
     except Exception as e:
         logger.error(f"  -> ERROR: {e}", exc_info=True)
         headers = _cors_headers(origin)
-        return JSONResponse({"detail": f"DEBUG: {repr(e)}"}, status_code=500, headers=headers)
+        return JSONResponse({"detail": "Error interno del servidor"}, status_code=500, headers=headers)
 
 app.include_router(auth.router)
 app.include_router(users.router)

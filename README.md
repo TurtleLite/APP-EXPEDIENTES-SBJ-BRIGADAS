@@ -110,6 +110,7 @@ La base de datos está alojada en la nube de **CockroachLabs** (SQL distribuido,
 - **Host:** `sanbenitojose-bancodepacientes-30660.j77.aws-us-east-1.cockroachlabs.cloud:26257`
 - **Base de datos:** `defaultdb`
 - **Credenciales:** se configuran como variable de entorno `DATABASE_URL` con formato `cockroachdb://usuario:password@host:26257/defaultdb`
+- **Nota (Render):** en `DATABASE_URL` usa `?sslmode=require`. El contenedor de Render no tiene el certificado CA de CockroachCloud y con `sslmode=verify-full` la conexión falla.
 
 ### 2. Backend (Render — Web Service)
 
