@@ -61,13 +61,6 @@ export function Dashboard() {
       onClick: () => navigate('/perfil'),
     },
     {
-      label: 'Usuarios',
-      icon: <Users size={22} />,
-      color: 'bg-slate-600',
-      allowed: role === 'admin',
-      onClick: () => navigate('/users'),
-    },
-    {
       label: 'Expedientes',
       icon: <Table2 size={22} />,
       color: 'bg-violet-500',
@@ -94,6 +87,13 @@ export function Dashboard() {
       color: 'bg-rose-500',
       allowed: role === 'admin' || role === 'direccion',
       onClick: () => navigate('/estado-cirugia'),
+    },
+    {
+      label: 'Usuarios',
+      icon: <Users size={22} />,
+      color: 'bg-slate-600',
+      allowed: role === 'admin',
+      onClick: () => navigate('/users'),
     },
     {
       label: 'Sesiones',
