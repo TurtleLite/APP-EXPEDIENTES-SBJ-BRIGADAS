@@ -228,7 +228,6 @@ PERMISSION_MATRIX = [
     ["Sesiones (ver y cerrar)", "Sí", "No", "No", "No"],
     ["Auditoría (historial de actividades)", "Sí", "No", "No", "No"],
     ["Especialidades y localidades (crear, editar, eliminar)", "Sí", "No", "No", "No"],
-    ["Importar expedientes desde Excel", "Sí", "No", "No", "No"],
     ["Mi Perfil (datos y contraseña)", "Sí", "Sí", "Sí", "Sí"],
 ]
 
@@ -253,7 +252,7 @@ INTRO = [
     ("numbered", "2. En la pantalla de inicio, escriba su nombre de usuario en el campo \"Usuario\"."),
     ("numbered", "3. Escriba su contraseña en el campo correspondiente."),
     ("numbered", "4. Presione el botón <b>Iniciar sesión</b>."),
-    ("numbered", "5. El sistema lo llevará al Inicio, donde verá el resumen general."),
+    ("numbered", "5. El sistema lo llevará al Inicio, donde verá las tarjetas de acceso a las secciones del sistema."),
     ("note", "Nota: Si los datos son incorrectos, el sistema mostrará un mensaje de error en rojo. Verifique que no haya espacios o mayúsculas adicionales."),
     ("h2", "1.5. Seguridad de la sesión"),
     ("bullet", "La contraseña es personal e intransferible."),
@@ -315,7 +314,7 @@ def manual_direccion(out_dir, version="1.0"):
 
     b.h1("3. Funciones a las que SÍ tiene acceso, en detalle")
     b.h2("3.1. Inicio (panel principal)")
-    b.body("Muestra un resumen del sistema: cantidad de expedientes registrados, reportes generados y estatus de las cirugías según su rol. Cada tarjeta del resumen lo lleva a la sección correspondiente.")
+    b.body("Muestra un saludo con la fecha y la hora del día, y las tarjetas de acceso a las secciones del sistema (Mi Perfil, Expedientes, Reportes, Listados y Estatus para su rol). Cada tarjeta lo lleva a la sección correspondiente.")
 
     b.h2("3.2. Expedientes (gestión completa)")
     b.body("Su rol puede crear, consultar, editar y eliminar expedientes.")
@@ -330,17 +329,17 @@ def manual_direccion(out_dir, version="1.0"):
     b.numbered("1. Presione el botón <b>Nuevo</b>.")
     b.numbered("2. Complete el formulario: identidad, nombre, apellido, edad, sexo, domicilio, teléfono, diagnóstico, especialidad, perfil y criticidad clínica, entre otros.")
     b.numbered("3. Escriba el Nº de expediente a mano en el campo correspondiente (solo números). Si ese número ya existe en el sistema, este lo guardará como copia con un sufijo entre paréntesis (ej.: 23455 (1), 23455 (2)...) y pedirá confirmar que será una nueva intervención del paciente.")
-    b.numbered("4. Presione <b>Crear</b>. El expediente queda registrado inmediatamente.")
+    b.numbered("4. Presione <b>Crear Expediente</b>. El expediente queda registrado inmediatamente.")
     b.h2("Editar un expediente")
     b.numbered("1. Marque la casilla del expediente a corregir.")
-    b.numbered("2. Presione <b>Editar</b>, modifique los datos necesarios y presione <b>Actualizar</b>.")
+    b.numbered("2. Presione <b>Editar</b>, modifique los datos necesarios y presione <b>Guardar Cambios</b>.")
     b.h2("Eliminar expedientes")
     b.numbered("1. Marque uno o varios expedientes.")
     b.numbered("2. Presione <b>Eliminar</b> y confirme la operación.")
     b.note("Nota: La eliminación es definitiva. Revise siempre antes de confirmar.")
     b.h2("Exportar expedientes a Excel")
-    b.numbered("1. Para exportar todo el listado: botón <b>Exportar</b> (arriba a la derecha).")
-    b.numbered("2. Para exportar solo algunos: selecciónelos con las casillas y presione <b>Exportar [n] seleccionados</b>.")
+    b.numbered("1. Seleccione uno o varios expedientes con las casillas.")
+    b.numbered("2. Presione <b>Exportar [n] seleccionados</b>. El sistema descarga el archivo Excel con los expedientes marcados.")
     b.h2("Vista previa del expediente")
     b.numbered("1. Marque la casilla del expediente que desea consultar.")
     b.numbered("2. Presione <b>Vista previa</b> (aparece en la barra de selección junto a Editar/Eliminar) para consultar el expediente completo sin abrirlo en edición.")
@@ -354,7 +353,7 @@ def manual_direccion(out_dir, version="1.0"):
     b.numbered("4. Guarde el reporte.")
     b.h2("Ver la vista previa")
     b.numbered("1. Con el botón <b>Vista previa</b> revise los registros que incluirá el reporte.")
-    b.numbered("2. Puede arrastrar las filas para acomodar la posición: la columna <b>No</b> permanece fija y no cambia con el reordenamiento.")
+    b.numbered("2. Puede arrastrar las filas para acomodar la posición: la columna <b>No</b> se renumera automáticamente según el nuevo orden (el primer registro pasa a ser 1, el segundo 2, y así sucesivamente).")
     b.numbered("3. Verifique que la información sea la esperada antes de generar el archivo.")
     b.h2("Generar y descargar el Excel")
     b.numbered("1. Presione <b>Generar Excel</b>. El sistema crea el archivo con el nombre \"REPORTE_\", seguido del nombre del reporte (ej.: REPORTE_Cirugias_reprogramadas.xlsx).")
@@ -369,7 +368,7 @@ def manual_direccion(out_dir, version="1.0"):
     b.numbered("2. Elija la fecha con el selector de fecha o las flechas (el botón \"Hoy\" vuelve al día actual).")
     b.numbered("3. En el panel izquierdo (disponibles), busque al paciente y agréguelo con el botón \"+\". Puede filtrar por estatus de cirugía (\"En espera\" por defecto, Reprogramar, Cancelado, No se presentó o todos).")
     b.numbered("4. Arrastre a cada paciente para reordenarlo dentro de su especialidad.")
-    b.numbered("5. Presione <b>Guardar</b> para guardar el listado y <b>Excel</b> para descargarlo.")
+    b.numbered("5. Presione <b>Guardar</b> para guardar el listado y <b>Excel</b> para descargarlo. Use <b>Vaciar</b> para eliminar el listado de esa fecha.")
 
     b.h2("3.5. Estatus Cirugía")
     b.body("Módulo para controlar el estado de cada cirugía programada.")
@@ -391,8 +390,7 @@ def manual_direccion(out_dir, version="1.0"):
         ["Usuarios (crear, editar, eliminar, restablecer)", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
         ["Sesiones (ver y cerrar sesiones)", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
         ["Auditoría (historial de actividades)", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
-        ["Administrar especialidades y localidades", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
-        ["Importar expedientes desde Excel", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
+        ["Administrar especialidades y localidades", "Solo Administrador", "Los botones no están disponibles."],
         ["Cambiar contraseñas de otros usuarios", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
     ], [5.6 * cm, 4.4 * cm, 5.0 * cm])
     b.spacer(0.3)
@@ -406,7 +404,7 @@ def manual_direccion(out_dir, version="1.0"):
     b.quote("¿Puedo descargar un reporte sin generarlo antes?")
     b.body("No. Primero debe presionar \"Generar Excel\"; luego aparece disponible el botón \"Descargar\".")
     b.quote("¿Se mueve la columna No al reordenar el reporte?")
-    b.body("No. Los números (1, 2, 3...) indican la posición del registro en el reporte y permanecen en su lugar; al arrastrar solo se desplazan los datos del paciente.")
+    b.body("Sí. Los números (1, 2, 3...) indican la posición del registro en el reporte y se actualizan automáticamente al arrastrar: el registro que queda primero pasa a ser 1, el segundo 2, y así sucesivamente.")
 
     emit(b, RECOMMEND)
     b.build()
@@ -422,7 +420,7 @@ def manual_direccion_medica(out_dir, version="1.0"):
 
     b.h1("3. Funciones a las que SÍ tiene acceso, en detalle")
     b.h2("3.1. Inicio (panel principal)")
-    b.body("Muestra un resumen del sistema: expedientes registrados, reportes generados y listados del día. Cada tarjeta lo lleva a la sección correspondiente.")
+    b.body("Muestra un saludo con la fecha y la hora del día, y las tarjetas de acceso a las secciones del sistema (Mi Perfil, Expedientes, Reportes, Listados y Estatus para su rol). Cada tarjeta lo lleva a la sección correspondiente.")
 
     b.h2("3.2. Expedientes (gestión completa)")
     b.body("Buscar y filtrar")
@@ -432,18 +430,18 @@ def manual_direccion_medica(out_dir, version="1.0"):
     b.body("Crear un expediente")
     b.numbered("1. Presione el botón <b>Nuevo</b>.")
     b.numbered("2. Complete el formulario: identidad, nombre, apellido, edad, sexo, domicilio, teléfono, diagnóstico, especialidad, perfil y criticidad clínica (Baja, Media o Alta), entre otros campos. Escriba el Nº de expediente a mano (solo números); si el número ya existe, el sistema lo guarda como copia (ej.: 23455 (1)) y pide confirmar que será una nueva intervención antes de guardar.")
-    b.numbered("3. Presione <b>Crear</b>. El expediente queda registrado inmediatamente.")
-    b.note("Nota: Registre la identidad correctamente: el sistema avisa cuando una misma identidad está repetida.")
+    b.numbered("3. Presione <b>Crear Expediente</b>. El expediente queda registrado inmediatamente.")
+    b.note("Nota: Verifique la identidad y los datos del paciente antes de guardar.")
     b.body("Editar un expediente")
     b.numbered("1. Marque la casilla del expediente a corregir.")
-    b.numbered("2. Presione <b>Editar</b>, modifique los datos necesarios y <b>Actualice</b>.")
+    b.numbered("2. Presione <b>Editar</b>, modifique los datos necesarios y presione <b>Guardar Cambios</b>.")
     b.body("Eliminar expedientes")
     b.numbered("1. Marque uno o varios expedientes.")
     b.numbered("2. Presione <b>Eliminar</b> y confirme la operación.")
     b.note("Nota: La eliminación es definitiva. Revise siempre antes de confirmar.")
     b.body("Exportar a Excel")
-    b.numbered("1. <b>Exportar:</b> descarga todos los expedientes de la lista.")
-    b.numbered("2. <b>Exportar [n] seleccionados:</b> descarga solo los marcados.")
+    b.numbered("1. Marque con las casillas los expedientes que desea exportar.")
+    b.numbered("2. Presione <b>Exportar [n] seleccionados</b>: el sistema descarga el archivo Excel con los expedientes marcados.")
 
     b.h2("3.3. Reportes")
     b.body("Crear un reporte")
@@ -451,7 +449,7 @@ def manual_direccion_medica(out_dir, version="1.0"):
     b.numbered("2. Asigne nombre y, opcionalmente, filtre por especialidad, perfil, criticidad clínica o estatus de cirugía.")
     b.numbered("3. Guarde el reporte.")
     b.body("Generar, descargar y eliminar")
-    b.numbered("1. <b>Vista previa:</b> revise los registros incluidos. Puede arrastrar filas; la columna <b>No</b> permanece fija.")
+    b.numbered("1. <b>Vista previa:</b> revise los registros incluidos. Puede arrastrar filas para acomodar la posición; la columna <b>No</b> se renumera automáticamente según el nuevo orden.")
     b.numbered("2. <b>Generar Excel:</b> crea el archivo REPORTE_&lt;nombre del reporte&gt;.xlsx (ej.: REPORTE_Cirugias_reprogramadas.xlsx).")
     b.numbered("3. <b>Descargar:</b> guarda el archivo en su equipo.")
     b.numbered("4. <b>Eliminar:</b> borra reportes que ya no necesite.")
@@ -464,7 +462,7 @@ def manual_direccion_medica(out_dir, version="1.0"):
     b.numbered("3. En el panel izquierdo (disponibles), busque al paciente; el filtro de estatus muestra \"En espera\" por defecto, o puede elegir Reprogramar, Cancelado, No se presentó o todos.")
     b.numbered("4. Agregue el paciente con el botón \"+\". Se ubica en la sección de su especialidad.")
     b.numbered("5. Arrastre a cada paciente con la manija (ícono de agarre) para reordenarlo dentro de su especialidad.")
-    b.numbered("6. <b>Guardar:</b> guarda el listado de la fecha. <b>Excel:</b> descarga LISTADO_fecha.xlsx. <b>Vaciar:</b> elimina el listado de esa fecha (requiere confirmación).")
+    b.numbered("6. <b>Guardar:</b> guarda el listado de la fecha. <b>Excel:</b> descarga LISTADO_fecha.xlsx. <b>Vaciar:</b> elimina el listado de esa fecha.")
 
     b.h2("3.5. Estatus Cirugía")
     b.body("Módulo para controlar el estado de cada cirugía programada.")
@@ -482,8 +480,7 @@ def manual_direccion_medica(out_dir, version="1.0"):
         ["Usuarios (crear, editar, eliminar, restablecer)", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
         ["Sesiones (ver y cerrar sesiones)", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
         ["Auditoría (historial de actividades)", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
-        ["Administrar especialidades y localidades", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
-        ["Importar expedientes desde Excel", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
+        ["Administrar especialidades y localidades", "Solo Administrador", "Los botones no están disponibles."],
         ["Cambiar contraseñas de otros usuarios", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
     ], [5.6 * cm, 4.4 * cm, 5.0 * cm])
     b.spacer(0.3)
@@ -497,7 +494,7 @@ def manual_direccion_medica(out_dir, version="1.0"):
     b.quote("¿El reporte se actualiza solo?")
     b.body("No. Si cambian los expedientes, debe presionar \"Generar Excel\" de nuevo para actualizar el archivo.")
     b.quote("¿Se mueve la columna No al reordenar el reporte?")
-    b.body("No. Los números (1, 2, 3...) indican la posición del registro en el reporte y permanecen en su lugar; al arrastrar solo se desplazan los datos del paciente.")
+    b.body("Sí. Los números (1, 2, 3...) indican la posición del registro en el reporte y se actualizan automáticamente al arrastrar: el registro que queda primero pasa a ser 1, el segundo 2, y así sucesivamente.")
 
     emit(b, RECOMMEND)
     b.build()
@@ -513,7 +510,7 @@ def manual_medico(out_dir, version="1.0"):
 
     b.h1("3. Funciones a las que SÍ tiene acceso, en detalle")
     b.h2("3.1. Inicio (panel principal)")
-    b.body("Muestra el resumen general del sistema: expedientes registrados y otras estadísticas permitidas para su rol.")
+    b.body("Muestra un saludo con la fecha y la hora del día, y las tarjetas de acceso a las secciones del sistema. Para su rol están habilitadas Mi Perfil y Expedientes; al seleccionar cualquier otra tarjeta, el sistema muestra el mensaje \"No tienes acceso\".")
 
     b.h2("3.2. Expedientes")
     b.body("Consultar expedientes")
@@ -524,15 +521,15 @@ def manual_medico(out_dir, version="1.0"):
     b.body("Crear un expediente")
     b.numbered("1. Presione el botón <b>Nuevo</b>.")
     b.numbered("2. Complete el formulario con los datos del paciente (identidad, nombre, apellido, edad, sexo, domicilio, teléfono, diagnóstico, especialidad, perfil y criticidad clínica, entre otros). Escriba el Nº de expediente a mano (solo números); si el número ya existe, el sistema lo guarda como copia (ej.: 23455 (1)) y pregunta confirmar que será una nueva intervención antes de guardar.")
-    b.numbered("3. Presione <b>Crear</b>. El expediente queda registrado a su nombre.")
+    b.numbered("3. Presione <b>Crear Expediente</b>. El expediente queda registrado a su nombre.")
     b.note("Nota: Verifique la identidad y los datos antes de guardar: solo puede editar los expedientes que usted creó, y no puede eliminarlos ni cambiar el estatus de cirugía.")
     b.body("Editar un expediente propio")
     b.numbered("1. Marque la casilla del expediente que usted creó.")
-    b.numbered("2. Presione <b>Editar</b>, haga las correcciones y presione <b>Actualizar</b>.")
+    b.numbered("2. Presione <b>Editar</b>, haga las correcciones y presione <b>Guardar Cambios</b>.")
     b.note("Nota: Solo puede editar los expedientes que usted mismo creó. Para los expedientes de otros médicos, la opción <b>Editar</b> no está disponible.")
     b.body("Exportar expedientes")
-    b.numbered("1. <b>Exportar:</b> descarga todos los expedientes en Excel.")
-    b.numbered("2. <b>Exportar [n] seleccionados:</b> descarga solo los expedientes marcados.")
+    b.numbered("1. Marque con las casillas los expedientes que desea exportar.")
+    b.numbered("2. Presione <b>Exportar [n] seleccionados</b>: el sistema descarga el archivo Excel con los expedientes marcados.")
 
     emit(b, PROFILE)
 
@@ -549,8 +546,7 @@ def manual_medico(out_dir, version="1.0"):
         ["Editar expedientes de otros médicos", "Solo su propio creador", "La opción Editar no está disponible."],
         ["Eliminar expedientes", "Dirección y Dirección Médica", "El botón no está disponible."],
         ["Cambiar el estatus de cirugía de un expediente", "Dirección y Dirección Médica", "El sistema rechaza el cambio."],
-        ["Administrar especialidades y localidades", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
-        ["Importar expedientes desde Excel", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
+        ["Administrar especialidades y localidades", "Solo Administrador", "Los botones no están disponibles."],
         ["Cambiar contraseñas de otros usuarios", "Solo Administrador", "Mensaje \"No tienes acceso\"."],
     ], [5.6 * cm, 4.4 * cm, 5.0 * cm])
     b.spacer(0.3)
@@ -615,7 +611,7 @@ def acuerdo_marco(out_dir, version="1.0"):
     b.body("1.2 Desarrollador: TurtleLite, persona natural, representado por Amed Enmanuel Canales Mejía, portador(a) de identidad 0318-2008-01133.")
 
     b.h2("Artículo 2. Objeto")
-    b.body("2.1 El Desarrollador ha construido y entregado el Sistema Web de Gestión de Expedientes Médicos (sitio web, aplicación de backend, base de datos y documentación), que registra y administra expedientes de pacientes con un número de expediente en formato numérico registrado manualmente por el personal; si se ingresa un número ya existente, el sistema lo conserva como copia identificada (ej.: 23455 (1)) previa confirmación; asigna criticidad clínica (Baja, Media o Alta); desglosa el domicilio por departamento, municipio y localidad (Aldea, Barrio, Colonia o Caserío); busca sin distinción de mayúsculas ni tildes; genera reportes exportables a Excel con reordenamiento de la columna No fija; y controla los listados diarios de cirugías y el estatus quirúrgico con observaciones.")
+    b.body("2.1 El Desarrollador ha construido y entregado el Sistema Web de Gestión de Expedientes Médicos (sitio web, aplicación de backend, base de datos y documentación), que registra y administra expedientes de pacientes con un número de expediente en formato numérico registrado manualmente por el personal; si se ingresa un número ya existente, el sistema lo conserva como copia identificada (ej.: 23455 (1)) previa confirmación; asigna criticidad clínica (Baja, Media o Alta); desglosa el domicilio por departamento, municipio y localidad (Aldea, Barrio, Colonia o Caserío); busca sin distinción de mayúsculas ni tildes; genera reportes exportables a Excel con reordenamiento de filas (la columna No se actualiza automáticamente según la nueva posición); y controla los listados diarios de cirugías y el estatus quirúrgico con observaciones.")
     b.body("2.2 El sistema administra usuarios con roles de acceso (Administrador, Dirección, Dirección Médica y Médico): el Administrador gestiona usuarios, sesiones, auditoría, especialidades y localidades, incluida la creación de nuevas especialidades y localidades desde la gestión de los expedientes (botones \"Nueva especialidad\" y \"Nueva localidad\", con indicación del tipo de localidad), que quedan disponibles de inmediato en los formularios del sistema, y únicamente consulta expedientes; la Dirección y la Dirección Médica gestionan expedientes, reportes, listados diarios de cirugías y el estatus quirúrgico; el Médico registra expedientes, edita únicamente los que él mismo creó, y puede visualizar y exportar expedientes. El menú y las secciones del sistema se muestran de forma uniforme a todos los usuarios; la autorización para cada función está controlada por el rol del usuario, de modo que el sistema valida el permiso al momento de acceder y, si el usuario no lo tiene, muestra el aviso de acceso no autorizado e impide abrir la función o sección correspondiente.")
 
     b.h2("Artículo 3. Titularidad del software")

@@ -1,6 +1,6 @@
-# SISTEMA DE EXPEDIENTES SBJ
+# Sistema Web de Gestión de Expedientes Médicos — Centro Médico San Benito José
 
-Aplicación web para gestión de usuarios con roles, listas personalizables desde Excel, y reportes exportables a Excel/PDF.
+Aplicación web para el registro y administración de expedientes de pacientes del Centro Médico San Benito José: expedientes con número manual y control de copias, criticidad clínica, domicilio desglosado por departamento/municipio/localidad, búsqueda sin distinción de tildes, reportes exportables a Excel, listado diario de cirugías y estatus quirúrgico, todo controlado por roles y con auditoría completa.
 
 ## Requisitos de Infraestructura
 
@@ -16,13 +16,95 @@ Aplicación web para gestión de usuarios con roles, listas personalizables desd
 
 | Componente | Tecnología | Licencia |
 |------------|-----------|----------|
-| Frontend | React + Vite + TypeScript | MIT |
-| Estilos | Tailwind CSS | MIT |
+| Frontend | React 18 + Vite 5 + TypeScript | MIT |
+| Navegación e iconos | React Router 6 + lucide-react | MIT |
+| Estilos | Tailwind CSS 3 | MIT |
+| Cliente HTTP | Axios | MIT |
 | Backend | Python + FastAPI | MIT |
+| ORM | SQLAlchemy | MIT |
 | Base de Datos | CockroachDB (CockroachLabs Cloud) | BSL (gratuito en la nube) |
-| PDF | ReportLab | BSD |
+| Autenticación | JWT (python-jose) + passlib/bcrypt | MIT/BSD |
 | Excel | openpyxl | MIT |
-| Autenticación | JWT | MIT |
+| PDF (manuales) | ReportLab | BSD |
+
+## Funcionalidades principales
+
+- **Expedientes médicos:** registro con número de expediente **numérico escrito manualmente**; si el número ya existe, se guarda como copia identificada (ej.: `23455 (1)`) previa confirmación de que es una nueva intervención del paciente.
+- **Criticidad clínica** (Baja, Media o Alta) y **domicilio desglosado** por departamento, municipio y localidad (Aldea, Barrio, Colonia o Caserío).
+- **Búsqueda automática sin distinción de mayúsculas ni tildes** en nombre, apellido, identidad, número de expediente, diagnóstico, especialidad y perfil; lista paginada de 50 en 50.
+- **Reportes** en Excel (`REPORTE_<nombre>.xlsx`) con filtros por especialidad, perfil, criticidad y estatus, vista previa con reordenamiento de filas por arrastre (la columna No se renumera según el orden) y la columna "Observación" solo en reportes.
+- **Listado Diario de Cirugías:** armado por fecha, filtro por estatus, reordenamiento por arrastre dentro de cada especialidad y exportación a Excel (`LISTADO_fecha.xlsx`).
+- **Estatus quirúrgico** con 7 estados (En espera, Reprogramar, Cancelado, Fuera de perfil San Benito, Operado, No apto para cirugía, No se presentó) y observaciones que quedan en el expediente.
+- **Administración:** gestión de usuarios, sesiones activas (cerrar remotamente), auditoría de actividades y catálogos de especialidades y localidades (solo Administrador).
+- **Menú uniforme para todos los usuarios:** las secciones se ven igual para todos y el sistema valida el permiso por rol al seleccionarlas (mensaje "No tienes acceso").
+
+## Roles y Permisos
+
+Cuatro roles: **Administrador**, **Dirección**, **Dirección Médica** y **Médico**.
+
+| Función | Administrador | Dirección | Dirección Médica | Médico |
+|---------|:---:|:---:|:---:|:---:|
+| Consultar expedientes | Sí | Sí | Sí | Sí |
+| Crear expedientes | No | Sí | Sí | Sí |
+| Editar expedientes propios | No | Sí | Sí | Sí |
+| Editar expedientes de otros | No | Sí | Sí | No |
+| Eliminar expedientes | No | Sí | Sí | No |
+| Exportar expedientes a Excel | No | Sí | Sí | Sí |
+| Vista previa del expediente | Sí | Sí | Sí | Sí |
+| Reportes (crear, generar, descargar, eliminar) | No | Sí | Sí | No |
+| Listado diario de cirugías (armar y guardar) | No | Sí | Sí | No |
+| Estatus de cirugía (asignar y cambiar) | No | Sí | Sí | No |
+| Usuarios (crear, editar, eliminar, desbloquear, restablecer) | Sí | No | No | No |
+| Sesiones (ver y cerrar) | Sí | No | No | No |
+| Auditoría (historial de actividades) | Sí | No | No | No |
+| Especialidades y localidades (crear, editar, eliminar) | Sí | No | No | No |
+| Mi Perfil (datos y contraseña) | Sí | Sí | Sí | Sí |
+
+El Administrador **no crea, edita, elimina ni exporta expedientes**; únicamente los consulta y administra la seguridad del sistema. El Médico crea expedientes y **solo edita los que él mismo creó** (no puede eliminarlos ni cambiar el estatus de cirugía).
+
+## Usuarios por defecto
+
+Creados por `python run_seed.py`:
+
+| Usuario | Contraseña | Rol |
+|---------|-----------|-----|
+| admin | admin123 | Administrador |
+| direccion | direccion123 | Dirección |
+| direccionmedica | direccionmedica123 | Dirección Médica |
+| medico | medico123 | Médico |
+
+## Estructura del Proyecto
+
+```
+SISTEMA-WEB-EXPEDIENTES-CMSBJ/
+├── backend/
+│   ├── app/
+│   │   ├── api/          # Endpoints REST (auth, users, lists, reports, day_lists, specialties, localities, audit)
+│   │   ├── core/         # Config, DB, seguridad (JWT)
+│   │   ├── models/       # Modelos SQLAlchemy
+│   │   ├── schemas/      # Schemas Pydantic
+│   │   ├── services/     # Lógica de negocio (auth, usuarios, expedientes, auditoría)
+│   │   └── main.py       # Punto de entrada (CORS, HTTPS, cabeceras de seguridad, /health)
+│   ├── exports/          # Excel de expedientes exportados
+│   ├── reports/          # Reportes generados
+│   ├── backups/          # Respaldos de la base de datos (.sql.gz, en .gitignore)
+│   ├── generate_docs.py  # Genera los manuales de usuario y el Acuerdo Marco (PDF)
+│   ├── backup_db.py      # Respaldo diario de la base de datos
+│   ├── run_seed.py       # Crea los usuarios por defecto
+│   └── requirements.txt
+├── frontend/
+│   ├── src/
+│   │   ├── components/   # Componentes reutilizables (Layout, ExpedienteForm, etc.)
+│   │   ├── contexts/     # Contextos (Auth, Notificaciones)
+│   │   ├── pages/        # Páginas (Login, Dashboard, ListDetail, Reports, DayList, EstadoCirugia, Users, Sessions, AuditLog, Profile)
+│   │   ├── services/     # Cliente de API
+│   │   ├── types/        # Tipos TypeScript
+│   │   ├── utils/        # Utilidades (formato de teléfono, normalización de texto)
+│   │   └── constants.ts  # Constantes (roles, tipos de localidad, departamentos)
+│   └── package.json
+├── docs_v17/             # Manuales de usuario y Acuerdo Marco (PDF)
+└── .github/workflows/    # Keep-alive del backend en Render
+```
 
 ## Instalación y Ejecución (desarrollo local)
 
@@ -53,53 +135,6 @@ npm run dev
 - Backend API: http://localhost:8000
 - Documentación API: http://localhost:8000/docs
 
-## Usuarios por defecto
-
-| Usuario | Contraseña | Rol | Permisos |
-|---------|-----------|-----|----------|
-| admin | admin123 | Administrador | CRUD usuarios, listas, reportes |
-| direccion | direccion123 | Dirección | Ver usuarios, CRUD listas, reportes |
-| medico | medico123 | Médico | Solo ver listas y registros |
-
-## Estructura del Proyecto
-
-```
-gestion-app/
-├── backend/
-│   ├── app/
-│   │   ├── api/          # Endpoints REST
-│   │   ├── core/         # Config, DB, seguridad
-│   │   ├── models/       # Modelos SQLAlchemy
-│   │   ├── schemas/      # Schemas Pydantic
-│   │   ├── services/     # Lógica de negocio
-│   │   └── main.py       # Punto de entrada
-│   ├── uploads/          # Archivos Excel importados
-│   ├── reports/          # Reportes generados
-│   └── requirements.txt
-└── frontend/
-    ├── src/
-    │   ├── components/   # Componentes reutilizables
-    │   ├── contexts/     # Contextos (Auth)
-    │   ├── pages/        # Páginas
-    │   ├── services/     # API client
-    │   └── types/        # TypeScript types
-    └── package.json
-```
-
-## Permisos por Rol
-
-| Funcionalidad | Admin | Dirección | Dir. Médica | Médico |
-|---------------|-------|-----------|-------------|--------|
-| Gestionar usuarios | ✅ CRUD | ✅ Solo ver | ❌ | ❌ |
-| Crear/editar/borrar listas | ✅ | ❌ | ❌ | ❌ |
-| Importar Excel | ✅ | ❌ | ❌ | ❌ |
-| Ver listas y registros | ✅ | ✅ | ✅ | ✅ |
-| Crear expedientes | ✅ | ❌ | ✅ | ✅ |
-| Editar expedientes | ✅ | ❌ (solo estatus de cirugía) | ✅ | ✅ (solo propios) |
-| Crear reportes | ✅ | ✅ | ✅ | ❌ |
-| Generar Excel/PDF | ✅ | ✅ | ✅ | ❌ |
-| Descargar reportes | ✅ | ✅ | ✅ | ✅ |
-
 ## Despliegue (100% en la nube)
 
 ### 1. Base de Datos (CockroachDB en CockroachLabs Cloud)
@@ -123,8 +158,8 @@ La base de datos está alojada en la nube de **CockroachLabs** (SQL distribuido,
    - **Start Command:** `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
 5. Agrega variables de entorno:
    - `DATABASE_URL` → la URL de CockroachLabs (formato `cockroachdb://...`)
-   - `SECRET_KEY` → una clave secreta aleatoria
-6. Deploy. La API quedará en `https://<tu-servicio>.onrender.com` (docs en `/docs`)
+   - `SECRET_KEY` → una clave secreta aleatoria (mínimo 32 caracteres)
+6. Deploy. La API quedará en `https://<tu-servicio>.onrender.com` (docs en `/docs`, salud en `/health`)
 
 ### 3. Frontend (Render — Static Site)
 
@@ -138,6 +173,10 @@ La base de datos está alojada en la nube de **CockroachLabs** (SQL distribuido,
    - `VITE_API_URL` → `https://<tu-servicio-backend>.onrender.com`
 5. Deploy. El sitio queda en `https://<tu-sitio>.onrender.com`
 
+### Mantener el backend despierto
+
+El workflow `.github/workflows/keep-alive.yml` hace ping a `https://expedientes-api-2dje.onrender.com/health` cada 10 minutos para evitar que el servicio gratuito de Render se duerma.
+
 ### URLs actuales del sistema
 
 | Servicio | URL |
@@ -145,16 +184,26 @@ La base de datos está alojada en la nube de **CockroachLabs** (SQL distribuido,
 | Frontend | https://sistema-web-expedientes-cmsbj.onrender.com |
 | Backend API | https://expedientes-api-2dje.onrender.com |
 | Docs API | https://expedientes-api-2dje.onrender.com/docs |
+| Health | https://expedientes-api-2dje.onrender.com/health |
 
 > **Nota:** el backend acepta peticiones CORS solo desde los orígenes listados en `ALLOWED_ORIGINS` (backend/app/main.py). Si cambias la URL del frontend o del backend, actualízala allí.
 
-### Usuarios por defecto
+## Documentación de usuario
 
-| Usuario | Contraseña | Rol |
-|---------|-----------|-----|
-| admin | admin123 | Administrador |
-| direccion | direccion123 | Dirección |
-| medico | medico123 | Médico |
+Los manuales de usuario por rol y el Acuerdo Marco se generan con `backend/generate_docs.py` y quedan en `docs_v17/`:
+
+```bash
+cd backend
+pip install reportlab
+python generate_docs.py --out ../docs_v17
+```
+
+| Documento | Descripción |
+|-----------|-------------|
+| `Manual_Usuario_Direccion.pdf` | Manual del rol Dirección |
+| `Manual_Usuario_Direccion_Medica.pdf` | Manual del rol Dirección Médica |
+| `Manual_Usuario_Medico.pdf` | Manual del rol Médico |
+| `Acuerdo_Marco_Sistema_Expedientes_SBJ.pdf` | Contrato de desarrollo, titularidad y Anexo de Protección de Datos Personales de Salud |
 
 ## Respaldo de la base de datos (Art. 15 del Acuerdo Marco)
 
@@ -166,14 +215,14 @@ python backup_db.py              # respaldo completo comprimido
 python backup_db.py --keep 14    # conservar los últimos 14 respaldos (default: 7)
 ```
 
-- **Salida:** `backend/backups/backup_YYYYMMDD_HHMMSS.sql.gz` (esquema + datos de las 5 tablas, con `BEGIN;...COMMIT;`).
+- **Salida:** `backend/backups/backup_YYYYMMDD_HHMMSS.sql.gz` (esquema + datos de todas las tablas, con `BEGIN;...COMMIT;`).
 - **Conexión:** lee `DATABASE_URL` de la variable de entorno o de `backend/.env`.
 - **Retención:** elimina automáticamente los respaldos más antiguos que los `--keep` últimos.
 - **Restaurar** (por ejemplo en un cluster nuevo):
 
   ```bash
   gunzip -k backups/backup_20260101_000000.sql.gz
-  psql "cockroachdb://usuario:password@host:26257/defaultdb" -f backups/backup_20260101_000000.sql
+  psql "$DATABASE_URL" -f backups/backup_20260101_000000.sql
   ```
 
 ### Programar el respaldo diario
@@ -199,6 +248,7 @@ python backup_db.py --keep 14    # conservar los últimos 14 respaldos (default:
 - **Límite de intentos por IP:** máximo 20 intentos de inicio de sesión fallidos por IP en 15 minutos; se responde `429`.
 - **Control de sesiones:** cada inicio de sesión crea una sesión rastreable (IP, navegador, dispositivo). Desde **Seguridad → Sesiones** se pueden ver todas las sesiones activas y cerrarlas remotamente. El cierre de sesión revoca el token de inmediato.
 - **Registro de auditoría:** **Seguridad → Auditoría** muestra quién creó, modificó, exportó o descargó expedientes, reportes, listados y usuarios, con fecha, acción, detalle e IP.
+- **Permisos por rol:** el menú es uniforme para todos los usuarios; el sistema valida el permiso de la sección al seleccionarla y muestra "No tienes acceso" si el rol no está autorizado.
 
 ### Configuración requerida en producción
 
