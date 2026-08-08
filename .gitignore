@@ -11,5 +11,6 @@ uploads/
 reports/
 *.xlsx
 *.pdf
+!docs_v17/*.pdf
 gestion.db
 backups/
