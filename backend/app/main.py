@@ -23,6 +23,8 @@ if not settings.SECRET_KEY or len(settings.SECRET_KEY) < 32 or settings.SECRET_K
 ALLOWED_ORIGINS = [
     "https://sistema-web-expedientes-cmsbj.onrender.com",
     "https://expedientes-api-2dje.onrender.com",
+    "https://expedientes-sbj.is-a.dev",
+    "https://turtlelite.github.io",
     "http://localhost:5173",
     "http://localhost:8000",
 ]

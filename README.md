@@ -150,18 +150,15 @@ La base de datos está alojada en la nube de **CockroachLabs** (SQL distribuido,
 
 ### URL sin "onrender" (dominio propio gratis)
 
-Render **no permite dominios personalizados en el plan gratuito** (es una función de pago). Para tener una URL limpia sin costo, el frontend se mueve a un host gratuito que sí acepta dominios personalizados:
+Render **no permite dominios personalizados en el plan gratuito** (es una función de pago). La vía gratuita elegida es **GitHub Pages + subdominio is-a.dev**, sin crear cuentas nuevas:
 
-1. **Consigue un subdominio gratis** (los dominios `.com`/`.hn` ya son de pago):
-   - `tu-nombre.is-a.dev` — gratis, se solicita con un PR en https://github.com/is-a-dev/is-a-dev
-   - `tu-nombre.eu.org` — gratis, registro en https://nic.eu.org
-2. **Despliega el frontend en Cloudflare Pages o Netlify** (el repo ya incluye `netlify.toml` y `public/_redirects`):
-   - **Cloudflare Pages:** conecta el repo → Build: `npm run build` → Output: `dist`. Luego agrega el subdominio en *Custom domains* (HTTPS automático).
-   - **Netlify:** conecta el repo → Build: `npm run build` → Publish: `dist`. Luego *Domain settings → Add a domain* con el subdominio.
-   - Configura la variable `VITE_API_URL` = `https://expedientes-api-2dje.onrender.com` (el backend se queda en Render).
-3. **Agrega la nueva URL** a `ALLOWED_ORIGINS` en `backend/app/main.py` (o usa la variable de entorno `ALLOWED_ORIGINS` del backend en Render) para que el CORS acepte el frontend nuevo.
+1. **Subdominio gratis:** `expedientes-sbj.is-a.dev` se solicita con un PR en https://github.com/is-a-dev/register (archivo `domains/expedientes-sbj.json` con `CNAME` → `turtlelite.github.io`). Al aprobarse, el DNS queda publicado por is-a.dev.
+2. **Frontend en GitHub Pages:** el workflow `.github/workflows/deploy-pages.yml` compila el frontend (con `VITE_API_URL` = backend de Render) y lo despliega automáticamente en cada push a `main`. El sitio vive en https://expedientes-sbj.is-a.dev (GitHub maneja el HTTPS).
+3. **Backend:** el dominio nuevo ya está en `ALLOWED_ORIGINS` de `backend/app/main.py`. El backend se queda en Render (los usuarios solo usan la URL del frontend).
 
-> El backend (API) no necesita dominio propio: los usuarios solo usan la URL del frontend. Si quieres limpiar también la API, esa URL debe quedar en `VITE_API_URL` del frontend.
+> **Estado:** el PR a is-a.dev debe ser aprobado por sus mantenedores (puede tardar unos días). Mientras tanto, el sitio está disponible en la URL provisional `https://turtlelite.github.io/APP-EXPEDIENTES-SBJ-BRIGADAS/`.
+>
+> Alternativas equivalentes (si se prefiere otro host gratuito con dominio propio): el repo incluye `netlify.toml` y `frontend/public/_redirects` listos para Netlify/Cloudflare Pages, y `ALLOWED_ORIGINS` ya acepta esas URLs de despliegue.
 
 ### Usuarios por defecto
 
