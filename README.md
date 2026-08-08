@@ -116,7 +116,7 @@ La base de datos está alojada en la nube de **CockroachLabs** (SQL distribuido,
 
 1. Crea cuenta en https://render.com (con GitHub)
 2. New + → **Web Service**
-3. Conecta el repositorio `APP-EXPEDIENTES-SBJ-BRIGADAS`
+3. Conecta el repositorio `SISTEMA-WEB-EXPEDIENTES-CMSBJ`
 4. Configura:
    - **Root Directory:** `backend`
    - **Build Command:** `pip install -r requirements.txt`
@@ -129,7 +129,7 @@ La base de datos está alojada en la nube de **CockroachLabs** (SQL distribuido,
 ### 3. Frontend (Render — Static Site)
 
 1. New + → **Static Site**
-2. Conecta el repositorio `APP-EXPEDIENTES-SBJ-BRIGADAS`
+2. Conecta el repositorio `SISTEMA-WEB-EXPEDIENTES-CMSBJ`
 3. Configura:
    - **Root Directory:** `frontend`
    - **Build Command:** `npm install && npm run build`
@@ -157,7 +157,7 @@ Render **no permite dominios personalizados en el plan gratuito** (es una funci�
 3. **Activación automática:** el workflow `.github/workflows/activate-domain.yml` revisa cada 6 horas el DNS del subdominio; cuando is-a.dev publique el registro, agrega el `CNAME` y el sitio queda servido en https://sistema-web-expedientes-cmsbj.is-a.dev sin intervención manual.
 4. **Backend:** el dominio nuevo ya está en `ALLOWED_ORIGINS` de `backend/app/main.py`. El backend se queda en Render (los usuarios solo usan la URL del frontend).
 
-> **Estado actual:** el PR a is-a.dev (#46543) está aprobado por su CI, pendiente de revisión manual de los mantenedores (puede tardar horas o días). Mientras tanto, el sitio funciona en la URL provisional **https://turtlelite.github.io/APP-EXPEDIENTES-SBJ-BRIGADAS/**. Al aprobarse, la URL final será **https://sistema-web-expedientes-cmsbj.is-a.dev** (el mismo nombre del sistema actual, sin "onrender").
+> **Estado actual:** el PR a is-a.dev (#46543) está aprobado por su CI, pendiente de revisión manual de los mantenedores (puede tardar horas o días). Mientras tanto, el sitio funciona en la URL provisional **https://turtlelite.github.io/SISTEMA-WEB-EXPEDIENTES-CMSBJ/**. Al aprobarse, la URL final será **https://sistema-web-expedientes-cmsbj.is-a.dev** (el mismo nombre del sistema actual, sin "onrender").
 >
 > Alternativas equivalentes (si se prefiere otro host gratuito con dominio propio): el repo incluye `netlify.toml` y `frontend/public/_redirects` listos para Netlify/Cloudflare Pages, y `ALLOWED_ORIGINS` ya acepta esas URLs de despliegue.
 
@@ -194,12 +194,12 @@ python backup_db.py --keep 14    # conservar los últimos 14 respaldos (default:
 **Windows (Task Scheduler):**
 1. `Win+R` → `taskschd.msc` → Crear tarea básica.
 2. Nombre: `Respaldo SBJ` → Diaria → hora deseada (ej. 03:00).
-3. Acción: Iniciar programa → `python.exe` (el de `backend\venv\Scripts\python.exe`) con argumentos `"C:\ruta\APP-EXPEDIENTES-SBJ-BRIGADAS\backend\backup_db.py"` y "Iniciar en" el directorio `backend`.
+3. Acción: Iniciar programa → `python.exe` (el de `backend\venv\Scripts\python.exe`) con argumentos `"C:\ruta\SISTEMA-WEB-EXPEDIENTES-CMSBJ\backend\backup_db.py"` y "Iniciar en" el directorio `backend`.
 
 **Linux/Render (cron):**
 
 ```cron
-0 3 * * * cd /ruta/APP-EXPEDIENTES-SBJ-BRIGADAS/backend && python3 backup_db.py
+0 3 * * * cd /ruta/SISTEMA-WEB-EXPEDIENTES-CMSBJ/backend && python3 backup_db.py
 ```
 
 > **Nota:** `backups/` está en `.gitignore`; los respaldos contienen datos de pacientes y no deben subirse al repositorio. Para protección adicional, copia el respaldo diario a un almacenamiento externo (Google Drive, OneDrive, disco USB, etc.).
