@@ -11,6 +11,16 @@ import { areSimilarNames, normalizeText, shortName } from '../utils/format'
 import { TIPO_LOCALIDAD_OPTIONS } from '../constants'
 
 const RECORD_COLUMNS = ['nombre', 'edad', 'diagnostico', 'perfil', 'domicilio', 'telefono', 'albergue', 'nombre_medico']
+const COLUMN_WIDTHS: Record<string, string> = {
+  nombre: 'w-[16%]',
+  edad: 'w-[7%]',
+  diagnostico: 'w-[19%]',
+  perfil: 'w-[11%]',
+  domicilio: 'w-[17%]',
+  telefono: 'w-[11%]',
+  albergue: 'w-[9%]',
+  nombre_medico: 'w-[10%]',
+}
 const PAGE_SIZE = 50
 
 interface Specialty {
@@ -553,7 +563,7 @@ export function ListDetail() {
         </div>
 
         <div ref={scrollRef} onScroll={handleScroll} className="flex-1 min-h-0 overflow-y-auto">
-          <table className="w-full">
+          <table className="w-full table-fixed">
             <thead className="sticky top-0 z-10">
               <tr className="bg-slate-100 border-b border-[#E3E6EB]">
                 {list?.is_system && (
@@ -566,7 +576,7 @@ export function ListDetail() {
                   </th>
                 )}
                 {list?.columns_config.filter(c => RECORD_COLUMNS.includes(c.key)).map((col) => (
-                  <th key={col.key} className="text-left px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                  <th key={col.key} className={`text-left px-3 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider ${COLUMN_WIDTHS[col.key] || ''}`}>
                     {col.label}
                   </th>
                 ))}
@@ -586,7 +596,7 @@ export function ListDetail() {
                     <td
                       key={col.key}
                       title={String(col.key === 'domicilio' ? domicilioPreview(record.data) : (record.data[col.key] ?? ''))}
-                      className={`px-6 py-4 text-sm text-slate-700 ${['nombre', 'diagnostico', 'domicilio', 'nombre_medico'].includes(col.key) ? 'max-w-[220px] truncate' : ''}`}
+                      className={`px-3 py-4 text-sm text-slate-700 truncate ${COLUMN_WIDTHS[col.key] || ''}`}
                     >
                       {col.key === 'telefono'
                         ? [record.data.telefono, record.data.telefono2, record.data.telefono3]
