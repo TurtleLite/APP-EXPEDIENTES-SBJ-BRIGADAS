@@ -15,11 +15,11 @@ const COLUMN_WIDTHS: Record<string, string> = {
   nombre: 'w-[16%]',
   edad: 'w-[7%]',
   diagnostico: 'w-[19%]',
-  perfil: 'w-[11%]',
+  perfil: 'w-[8%]',
   domicilio: 'w-[17%]',
   telefono: 'w-[11%]',
   albergue: 'w-[9%]',
-  nombre_medico: 'w-[10%]',
+  nombre_medico: 'w-[13%]',
 }
 const PAGE_SIZE = 50
 
