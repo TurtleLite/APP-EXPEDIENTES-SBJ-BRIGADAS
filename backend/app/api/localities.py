@@ -9,7 +9,7 @@ from app.models.catalog_item import CatalogItem
 from app.models.user import User
 from app.services.auth_service import require_role
 
-TIPO_LOCALIDAD_OPTIONS = ["Aldea", "Barrio", "Colonia", "Caserio"]
+TIPO_LOCALIDAD_OPTIONS = ["Aldea", "Barrio", "Colonia", "Caserío"]
 
 router = APIRouter(prefix="/localities", tags=["Localidades"])
 

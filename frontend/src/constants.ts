@@ -49,7 +49,7 @@ export const ROLE_META: Record<string, RoleMeta> = {
 
 export const roleLabel = (role?: string) => ROLE_META[role || '']?.label || 'Usuario'
 
-export const TIPO_LOCALIDAD_OPTIONS = ['Aldea', 'Barrio', 'Colonia', 'Caserio']
+export const TIPO_LOCALIDAD_OPTIONS = ['Aldea', 'Barrio', 'Colonia', 'Caserío']
 
 export const HONDURAS_DEPARTAMENTOS: Record<string, string[]> = {
   'Atlántida': ['La Ceiba', 'El Porvenir', 'Tela', 'Jutiapa', 'Esparta', 'Arizona', 'San Francisco'],

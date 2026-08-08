@@ -294,7 +294,7 @@ export function Reports() {
                 className="flex items-center gap-1 px-3 py-1.5 bg-slate-100 text-slate-600 rounded-xl text-xs font-medium hover:bg-slate-100 border border-[#E3E6EB] transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 <FileSpreadsheet size={14} />
-                Gen. Excel
+                Generar Excel
               </button>
               {report.file_path_excel && (
                 <button
@@ -302,7 +302,7 @@ export function Reports() {
                   className="flex items-center gap-1 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-xl text-xs font-medium hover:bg-emerald-100 border border-emerald-200 transition-all duration-200 hover:scale-105 active:scale-95"
                 >
                   <Download size={14} />
-                  Excel
+                  Descargar
                 </button>
               )}
             </div>
