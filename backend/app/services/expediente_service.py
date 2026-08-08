@@ -1,8 +1,10 @@
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side, Color
 from openpyxl.worksheet.properties import PageSetupProperties
+from openpyxl.utils import get_column_letter
 from sqlalchemy.orm import Session
 import datetime
+import math
 from app.models.list_definition import ListDefinition, ListRecord
 from app.schemas.list_definition import ListDefinitionCreate
 
@@ -742,6 +744,16 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
             if actual_row <= ws.max_row:
                 ws.row_dimensions[actual_row].height = h
 
+        # Shrink to fit: en celdas combinadas Excel ignora shrink_to_fit, por lo que
+        # se reduce el tamaño de la fuente hasta que el texto quepa en el área combinada.
+        for mr in ws.merged_cells.ranges:
+            c = ws.cell(mr.min_row, mr.min_col)
+            if c.value is not None:
+                base = c.font.size or 10
+                fit = _fit_font_size(ws, mr.min_row, mr.min_col, mr.max_row, mr.max_col, c.value, base)
+                if fit < base:
+                    c.font = Font(name=c.font.name or 'Arial', size=fit, bold=c.font.bold, color=c.font.color)
+
         # Shrink to fit: si el texto no cabe en la celda, se minimiza hasta que quepa
         for row_cells in ws.iter_rows():
             for cell in row_cells:
@@ -790,6 +802,39 @@ def export_expediente_excel(records: list[ListRecord], filepath: str, logo_path:
 
     wb.remove(default_sheet)
     wb.save(filepath)
+
+
+def _fit_font_size(ws, r1, c1, r2, c2, text, base_size):
+    """Calcula el mayor tamaño de fuente (Arial) que permite que `text` quepa dentro
+    del área combinada (r1,c1)-(r2,c2), considerando el ancho de las columnas y la
+    altura de las filas de la hoja."""
+    if not text:
+        return base_size
+
+    total_width = 0.0
+    for cc in range(c1, c2 + 1):
+        w = ws.column_dimensions[get_column_letter(cc)].width
+        total_width += w if w else 8.43
+
+    total_height = 0.0
+    for rr in range(r1, r2 + 1):
+        h = ws.row_dimensions[rr].height
+        total_height += h if h else 15.0
+
+    size = float(base_size)
+    min_size = 5.0
+    while size > min_size:
+        # Caracteres aproximados por línea: ancho total (unidades ~ caracteres) por
+        # proporción de la fuente base (10pt) respecto al tamaño probado.
+        chars_per_line = max(1, int(total_width * (10.0 / size) * 0.92))
+        lines_needed = 0
+        for segment in str(text).split("\n"):
+            lines_needed += max(1, math.ceil(len(segment) / chars_per_line))
+        line_height = size * 1.35  # altura aproximada de línea en puntos
+        if lines_needed * line_height <= total_height:
+            return size
+        size -= 0.5
+    return min_size
 
 
 def _apply_border(ws, row, col, border):
