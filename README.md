@@ -152,12 +152,12 @@ La base de datos está alojada en la nube de **CockroachLabs** (SQL distribuido,
 
 Render **no permite dominios personalizados en el plan gratuito** (es una función de pago). La vía gratuita elegida es **GitHub Pages + subdominio is-a.dev**, sin crear cuentas nuevas:
 
-1. **Subdominio gratis:** `expedientes-sbj.is-a.dev` se solicitó con el PR en https://github.com/is-a-dev/register (archivo `domains/expedientes-sbj.json` con `CNAME` → `turtlelite.github.io`, contactos: GitHub + email real). Al aprobarse, el DNS queda publicado por is-a.dev.
+1. **Subdominio gratis:** `sistema-web-expedientes-cmsbj.is-a.dev` se solicitó con el PR en https://github.com/is-a-dev/register (archivo `domains/sistema-web-expedientes-cmsbj.json` con `CNAME` → `turtlelite.github.io`, contactos: GitHub + email real). Al aprobarse, el DNS queda publicado por is-a.dev.
 2. **Frontend en GitHub Pages:** el workflow `.github/workflows/deploy-pages.yml` compila el frontend (con `VITE_API_URL` = backend de Render) y lo despliega automáticamente en cada push a `main`. GitHub maneja el HTTPS.
-3. **Activación automática:** el workflow `.github/workflows/activate-domain.yml` revisa cada 6 horas el DNS del subdominio; cuando is-a.dev publique el registro, agrega el `CNAME` y el sitio queda servido en https://expedientes-sbj.is-a.dev sin intervención manual.
+3. **Activación automática:** el workflow `.github/workflows/activate-domain.yml` revisa cada 6 horas el DNS del subdominio; cuando is-a.dev publique el registro, agrega el `CNAME` y el sitio queda servido en https://sistema-web-expedientes-cmsbj.is-a.dev sin intervención manual.
 4. **Backend:** el dominio nuevo ya está en `ALLOWED_ORIGINS` de `backend/app/main.py`. El backend se queda en Render (los usuarios solo usan la URL del frontend).
 
-> **Estado actual:** el PR a is-a.dev (#46543) está aprobado por su CI, pendiente de revisión manual de los mantenedores (puede tardar horas o días). Mientras tanto, el sitio funciona en la URL provisional **https://turtlelite.github.io/APP-EXPEDIENTES-SBJ-BRIGADAS/**.
+> **Estado actual:** el PR a is-a.dev (#46543) está aprobado por su CI, pendiente de revisión manual de los mantenedores (puede tardar horas o días). Mientras tanto, el sitio funciona en la URL provisional **https://turtlelite.github.io/APP-EXPEDIENTES-SBJ-BRIGADAS/**. Al aprobarse, la URL final será **https://sistema-web-expedientes-cmsbj.is-a.dev** (el mismo nombre del sistema actual, sin "onrender").
 >
 > Alternativas equivalentes (si se prefiere otro host gratuito con dominio propio): el repo incluye `netlify.toml` y `frontend/public/_redirects` listos para Netlify/Cloudflare Pages, y `ALLOWED_ORIGINS` ya acepta esas URLs de despliegue.
 

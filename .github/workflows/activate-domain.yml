@@ -14,10 +14,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Verificar DNS de expedientes-sbj.is-a.dev
+      - name: Verificar DNS de sistema-web-expedientes-cmsbj.is-a.dev
         id: dns
         run: |
-          RES=$(curl -s "https://dns.google/resolve?name=expedientes-sbj.is-a.dev&type=CNAME" | jq -r '.Answer[0].data // empty')
+          RES=$(curl -s "https://dns.google/resolve?name=sistema-web-expedientes-cmsbj.is-a.dev&type=CNAME" | jq -r '.Answer[0].data // empty')
           NORM=$(echo "$RES" | tr 'A-Z' 'a-z' | sed 's/\.$//')
           if [ "$NORM" = "turtlelite.github.io" ]; then
             echo "dominio_activo=true" >> "$GITHUB_ENV"
@@ -28,9 +28,9 @@ jobs:
       - name: Reagregar CNAME y disparar deploy
         if: env.dominio_activo == 'true' && !hashFiles('frontend/public/CNAME')
         run: |
-          echo "expedientes-sbj.is-a.dev" > frontend/public/CNAME
+          echo "sistema-web-expedientes-cmsbj.is-a.dev" > frontend/public/CNAME
           git config user.name "TurtleLite"
           git config user.email "195402748+TurtleLite@users.noreply.github.com"
           git add frontend/public/CNAME
-          git commit -m "feat: reactivar CNAME de expedientes-sbj.is-a.dev (DNS activo)"
+          git commit -m "feat: reactivar CNAME de sistema-web-expedientes-cmsbj.is-a.dev (DNS activo)"
           git push origin main
